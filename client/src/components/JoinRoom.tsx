@@ -45,6 +45,29 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
           <p className="text-gray-600">Conecte-se facilmente com videochamadas de alta qualidade</p>
         </div>
 
+        {/* Error Display */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+            <div className="flex items-start space-x-3">
+              <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <h3 className="text-sm font-medium text-red-800 mb-1">
+                  Erro ao conectar
+                </h3>
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+              {onClearError && (
+                <button
+                  onClick={onClearError}
+                  className="text-red-400 hover:text-red-600 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Cartão principal */}
         <Card className="shadow-xl border-0">
           <CardHeader className="text-center">
