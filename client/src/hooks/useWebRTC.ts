@@ -48,6 +48,7 @@ export const useWebRTC = (
   const [participantNames, setParticipantNames] = useState<
     Map<string, string>
   >(new Map());
+  const [screenSharingParticipant, setScreenSharingParticipant] = useState<string | null>(null);
 
   useEffect(() => {
     // Conectar ao servidor Socket.IO via proxy do Vite
@@ -141,13 +142,43 @@ export const useWebRTC = (
     // Listen for participant state changes
     socket.on("participant-state-changed", (data) => {
       console.log("Participant state changed:", data);
-      const { participantId, isAudioEnabled, isVideoEnabled } = data;
+      const { participantId, isAudioEnabled, isVideoEnabled, isScreenSharing } = data;
 
       setParticipantStates((prev) => {
         const newStates = new Map(prev);
         newStates.set(participantId, { isAudioEnabled, isVideoEnabled });
         return newStates;
       });
+
+      // Update screen sharing state
+      if (isScreenSharing !== undefined) {
+        setScreenSharingParticipant(isScreenSharing ? participantId : null);
+      }
+    });
+
+    // Listen for screen sharing events
+    socket.on("screen-share-started", (data) => {
+      console.log("Screen sharing started:", data);
+      setScreenSharingParticipant(data.participantId);
+      if (onNotification) {
+        onNotification(
+          "info",
+          "Compartilhamento de Tela",
+          `${data.userName} está compartilhando a tela`
+        );
+      }
+    });
+
+    socket.on("screen-share-stopped", (data) => {
+      console.log("Screen sharing stopped:", data);
+      setScreenSharingParticipant(null);
+      if (onNotification) {
+        onNotification(
+          "info",
+          "Compartilhamento Finalizado",
+          `${data.userName} parou de compartilhar a tela`
+        );
+      }
     });
 
     // Eventos do sistema de aprovação
@@ -871,6 +902,20 @@ export const useWebRTC = (
       }
 
       setCallState((prev) => ({ ...prev, isScreenSharing: false }));
+
+      // Notify server about stopping screen share
+      if (socketRef.current && callState.roomId) {
+        socketRef.current.emit("screen-share-stopped", {
+          roomId: callState.roomId
+        });
+
+        socketRef.current.emit("participant-state-change", {
+          roomId: callState.roomId,
+          isAudioEnabled: callState.isAudioEnabled,
+          isVideoEnabled: callState.isVideoEnabled,
+          isScreenSharing: false,
+        });
+      }
     }
   }, [callState.isScreenSharing, checkScreenShareSupport]);
 
