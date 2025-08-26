@@ -206,7 +206,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col">
       {/* Scrollable main content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-4 pb-28">
+        <div className="p-4 pb-32">
           {/* Header */}
           <div className="max-w-6xl mx-auto mb-6">
             <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
