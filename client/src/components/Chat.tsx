@@ -50,10 +50,18 @@ export const Chat: React.FC<ChatProps> = ({
     scrollToBottom();
   }, [messages]);
 
-  // Reset quando entrar em nova sala
+  // Reset quando entrar em nova sala e adicionar mensagem de boas-vindas
   useEffect(() => {
     if (roomId) {
-      setMessages([]);
+      setMessages([
+        {
+          message: "Bem-vindo ao chat! Você pode conversar com outros participantes aqui.",
+          sender: "system",
+          userName: "Sistema",
+          timestamp: new Date(),
+          roomId: roomId,
+        }
+      ]);
       setUnreadCount(0);
     }
   }, [roomId]);
@@ -239,15 +247,37 @@ export const Chat: React.FC<ChatProps> = ({
         {/* Messages Area */}
         <div className="flex-1 flex flex-col min-h-0 mt-2">
           <div className="flex-1 overflow-y-auto space-y-3 pr-2">
-            {messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-gray-500 text-center">
-                <Smile className="w-8 h-8 mb-2" />
-                <p className="text-sm">Nenhuma mensagem ainda</p>
-                <p className="text-xs">Seja o primeiro a conversar!</p>
+            {messages.length === 0 || (messages.length === 1 && messages[0].sender === "system") ? (
+              <div className="flex flex-col items-center justify-center h-full text-gray-500 text-center p-4">
+                <div className="bg-blue-50 rounded-full p-3 mb-3">
+                  <MessageCircle className="w-8 h-8 text-blue-500" />
+                </div>
+                <p className="text-sm font-medium text-gray-700 mb-1">
+                  Chat da Videochamada
+                </p>
+                <p className="text-xs text-gray-500 mb-2">
+                  Converse com os participantes da sala!
+                </p>
                 {!socket?.connected && (
-                  <p className="text-xs text-red-500 mt-2">
-                    Aguardando conexão...
-                  </p>
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2 mt-2">
+                    <p className="text-xs text-yellow-700">
+                      🔄 Conectando ao servidor...
+                    </p>
+                  </div>
+                )}
+                {socket?.connected && participantCount === 1 && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 mt-2">
+                    <p className="text-xs text-blue-700">
+                      👋 Aguardando outros participantes entrarem...
+                    </p>
+                  </div>
+                )}
+                {socket?.connected && participantCount > 1 && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-2 mt-2">
+                    <p className="text-xs text-green-700">
+                      ✨ {participantCount} participantes conectados. Comece a conversar!
+                    </p>
+                  </div>
                 )}
               </div>
             ) : (
@@ -265,8 +295,18 @@ export const Chat: React.FC<ChatProps> = ({
                 if (isSystem) {
                   return (
                     <div key={index} className="flex justify-center">
-                      <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 max-w-[80%]">
-                        <p className="text-xs text-red-700 text-center">
+                      <div className={cn(
+                        "rounded-lg px-3 py-2 max-w-[80%]",
+                        msg.message.includes("Erro")
+                          ? "bg-red-50 border border-red-200"
+                          : "bg-blue-50 border border-blue-200"
+                      )}>
+                        <p className={cn(
+                          "text-xs text-center",
+                          msg.message.includes("Erro")
+                            ? "text-red-700"
+                            : "text-blue-700"
+                        )}>
                           {msg.message}
                         </p>
                       </div>
