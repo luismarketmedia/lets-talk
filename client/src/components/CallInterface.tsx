@@ -196,7 +196,10 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                   <Copy className="w-4 h-4" />
                 )}
                 <span className="hidden sm:inline">
-                  {copied ? "Copiado!" : "Copiar código"}
+                  {copied ?
+                    (copyMethod === 'manual' ? "Use Ctrl+C" :
+                     copyMethod === 'fallback' ? "Copiado!" : "Copiado!") :
+                    "Copiar código"}
                 </span>
               </Button>
             </div>
