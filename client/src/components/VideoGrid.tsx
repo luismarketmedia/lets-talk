@@ -52,10 +52,13 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
     };
 
     const getVideoHeight = () => {
-      if (totalParticipants === 1) return "h-[400px] lg:h-[500px]";
-      if (totalParticipants === 2) return "h-[300px] lg:h-[400px]";
-      if (totalParticipants <= 4) return "h-[200px] lg:h-[300px]";
-      return "h-[150px] lg:h-[200px]";
+      if (totalParticipants === 1) return "h-[50vh] lg:h-[60vh] max-h-[500px]";
+      if (totalParticipants === 2) return "h-[40vh] lg:h-[45vh] max-h-[400px]";
+      if (totalParticipants === 3) return "h-[30vh] lg:h-[35vh] max-h-[350px]";
+      if (totalParticipants === 4) return "h-[25vh] lg:h-[30vh] max-h-[300px]";
+      if (totalParticipants <= 6) return "h-[22vh] lg:h-[25vh] max-h-[250px]";
+      if (totalParticipants <= 9) return "h-[18vh] lg:h-[20vh] max-h-[200px]";
+      return "h-[15vh] lg:h-[18vh] max-h-[180px]";
     };
 
     return (
@@ -134,7 +137,7 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
       mainParticipant = {
         id: screenSharingParticipant,
         stream: remoteStreams.get(screenSharingParticipant) || null,
-        name: `🖥�� ${participantNames.get(screenSharingParticipant) || "Participante"} (Compartilhando)`,
+        name: `🖥️ ${participantNames.get(screenSharingParticipant) || "Participante"} (Compartilhando)`,
         isLocal: false,
       };
     } else if (activeSpeaker === "local") {
@@ -276,7 +279,7 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
 
     if (spotlightId === "local") {
       spotlightStream = localStream;
-      spotlightName = "Você";
+      spotlightName = "Voc��";
       isSpotlightLocal = true;
     } else if (remoteStreams.has(spotlightId)) {
       spotlightStream = remoteStreams.get(spotlightId) || null;
