@@ -22,6 +22,10 @@ interface DeviceTest {
   screenShare: TestStatus;
 }
 
+interface ErrorInfo {
+  screenShareError?: string;
+}
+
 interface DeviceTestModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -50,6 +54,9 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
     speakers: "",
   });
 
+  const [errorInfo, setErrorInfo] = useState<ErrorInfo>({});
+  const [isInIframe, setIsInIframe] = useState(false);
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -58,6 +65,8 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       loadDeviceInfo();
+      // Check if running in iframe
+      setIsInIframe(window !== window.top);
     } else {
       stopAllTests();
     }
@@ -103,6 +112,7 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
     setMicrophoneStream(null);
     setScreenStream(null);
     setAudioLevel(0);
+    setErrorInfo({});
     setTestStatus({
       camera: "idle",
       microphone: "idle",
@@ -230,8 +240,14 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
         // Parar teste
         screenStream.getTracks().forEach((track) => track.stop());
         setScreenStream(null);
+        setErrorInfo((prev) => ({ ...prev, screenShareError: undefined }));
         setTestStatus((prev) => ({ ...prev, screenShare: "idle" }));
         return;
+      }
+
+      // Check if getDisplayMedia is available
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+        throw new Error("Screen sharing não é suportado neste navegador");
       }
 
       const stream = await navigator.mediaDevices.getDisplayMedia({
@@ -252,8 +268,24 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
         setScreenStream(null);
         setTestStatus((prev) => ({ ...prev, screenShare: "idle" }));
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro no teste de compartilhamento:", error);
+
+      let errorMessage = "Erro desconhecido";
+
+      // Handle specific permission errors
+      if (error.name === "NotAllowedError") {
+        errorMessage = isInIframe
+          ? "Bloqueado em ambiente iframe - funciona normalmente em produção"
+          : "Permissão negada pelo usuário";
+        console.warn(
+          "Screen sharing blocked by permissions policy - this is normal in iframe environments",
+        );
+      } else if (error.message.includes("não é suportado")) {
+        errorMessage = "Não suportado neste navegador";
+      }
+
+      setErrorInfo((prev) => ({ ...prev, screenShareError: errorMessage }));
       setTestStatus((prev) => ({ ...prev, screenShare: "error" }));
     }
   };
@@ -273,14 +305,14 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
     }
   };
 
-  const getStatusText = (status: TestStatus) => {
+  const getStatusText = (status: TestStatus, errorType?: string) => {
     switch (status) {
       case "testing":
         return "Testando...";
       case "success":
         return "Funcionando";
       case "error":
-        return "Erro";
+        return errorType || "Erro";
       default:
         return "Não testado";
     }
@@ -505,7 +537,10 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
                 <div className="flex items-center space-x-3">
                   {getStatusIcon(testStatus.screenShare)}
                   <span className="text-sm text-gray-600">
-                    {getStatusText(testStatus.screenShare)}
+                    {getStatusText(
+                      testStatus.screenShare,
+                      errorInfo.screenShareError,
+                    )}
                   </span>
                   <Button
                     variant={screenStream ? "destructive" : "outline"}
@@ -527,6 +562,25 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
                   </Button>
                 </div>
               </div>
+
+              {/* Warning for iframe environment */}
+              {isInIframe && (
+                <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <div className="flex items-start space-x-2">
+                    <AlertTriangle className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                    <div className="text-sm">
+                      <p className="text-yellow-800 font-medium">
+                        Ambiente de Desenvolvimento
+                      </p>
+                      <p className="text-yellow-700 mt-1">
+                        O compartilhamento de tela pode ser bloqueado neste
+                        ambiente. Esta funcionalidade funcionará normalmente
+                        quando o app for acessado diretamente (não em iframe).
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

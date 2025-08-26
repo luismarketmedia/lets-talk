@@ -1,9 +1,12 @@
-import React, { useState } from "react";
-import { Users, Copy, Check } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Users, Copy, Check, AlertTriangle } from "lucide-react";
+import { Socket } from "socket.io-client";
 import { VideoTile } from "./VideoTile";
 import { MediaControls } from "./MediaControls";
 import { AudioDeviceModal } from "./AudioDeviceModal";
 import { DeviceTestModal } from "./DeviceTestModal";
+import { Chat } from "./Chat";
+import { JoinApproval } from "./JoinApproval";
 import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
 
@@ -14,6 +17,9 @@ interface CallInterfaceProps {
   isAudioEnabled: boolean;
   isVideoEnabled: boolean;
   isScreenSharing: boolean;
+  socket: Socket | null;
+  isHost: boolean;
+  userName?: string;
   onToggleAudio: () => void;
   onToggleVideo: () => void;
   onToggleScreenShare: () => void;
@@ -27,25 +33,126 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   isAudioEnabled,
   isVideoEnabled,
   isScreenSharing,
+  socket,
+  isHost,
+  userName = "Você",
   onToggleAudio,
   onToggleVideo,
   onToggleScreenShare,
   onEndCall,
 }) => {
   const [copied, setCopied] = useState(false);
+  const [copyMethod, setCopyMethod] = useState<
+    "clipboard" | "fallback" | "manual"
+  >("clipboard");
   const [showAudioModal, setShowAudioModal] = useState(false);
   const [showTestModal, setShowTestModal] = useState(false);
+  const [isInIframe, setIsInIframe] = useState(false);
+  const [showClipboardWarning, setShowClipboardWarning] = useState(false);
   const remoteStreamArray = Array.from(remoteStreams.entries());
   const totalParticipants = 1 + remoteStreamArray.length; // Local + remotes
 
+  useEffect(() => {
+    // Detectar se estamos em iframe
+    const inIframe = window !== window.top;
+    setIsInIframe(inIframe);
+
+    // Detectar se clipboard API está disponível
+    const hasClipboard = !!(navigator.clipboard && window.isSecureContext);
+
+    // Mostrar aviso se estamos em iframe e pode ter restrições
+    if (inIframe && !hasClipboard) {
+      setShowClipboardWarning(true);
+    }
+  }, []);
+
   const copyRoomId = async () => {
     try {
-      await navigator.clipboard.writeText(roomId);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      // Tentar usar Clipboard API moderna primeiro
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(roomId);
+        setCopyMethod("clipboard");
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+        return;
+      }
+
+      // Fallback 1: Método de seleção de texto (funciona na maioria dos ambientes)
+      const textArea = document.createElement("textarea");
+      textArea.value = roomId;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      const successful = document.execCommand("copy");
+      document.body.removeChild(textArea);
+
+      if (successful) {
+        setCopyMethod("fallback");
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+        return;
+      }
+
+      // Fallback 2: Mostrar prompt para cópia manual
+      fallbackCopyPrompt();
     } catch (error) {
-      console.error("Erro ao copiar código da sala:", error);
+      console.warn("Clipboard API bloqueada, usando fallback:", error);
+
+      // Se chegou aqui, tentar fallback de seleção
+      try {
+        const textArea = document.createElement("textarea");
+        textArea.value = roomId;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        const successful = document.execCommand("copy");
+        document.body.removeChild(textArea);
+
+        if (successful) {
+          setCopyMethod("fallback");
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        } else {
+          fallbackCopyPrompt();
+        }
+      } catch (fallbackError) {
+        console.warn("Fallback de seleção também falhou:", fallbackError);
+        fallbackCopyPrompt();
+      }
     }
+  };
+
+  const fallbackCopyPrompt = () => {
+    // Mostrar aviso sobre restrições se aplicável
+    if (isInIframe) {
+      setShowClipboardWarning(true);
+    }
+
+    // Método final: mostrar prompt para cópia manual
+    if (window.prompt) {
+      window.prompt(
+        "Ambiente restrito detectado. Copie o código manualmente (Ctrl+C / Cmd+C):",
+        roomId,
+      );
+    } else {
+      // Se nem prompt funcionar, mostrar alert
+      alert(
+        `Código da sala: ${roomId}\n\nAmbiente com restrições - Copie manualmente este código.`,
+      );
+    }
+
+    // Simular "copied" por feedback visual
+    setCopyMethod("manual");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 3000);
   };
 
   // Determinar layout da grade
@@ -85,11 +192,22 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
               </div>
             </div>
 
-            {/* Código da sala */}
+            {/* Controles e código da sala */}
             <div className="flex items-center space-x-2">
+              {/* Chat */}
+              <Chat
+                socket={socket}
+                roomId={roomId}
+                userName={userName}
+                participantCount={totalParticipants}
+              />
+
               <div className="hidden sm:flex items-center space-x-2 bg-gray-50 rounded-lg px-3 py-2">
                 <span className="text-sm text-gray-600">Sala:</span>
-                <span className="text-sm font-mono font-medium text-gray-900">
+                <span
+                  className="text-sm font-mono font-medium text-gray-900 select-all cursor-text px-1 py-0.5 rounded bg-white border border-gray-200"
+                  title="Clique para selecionar e copiar com Ctrl+C"
+                >
                   {roomId}
                 </span>
               </div>
@@ -97,21 +215,82 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={copyRoomId}
-                className="flex items-center space-x-2"
+                className={`flex items-center space-x-2 ${
+                  copied && copyMethod === "manual"
+                    ? "border-yellow-400 bg-yellow-50"
+                    : ""
+                }`}
               >
                 {copied ? (
-                  <Check className="w-4 h-4 text-green-600" />
+                  copyMethod === "manual" ? (
+                    <Copy className="w-4 h-4 text-yellow-600" />
+                  ) : (
+                    <Check className="w-4 h-4 text-green-600" />
+                  )
                 ) : (
                   <Copy className="w-4 h-4" />
                 )}
                 <span className="hidden sm:inline">
-                  {copied ? "Copiado!" : "Copiar código"}
+                  {copied
+                    ? copyMethod === "manual"
+                      ? "Use Ctrl+C"
+                      : "Copiado!"
+                    : "Copiar código"}
                 </span>
               </Button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Aviso sobre restrições de clipboard */}
+      {showClipboardWarning && (
+        <div className="max-w-6xl mx-auto mb-4">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+            <div className="flex items-start space-x-3">
+              <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <h3 className="text-sm font-medium text-yellow-800 mb-1">
+                  Restrições de Ambiente Detectadas
+                </h3>
+                <p className="text-sm text-yellow-700 mb-2">
+                  A cópia automática pode não funcionar neste ambiente. Use os
+                  métodos alternativos:
+                </p>
+                <ul className="text-xs text-yellow-700 space-y-1">
+                  <li>
+                    • <strong>Seleção manual:</strong> Clique no código e copie
+                    com Ctrl+C
+                  </li>
+                  <li>
+                    • <strong>Prompt do navegador:</strong> Use a janela de
+                    prompt quando aparecer
+                  </li>
+                  <li>
+                    • <strong>Compartilhamento:</strong> Compartilhe diretamente
+                    a URL da página
+                  </li>
+                </ul>
+              </div>
+              <button
+                onClick={() => setShowClipboardWarning(false)}
+                className="text-yellow-400 hover:text-yellow-600 transition-colors"
+              >
+                <Check className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sistema de aprovação de entrada */}
+      {isHost && (
+        <div className="max-w-6xl mx-auto mb-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+            <JoinApproval socket={socket} roomId={roomId} isHost={isHost} />
+          </div>
+        </div>
+      )}
 
       {/* Grade de vídeos */}
       <div className="max-w-6xl mx-auto mb-20">

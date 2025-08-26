@@ -26,10 +26,13 @@ function AppContent() {
     isScreenSharing,
     connectionState,
     joinRoom,
+    requestJoinRoom,
     toggleAudio,
     toggleVideo,
     toggleScreenShare,
     endCall,
+    socket,
+    isHost,
   } = useWebRTC({
     onNotification: (type, title, message) => {
       addToast({ type, title, message });
@@ -50,10 +53,25 @@ function AppContent() {
     }
   };
 
+  const handleRequestJoinRoom = async (roomId: string, userName: string) => {
+    try {
+      setError(null);
+      await requestJoinRoom(roomId, userName);
+    } catch (error) {
+      console.error("Erro ao solicitar entrada na sala:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Erro desconhecido ao acessar câmera/microfone. Verifique as permissões do navegador.";
+      setError(errorMessage);
+    }
+  };
+
   if (!isInCall) {
     return (
       <JoinRoom
         onJoinRoom={handleJoinRoom}
+        onRequestJoinRoom={handleRequestJoinRoom}
         isConnecting={connectionState === "connecting"}
         error={error}
         onClearError={() => setError(null)}
@@ -69,6 +87,9 @@ function AppContent() {
       isAudioEnabled={isAudioEnabled}
       isVideoEnabled={isVideoEnabled}
       isScreenSharing={isScreenSharing}
+      socket={socket}
+      isHost={isHost}
+      userName="Você" // TODO: Add user name input in future
       onToggleAudio={toggleAudio}
       onToggleVideo={toggleVideo}
       onToggleScreenShare={toggleScreenShare}

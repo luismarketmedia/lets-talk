@@ -57,6 +57,27 @@ webrtc-app/
 └── README.md              # Este arquivo
 ```
 
+### 📂 Arquivos de Deployment Adicionados
+
+```
+├── scripts/                     # Scripts de deployment Windows/IIS
+│   ├── deploy-windows.ps1       # Deploy automático completo
+│   ├── update-deploy.ps1        # Atualização automática
+│   ├── quick-deploy.bat         # Interface simples para deploy
+│   ├── quick-update.bat         # Interface simples para update
+│   └── deploy-config.example.json # Exemplo de configuração
+├── DEPLOYMENT_WINDOWS_IIS.md    # 📖 Documentação completa deployment
+└── DEPLOY_QUICK_START.md        # ⚡ Guia rápido deployment
+```
+
+### 🆕 Funcionalidades Recentes
+
+- **💬 Chat em Tempo Real**: Sistema de chat lateral durante chamadas
+- **✅ Sistema de Aprovação**: Host pode aprovar/rejeitar entrada de usuários
+- **📋 Tipos de Entrada**: Solicitar entrada (guest) ou entrar diretamente (co-host)
+- **🖥️ Deploy Automatizado**: Scripts completos para Windows/IIS
+- **🔄 Atualização Simplificada**: Scripts para update automático
+
 ## 🚀 Como Executar
 
 ### Pré-requisitos
@@ -208,12 +229,45 @@ Edite o arquivo `client/tailwind.config.js` na seção `colors.primary`.
 npm run build:client
 ```
 
+### 🚀 Deploy em Produção
+
+#### Windows/IIS
+
+Para deployment em ambiente Windows com IIS, consulte a documentação completa:
+
+- **📖 [Guia Completo de Deploy Windows/IIS](DEPLOYMENT_WINDOWS_IIS.md)** - Instruções detalhadas
+- **⚡ [Quick Start Deploy](DEPLOY_QUICK_START.md)** - Guia rápido para começar
+
+**Deploy automático em Windows:**
+
+```batch
+# Executar como Administrador
+cd scripts
+quick-deploy.bat
+```
+
+**Atualização automática:**
+
+```batch
+# Executar como Administrador
+cd scripts
+quick-update.bat
+```
+
+#### Outras Plataformas
+
+- **Linux/Apache**: Configuração similar ao IIS usando proxy reverso
+- **Docker**: Containerização para deploy em Kubernetes/Docker Swarm
+- **Cloud Providers**: AWS, Azure, GCP com load balancers
+
 ### Considerações para Produção
 
 - Configure HTTPS (obrigatório para WebRTC)
 - Use servidores TURN próprios para melhor conectividade
 - Configure CORS específicos por segurança
 - Otimize recursos estáticos
+- Configure monitoramento e logs
+- Implemente rate limiting para APIs
 
 ## 🔧 Configurações
 

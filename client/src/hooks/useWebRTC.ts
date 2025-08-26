@@ -22,7 +22,9 @@ export const useWebRTC = (
 ): CallState &
   MediaControls & {
     joinRoom: (roomId: string) => Promise<void>;
+    requestJoinRoom: (roomId: string, userName?: string) => Promise<void>;
     socket: Socket | null;
+    isHost: boolean;
   } => {
   const { onNotification } = options;
   const [callState, setCallState] = useState<CallState>({
@@ -39,6 +41,7 @@ export const useWebRTC = (
   const socketRef = useRef<Socket | null>(null);
   const peerConnectionsRef = useRef<Map<string, RTCPeerConnection>>(new Map());
   const localStreamRef = useRef<MediaStream | null>(null);
+  const [isHost, setIsHost] = useState(false);
 
   useEffect(() => {
     // Conectar ao servidor Socket.IO
@@ -90,6 +93,36 @@ export const useWebRTC = (
 
     socket.on("ice-candidate", async (data) => {
       await handleIceCandidate(data.candidate, data.sender);
+    });
+
+    // Eventos do sistema de aprovação
+    socket.on("join-approved", (data) => {
+      console.log("Entrada aprovada na sala:", data.roomId);
+      if (onNotification) {
+        onNotification(
+          "success",
+          "Entrada Aprovada",
+          "Você foi aceito na sala!",
+        );
+      }
+    });
+
+    socket.on("join-rejected", (data) => {
+      console.log("Entrada rejeitada na sala:", data.roomId);
+      if (onNotification) {
+        onNotification(
+          "error",
+          "Entrada Rejeitada",
+          "Sua solicitação foi recusada.",
+        );
+      }
+    });
+
+    socket.on("join-error", (data) => {
+      console.log("Erro ao entrar na sala:", data.message);
+      if (onNotification) {
+        onNotification("error", "Erro", data.message);
+      }
     });
 
     return () => {
@@ -287,9 +320,10 @@ export const useWebRTC = (
         isAudioEnabled: stream.getAudioTracks().length > 0,
       }));
 
-      // Entrar na sala via Socket.IO
+      // Entrar na sala via Socket.IO como host
       if (socketRef.current) {
         socketRef.current.emit("join-room", roomId);
+        setIsHost(true); // Definir como host quando cria/entra diretamente na sala
       }
     } catch (error) {
       console.error("Erro ao entrar na sala:", error);
@@ -329,6 +363,173 @@ export const useWebRTC = (
       throw error;
     }
   }, []);
+
+  const requestJoinRoom = useCallback(
+    async (roomId: string, userName?: string) => {
+      try {
+        setCallState((prev) => ({ ...prev, connectionState: "connecting" }));
+
+        // Verificar disponibilidade de dispositivos
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const hasVideo = devices.some((device) => device.kind === "videoinput");
+        const hasAudio = devices.some((device) => device.kind === "audioinput");
+
+        console.log("Dispositivos disponíveis:", { hasVideo, hasAudio });
+
+        if (!hasVideo && !hasAudio) {
+          throw new Error(
+            "Nenhum dispositivo de mídia encontrado. Verifique se sua câmera e microfone estão conectados.",
+          );
+        }
+
+        let stream: MediaStream | null = null;
+
+        // Tentar obter vídeo e áudio primeiro
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: hasVideo
+              ? {
+                  width: { ideal: 1280 },
+                  height: { ideal: 720 },
+                  frameRate: { ideal: 30 },
+                }
+              : false,
+            audio: hasAudio
+              ? {
+                  echoCancellation: true,
+                  noiseSuppression: true,
+                  autoGainControl: true,
+                }
+              : false,
+          });
+          console.log("Stream obtido com sucesso:", {
+            video: stream.getVideoTracks().length > 0,
+            audio: stream.getAudioTracks().length > 0,
+          });
+        } catch (videoError) {
+          console.warn(
+            "Falha ao obter vídeo e áudio, tentando apenas áudio:",
+            videoError,
+          );
+
+          // Fallback: tentar apenas áudio
+          if (hasAudio) {
+            try {
+              stream = await navigator.mediaDevices.getUserMedia({
+                video: false,
+                audio: {
+                  echoCancellation: true,
+                  noiseSuppression: true,
+                  autoGainControl: true,
+                },
+              });
+              console.log("Stream de áudio obtido com sucesso");
+            } catch (audioError) {
+              console.error("Falha ao obter áudio:", audioError);
+              throw new Error(
+                "Não foi possível acessar o microfone. Verifique as permissões do navegador.",
+              );
+            }
+          } else {
+            throw new Error("Nenhum dispositivo de áudio disponível.");
+          }
+        }
+
+        if (!stream) {
+          throw new Error("Não foi possível obter stream de mídia.");
+        }
+
+        localStreamRef.current = stream;
+        setCallState((prev) => ({
+          ...prev,
+          localStream: stream,
+          roomId,
+          isVideoEnabled: stream.getVideoTracks().length > 0,
+          isAudioEnabled: stream.getAudioTracks().length > 0,
+        }));
+
+        // Solicitar entrada na sala via Socket.IO
+        if (socketRef.current) {
+          socketRef.current.emit("request-join-room", { roomId, userName });
+          setIsHost(false); // Não é host quando solicita entrada
+        }
+
+        // Aguardar aprovação...
+        if (onNotification) {
+          onNotification(
+            "info",
+            "Aguardando Aprovação",
+            "Solicitação enviada para o host da sala.",
+          );
+        }
+
+        // Listener para aprovação
+        const handleApproval = () => {
+          setCallState((prev) => ({
+            ...prev,
+            isInCall: true,
+            connectionState: "connected",
+          }));
+          socketRef.current?.off("join-approved", handleApproval);
+        };
+
+        const handleRejection = () => {
+          // Limpar stream se rejeitado
+          if (localStreamRef.current) {
+            localStreamRef.current.getTracks().forEach((track) => track.stop());
+            localStreamRef.current = null;
+          }
+          setCallState((prev) => ({
+            ...prev,
+            localStream: null,
+            roomId: null,
+            connectionState: "failed",
+          }));
+          socketRef.current?.off("join-rejected", handleRejection);
+        };
+
+        socketRef.current?.on("join-approved", handleApproval);
+        socketRef.current?.on("join-rejected", handleRejection);
+      } catch (error) {
+        console.error("Erro ao solicitar entrada na sala:", error);
+        setCallState((prev) => ({ ...prev, connectionState: "failed" }));
+
+        // Fornecer mensagens de erro mais específicas
+        if (error instanceof Error) {
+          if (
+            error.name === "NotFoundError" ||
+            error.message.includes("Requested device not found")
+          ) {
+            throw new Error(
+              "Dispositivo não encontrado. Verifique se sua câmera e microfone estão conectados e funcionando.",
+            );
+          } else if (
+            error.name === "NotAllowedError" ||
+            error.name === "PermissionDeniedError"
+          ) {
+            throw new Error(
+              "Permissão negada. Clique no ícone de câmera na barra de endereços e permita o acesso à câmera e microfone.",
+            );
+          } else if (error.name === "NotReadableError") {
+            throw new Error(
+              "Dispositivo em uso. Feche outros aplicativos que possam estar usando sua câmera ou microfone.",
+            );
+          } else if (error.name === "OverconstrainedError") {
+            throw new Error(
+              "Configurações de mídia não suportadas pelo dispositivo.",
+            );
+          } else if (error.name === "SecurityError") {
+            throw new Error(
+              "Erro de segurança. Use HTTPS para acessar a câmera e microfone.",
+            );
+          }
+        }
+
+        throw error;
+      }
+    },
+    [onNotification],
+  );
 
   const toggleAudio = useCallback(() => {
     if (localStreamRef.current) {
@@ -543,7 +744,7 @@ export const useWebRTC = (
           errorMessage =
             "Compartilhamento de tela bloqueado por política de segurança. Recarregue a página ou use HTTPS.";
         } else if (error.name === "AbortError") {
-          errorMessage = "Compartilhamento de tela cancelado pelo usuário.";
+          errorMessage = "Compartilhamento de tela cancelado pelo usu��rio.";
         } else {
           errorMessage = error.message;
         }
@@ -588,15 +789,18 @@ export const useWebRTC = (
       isScreenSharing: false,
       connectionState: "connected",
     });
+    setIsHost(false);
   }, []);
 
   return {
     ...callState,
     joinRoom,
+    requestJoinRoom,
     toggleAudio,
     toggleVideo,
     toggleScreenShare,
     endCall,
     socket: socketRef.current,
+    isHost,
   };
 };

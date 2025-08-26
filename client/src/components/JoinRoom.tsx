@@ -28,6 +28,7 @@ import {
 
 interface JoinRoomProps {
   onJoinRoom: (roomId: string) => void;
+  onRequestJoinRoom: (roomId: string, userName: string) => void;
   isConnecting: boolean;
   error?: string | null;
   onClearError?: () => void;
@@ -35,24 +36,36 @@ interface JoinRoomProps {
 
 export const JoinRoom: React.FC<JoinRoomProps> = ({
   onJoinRoom,
+  onRequestJoinRoom,
   isConnecting,
   error,
   onClearError,
 }) => {
   const [roomId, setRoomId] = useState("");
+  const [userName, setUserName] = useState("");
   const [mode, setMode] = useState<"join" | "create">("join");
+  const [entryType, setEntryType] = useState<"direct" | "request">("request");
   const [showAudioModal, setShowAudioModal] = useState(false);
   const [showTestModal, setShowTestModal] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanRoomId = roomId.trim();
+    const cleanUserName = userName.trim();
 
-    if (cleanRoomId && validateMeetingCode(cleanRoomId)) {
+    if (!cleanRoomId) return;
+
+    if (mode === "create" || entryType === "direct") {
+      // Criar sala ou entrar diretamente (host)
       onJoinRoom(cleanRoomId);
-    } else if (cleanRoomId) {
-      // Se o código não está no formato correto, tenta mesmo assim
-      onJoinRoom(cleanRoomId);
+    } else {
+      // Solicitar entrada (guest)
+      if (!cleanUserName) {
+        // Usar nome padrão se vazio
+        onRequestJoinRoom(cleanRoomId, cleanUserName || "Participante");
+      } else {
+        onRequestJoinRoom(cleanRoomId, cleanUserName);
+      }
     }
   };
 
@@ -156,6 +169,62 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
 
             {/* Formulário */}
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Campo de nome do usuário */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="userName"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Seu nome
+                </label>
+                <Input
+                  id="userName"
+                  type="text"
+                  placeholder="Digite seu nome"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                  disabled={isConnecting}
+                  maxLength={50}
+                />
+                <p className="text-xs text-gray-500">
+                  Como outros participantes irão te ver
+                </p>
+              </div>
+
+              {/* Tipo de entrada (apenas para join) */}
+              {mode === "join" && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Tipo de entrada
+                  </label>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant={entryType === "request" ? "default" : "outline"}
+                      className="flex-1 text-sm"
+                      onClick={() => setEntryType("request")}
+                      disabled={isConnecting}
+                    >
+                      Solicitar entrada
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={entryType === "direct" ? "default" : "outline"}
+                      className="flex-1 text-sm"
+                      onClick={() => setEntryType("direct")}
+                      disabled={isConnecting}
+                    >
+                      Entrar diretamente
+                    </Button>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    {entryType === "request"
+                      ? "Host aprovará sua entrada"
+                      : "Entrar como co-host da sala"}
+                  </p>
+                </div>
+              )}
+
               <div className="space-y-2">
                 <label
                   htmlFor="roomId"
@@ -230,11 +299,19 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
                 {isConnecting ? (
                   <div className="flex items-center">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                    Conectando...
+                    {mode === "create"
+                      ? "Criando sala..."
+                      : entryType === "direct"
+                        ? "Entrando..."
+                        : "Solicitando entrada..."}
                   </div>
                 ) : (
                   <div className="flex items-center">
-                    {mode === "join" ? "Entrar na chamada" : "Iniciar chamada"}
+                    {mode === "create"
+                      ? "Iniciar chamada"
+                      : entryType === "direct"
+                        ? "Entrar na chamada"
+                        : "Solicitar entrada"}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </div>
                 )}
