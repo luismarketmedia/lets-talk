@@ -22,6 +22,13 @@ export const VideoTile: React.FC<VideoTileProps> = ({
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // Detect if participant is speaking
+  const { audioLevel, isSpeaking } = useAudioLevel({
+    stream,
+    enabled: !isMuted && !!stream,
+    speakingThreshold: 25,
+  });
+
   useEffect(() => {
     if (videoRef.current && stream) {
       videoRef.current.srcObject = stream;
