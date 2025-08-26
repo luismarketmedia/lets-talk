@@ -221,11 +221,13 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
                 "w-12 h-12 rounded-full transition-all duration-200",
                 isHandRaised
                   ? "bg-yellow-500 hover:bg-yellow-600 text-white"
-                  : "hover:bg-gray-100 text-gray-600"
+                  : "hover:bg-gray-100 text-gray-600",
               )}
               title={isHandRaised ? "Baixar mão" : "Levantar mão"}
             >
-              <Hand className={cn("w-5 h-5", isHandRaised && "animate-bounce")} />
+              <Hand
+                className={cn("w-5 h-5", isHandRaised && "animate-bounce")}
+              />
             </Button>
             {raisedHandsCount > 0 && (
               <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">

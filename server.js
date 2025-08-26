@@ -311,11 +311,15 @@ io.on("connection", (socket) => {
   socket.on("reaction", (data) => {
     const { roomId, emoji, name, participantName } = data;
 
-    console.log(`[REACTION] ${socket.id} (${participantName}) enviou reação ${emoji} na sala ${roomId}`);
+    console.log(
+      `[REACTION] ${socket.id} (${participantName}) enviou reação ${emoji} na sala ${roomId}`,
+    );
 
     // Verificar se o usuário está na sala
     if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
-      console.log(`[REACTION ERROR] Usuário ${socket.id} não está na sala ${roomId}`);
+      console.log(
+        `[REACTION ERROR] Usuário ${socket.id} não está na sala ${roomId}`,
+      );
       return;
     }
 
@@ -334,11 +338,15 @@ io.on("connection", (socket) => {
   socket.on("hand-raise", (data) => {
     const { roomId, isRaised, participantName } = data;
 
-    console.log(`[HAND_RAISE] ${socket.id} (${participantName}) ${isRaised ? 'levantou' : 'baixou'} a mão na sala ${roomId}`);
+    console.log(
+      `[HAND_RAISE] ${socket.id} (${participantName}) ${isRaised ? "levantou" : "baixou"} a mão na sala ${roomId}`,
+    );
 
     // Verificar se o usuário está na sala
     if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
-      console.log(`[HAND_RAISE ERROR] Usuário ${socket.id} não está na sala ${roomId}`);
+      console.log(
+        `[HAND_RAISE ERROR] Usuário ${socket.id} não está na sala ${roomId}`,
+      );
       return;
     }
 
@@ -356,11 +364,15 @@ io.on("connection", (socket) => {
   socket.on("whiteboard-stroke", (data) => {
     const { roomId, stroke } = data;
 
-    console.log(`[WHITEBOARD] ${socket.id} desenhou no quadro da sala ${roomId}`);
+    console.log(
+      `[WHITEBOARD] ${socket.id} desenhou no quadro da sala ${roomId}`,
+    );
 
     // Verificar se o usuário está na sala
     if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
-      console.log(`[WHITEBOARD ERROR] Usuário ${socket.id} não está na sala ${roomId}`);
+      console.log(
+        `[WHITEBOARD ERROR] Usuário ${socket.id} não está na sala ${roomId}`,
+      );
       return;
     }
 
@@ -371,7 +383,9 @@ io.on("connection", (socket) => {
   socket.on("whiteboard-text", (data) => {
     const { roomId, textElement } = data;
 
-    console.log(`[WHITEBOARD] ${socket.id} adicionou texto no quadro da sala ${roomId}`);
+    console.log(
+      `[WHITEBOARD] ${socket.id} adicionou texto no quadro da sala ${roomId}`,
+    );
 
     if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
       return;
@@ -395,7 +409,9 @@ io.on("connection", (socket) => {
   socket.on("whiteboard-undo", (data) => {
     const { roomId, userId, timestamp } = data;
 
-    console.log(`[WHITEBOARD] ${socket.id} desfez ação no quadro da sala ${roomId}`);
+    console.log(
+      `[WHITEBOARD] ${socket.id} desfez ação no quadro da sala ${roomId}`,
+    );
 
     if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
       return;
@@ -408,7 +424,9 @@ io.on("connection", (socket) => {
   socket.on("screen-annotation", (data) => {
     const { roomId, stroke } = data;
 
-    console.log(`[SCREEN_ANNOTATION] ${socket.id} anotou na tela da sala ${roomId}`);
+    console.log(
+      `[SCREEN_ANNOTATION] ${socket.id} anotou na tela da sala ${roomId}`,
+    );
 
     if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
       return;
@@ -430,7 +448,9 @@ io.on("connection", (socket) => {
   socket.on("screen-annotation-clear", (data) => {
     const { roomId } = data;
 
-    console.log(`[SCREEN_ANNOTATION] ${socket.id} limpou anotações da sala ${roomId}`);
+    console.log(
+      `[SCREEN_ANNOTATION] ${socket.id} limpou anotações da sala ${roomId}`,
+    );
 
     if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
       return;

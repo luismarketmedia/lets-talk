@@ -35,7 +35,7 @@ export const useRecording = () => {
     async (
       localStream: MediaStream | null,
       remoteStreams: Map<string, MediaStream>,
-      options: RecordingOptions = { mode: "video" }
+      options: RecordingOptions = { mode: "video" },
     ) => {
       try {
         if (!localStream) {
@@ -48,14 +48,16 @@ export const useRecording = () => {
 
         // Add local audio
         if (localStream.getAudioTracks().length > 0) {
-          const localAudioSource = audioContext.createMediaStreamSource(localStream);
+          const localAudioSource =
+            audioContext.createMediaStreamSource(localStream);
           localAudioSource.connect(destination);
         }
 
         // Add remote audio streams
         for (const remoteStream of remoteStreams.values()) {
           if (remoteStream.getAudioTracks().length > 0) {
-            const remoteAudioSource = audioContext.createMediaStreamSource(remoteStream);
+            const remoteAudioSource =
+              audioContext.createMediaStreamSource(remoteStream);
             remoteAudioSource.connect(destination);
           }
         }
@@ -65,17 +67,19 @@ export const useRecording = () => {
 
         if (options.mode === "audio-only") {
           // Audio only recording
-          recordingStream = new MediaStream([...destination.stream.getAudioTracks()]);
+          recordingStream = new MediaStream([
+            ...destination.stream.getAudioTracks(),
+          ]);
         } else {
           // Video + audio recording
           const canvas = document.createElement("canvas");
           canvas.width = 1920;
           canvas.height = 1080;
           const ctx = canvas.getContext("2d")!;
-          
+
           // Create video stream from canvas
           const canvasStream = canvas.captureStream(30);
-          
+
           // Combine video from canvas with mixed audio
           recordingStream = new MediaStream([
             ...canvasStream.getVideoTracks(),
@@ -91,7 +95,7 @@ export const useRecording = () => {
 
             const videos = document.querySelectorAll("video");
             const visibleVideos = Array.from(videos).filter(
-              (video) => video.videoWidth > 0 && video.videoHeight > 0
+              (video) => video.videoWidth > 0 && video.videoHeight > 0,
             );
 
             if (visibleVideos.length === 0) {
@@ -99,7 +103,11 @@ export const useRecording = () => {
               ctx.fillStyle = "#ffffff";
               ctx.font = "48px Arial";
               ctx.textAlign = "center";
-              ctx.fillText("Gravação em andamento...", canvas.width / 2, canvas.height / 2);
+              ctx.fillText(
+                "Gravação em andamento...",
+                canvas.width / 2,
+                canvas.height / 2,
+              );
             } else {
               // Calculate grid layout
               const cols = Math.ceil(Math.sqrt(visibleVideos.length));
@@ -122,7 +130,11 @@ export const useRecording = () => {
                   ctx.fillStyle = "#ffffff";
                   ctx.font = "24px Arial";
                   ctx.textAlign = "center";
-                  ctx.fillText("Participante", x + cellWidth / 2, y + cellHeight / 2);
+                  ctx.fillText(
+                    "Participante",
+                    x + cellWidth / 2,
+                    y + cellHeight / 2,
+                  );
                 }
               });
             }
@@ -136,10 +148,11 @@ export const useRecording = () => {
         streamRef.current = recordingStream;
 
         // Configure MediaRecorder
-        const mimeType = options.mode === "audio-only" 
-          ? "audio/webm" 
-          : "video/webm;codecs=vp8,opus";
-          
+        const mimeType =
+          options.mode === "audio-only"
+            ? "audio/webm"
+            : "video/webm;codecs=vp8,opus";
+
         const mediaRecorder = new MediaRecorder(recordingStream, {
           mimeType,
           videoBitsPerSecond: options.videoBitsPerSecond || 2500000,
@@ -151,23 +164,26 @@ export const useRecording = () => {
         mediaRecorder.ondataavailable = (event) => {
           if (event.data.size > 0) {
             chunksRef.current.push(event.data);
-            
+
             // Update file size
-            const totalSize = chunksRef.current.reduce((sum, chunk) => sum + chunk.size, 0);
-            setRecordingInfo(prev => ({ ...prev, fileSize: totalSize }));
+            const totalSize = chunksRef.current.reduce(
+              (sum, chunk) => sum + chunk.size,
+              0,
+            );
+            setRecordingInfo((prev) => ({ ...prev, fileSize: totalSize }));
           }
         };
 
         mediaRecorder.onstop = () => {
-          setRecordingInfo(prev => ({ ...prev, state: "stopped" }));
-          
+          setRecordingInfo((prev) => ({ ...prev, state: "stopped" }));
+
           if (durationIntervalRef.current) {
             clearInterval(durationIntervalRef.current);
           }
 
           // Clean up streams
           if (streamRef.current) {
-            streamRef.current.getTracks().forEach(track => track.stop());
+            streamRef.current.getTracks().forEach((track) => track.stop());
           }
           audioContext.close();
         };
@@ -187,24 +203,29 @@ export const useRecording = () => {
 
         durationIntervalRef.current = setInterval(() => {
           const elapsed = Date.now() - startTime.getTime();
-          setRecordingInfo(prev => ({ ...prev, duration: Math.floor(elapsed / 1000) }));
+          setRecordingInfo((prev) => ({
+            ...prev,
+            duration: Math.floor(elapsed / 1000),
+          }));
         }, 1000);
-
       } catch (error) {
         console.error("Failed to start recording:", error);
-        setRecordingInfo(prev => ({ ...prev, state: "idle" }));
+        setRecordingInfo((prev) => ({ ...prev, state: "idle" }));
         throw error;
       }
     },
-    [recordingInfo.state]
+    [recordingInfo.state],
   );
 
   // Pause recording
   const pauseRecording = useCallback(() => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state === "recording"
+    ) {
       mediaRecorderRef.current.pause();
-      setRecordingInfo(prev => ({ ...prev, state: "paused" }));
-      
+      setRecordingInfo((prev) => ({ ...prev, state: "paused" }));
+
       if (durationIntervalRef.current) {
         clearInterval(durationIntervalRef.current);
       }
@@ -213,54 +234,68 @@ export const useRecording = () => {
 
   // Resume recording
   const resumeRecording = useCallback(() => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "paused") {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state === "paused"
+    ) {
       mediaRecorderRef.current.resume();
-      setRecordingInfo(prev => ({ ...prev, state: "recording" }));
-      
+      setRecordingInfo((prev) => ({ ...prev, state: "recording" }));
+
       // Resume duration tracking
-      const resumeTime = Date.now() - (recordingInfo.duration * 1000);
+      const resumeTime = Date.now() - recordingInfo.duration * 1000;
       durationIntervalRef.current = setInterval(() => {
         const elapsed = Date.now() - resumeTime;
-        setRecordingInfo(prev => ({ ...prev, duration: Math.floor(elapsed / 1000) }));
+        setRecordingInfo((prev) => ({
+          ...prev,
+          duration: Math.floor(elapsed / 1000),
+        }));
       }, 1000);
     }
   }, [recordingInfo.duration]);
 
   // Stop recording
   const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state !== "inactive"
+    ) {
       mediaRecorderRef.current.stop();
     }
   }, []);
 
   // Download recording
-  const downloadRecording = useCallback((filename?: string) => {
-    if (chunksRef.current.length === 0) {
-      throw new Error("No recording data available");
-    }
+  const downloadRecording = useCallback(
+    (filename?: string) => {
+      if (chunksRef.current.length === 0) {
+        throw new Error("No recording data available");
+      }
 
-    const blob = new Blob(chunksRef.current, { 
-      type: recordingInfo.mode === "audio-only" ? "audio/webm" : "video/webm" 
-    });
-    
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename || `recording-${new Date().toISOString().slice(0, 19).replace(/:/g, "-")}.webm`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    // Reset recording state
-    chunksRef.current = [];
-    setRecordingInfo({
-      state: "idle",
-      duration: 0,
-      fileSize: 0,
-      mode: "video",
-    });
-  }, [recordingInfo.mode]);
+      const blob = new Blob(chunksRef.current, {
+        type: recordingInfo.mode === "audio-only" ? "audio/webm" : "video/webm",
+      });
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download =
+        filename ||
+        `recording-${new Date().toISOString().slice(0, 19).replace(/:/g, "-")}.webm`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      // Reset recording state
+      chunksRef.current = [];
+      setRecordingInfo({
+        state: "idle",
+        duration: 0,
+        fileSize: 0,
+        mode: "video",
+      });
+    },
+    [recordingInfo.mode],
+  );
 
   // Get recording blob without downloading
   const getRecordingBlob = useCallback(() => {
@@ -268,8 +303,8 @@ export const useRecording = () => {
       return null;
     }
 
-    return new Blob(chunksRef.current, { 
-      type: recordingInfo.mode === "audio-only" ? "audio/webm" : "video/webm" 
+    return new Blob(chunksRef.current, {
+      type: recordingInfo.mode === "audio-only" ? "audio/webm" : "video/webm",
     });
   }, [recordingInfo.mode]);
 

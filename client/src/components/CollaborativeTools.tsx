@@ -100,21 +100,25 @@ export const CollaborativeTools: React.FC<CollaborativeToolsProps> = ({
                 <Mic className="w-5 h-5" />
                 <span>Compartilhamento de Áudio</span>
               </h3>
-              
+
               <div className="space-y-4">
                 <p className="text-sm text-gray-600">
                   Compartilhe apenas o áudio do seu dispositivo sem vídeo
                 </p>
-                
+
                 <div className="flex items-center space-x-4">
                   <Button
-                    variant={audioShare.isAudioSharing ? "destructive" : "default"}
+                    variant={
+                      audioShare.isAudioSharing ? "destructive" : "default"
+                    }
                     onClick={handleToggleAudioShare}
                     className="flex items-center space-x-2"
                   >
                     <Mic className="w-4 h-4" />
                     <span>
-                      {audioShare.isAudioSharing ? "Parar Áudio" : "Compartilhar Áudio"}
+                      {audioShare.isAudioSharing
+                        ? "Parar Áudio"
+                        : "Compartilhar Áudio"}
                     </span>
                   </Button>
 
@@ -164,7 +168,7 @@ export const CollaborativeTools: React.FC<CollaborativeToolsProps> = ({
             "w-12 h-12 rounded-full transition-all duration-200",
             showAnnotations
               ? "bg-blue-500 text-white hover:bg-blue-600"
-              : "hover:bg-gray-100 text-gray-600"
+              : "hover:bg-gray-100 text-gray-600",
           )}
           title="Anotações na Tela"
         >

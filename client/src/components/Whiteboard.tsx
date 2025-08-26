@@ -25,7 +25,14 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 
-type DrawingTool = "pen" | "eraser" | "rectangle" | "circle" | "arrow" | "text" | "move";
+type DrawingTool =
+  | "pen"
+  | "eraser"
+  | "rectangle"
+  | "circle"
+  | "arrow"
+  | "text"
+  | "move";
 
 interface DrawingPoint {
   x: number;
@@ -78,16 +85,28 @@ export const Whiteboard: React.FC<WhiteboardProps> = ({
   const [currentWidth, setCurrentWidth] = useState(3);
   const [strokes, setStrokes] = useState<DrawingStroke[]>([]);
   const [textElements, setTextElements] = useState<TextElement[]>([]);
-  const [currentStroke, setCurrentStroke] = useState<DrawingStroke | null>(null);
+  const [currentStroke, setCurrentStroke] = useState<DrawingStroke | null>(
+    null,
+  );
   const [showTextInput, setShowTextInput] = useState(false);
   const [textInputPosition, setTextInputPosition] = useState({ x: 0, y: 0 });
   const [textInputValue, setTextInputValue] = useState("");
   const [fontSize, setFontSize] = useState(16);
 
   const colors = [
-    "#000000", "#FF0000", "#00FF00", "#0000FF", "#FFFF00",
-    "#FF00FF", "#00FFFF", "#FFA500", "#800080", "#FFC0CB",
-    "#A52A2A", "#808080", "#FFFFFF"
+    "#000000",
+    "#FF0000",
+    "#00FF00",
+    "#0000FF",
+    "#FFFF00",
+    "#FF00FF",
+    "#00FFFF",
+    "#FFA500",
+    "#800080",
+    "#FFC0CB",
+    "#A52A2A",
+    "#808080",
+    "#FFFFFF",
   ];
 
   const widths = [1, 3, 5, 8, 12, 20];
@@ -119,11 +138,11 @@ export const Whiteboard: React.FC<WhiteboardProps> = ({
     if (!socket) return;
 
     const handleWhiteboardStroke = (data: DrawingStroke) => {
-      setStrokes(prev => [...prev, data]);
+      setStrokes((prev) => [...prev, data]);
     };
 
     const handleWhiteboardText = (data: TextElement) => {
-      setTextElements(prev => [...prev, data]);
+      setTextElements((prev) => [...prev, data]);
     };
 
     const handleWhiteboardClear = () => {
@@ -131,13 +150,25 @@ export const Whiteboard: React.FC<WhiteboardProps> = ({
       setTextElements([]);
     };
 
-    const handleWhiteboardUndo = (data: { userId: string; timestamp: number }) => {
-      setStrokes(prev => prev.filter(stroke => 
-        !(stroke.userId === data.userId && stroke.timestamp === data.timestamp)
-      ));
-      setTextElements(prev => prev.filter(text => 
-        !(text.userId === data.userId && text.timestamp === data.timestamp)
-      ));
+    const handleWhiteboardUndo = (data: {
+      userId: string;
+      timestamp: number;
+    }) => {
+      setStrokes((prev) =>
+        prev.filter(
+          (stroke) =>
+            !(
+              stroke.userId === data.userId &&
+              stroke.timestamp === data.timestamp
+            ),
+        ),
+      );
+      setTextElements((prev) =>
+        prev.filter(
+          (text) =>
+            !(text.userId === data.userId && text.timestamp === data.timestamp),
+        ),
+      );
     };
 
     socket.on("whiteboard-stroke", handleWhiteboardStroke);
@@ -165,13 +196,14 @@ export const Whiteboard: React.FC<WhiteboardProps> = ({
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Draw all strokes
-    strokes.forEach(stroke => {
+    strokes.forEach((stroke) => {
       if (stroke.points.length < 2) return;
 
       ctx.beginPath();
       ctx.strokeStyle = stroke.color;
       ctx.lineWidth = stroke.width;
-      ctx.globalCompositeOperation = stroke.tool === "eraser" ? "destination-out" : "source-over";
+      ctx.globalCompositeOperation =
+        stroke.tool === "eraser" ? "destination-out" : "source-over";
 
       if (stroke.tool === "rectangle") {
         const startPoint = stroke.points[0];
@@ -183,7 +215,8 @@ export const Whiteboard: React.FC<WhiteboardProps> = ({
         const startPoint = stroke.points[0];
         const endPoint = stroke.points[stroke.points.length - 1];
         const radius = Math.sqrt(
-          Math.pow(endPoint.x - startPoint.x, 2) + Math.pow(endPoint.y - startPoint.y, 2)
+          Math.pow(endPoint.x - startPoint.x, 2) +
+            Math.pow(endPoint.y - startPoint.y, 2),
         );
         ctx.beginPath();
         ctx.arc(startPoint.x, startPoint.y, radius, 0, 2 * Math.PI);
@@ -203,7 +236,7 @@ export const Whiteboard: React.FC<WhiteboardProps> = ({
     });
 
     // Draw text elements
-    textElements.forEach(textEl => {
+    textElements.forEach((textEl) => {
       ctx.font = `${textEl.fontSize}px Arial`;
       ctx.fillStyle = textEl.color;
       ctx.globalCompositeOperation = "source-over";
@@ -211,7 +244,13 @@ export const Whiteboard: React.FC<WhiteboardProps> = ({
     });
   }, [strokes, textElements]);
 
-  const drawArrow = (ctx: CanvasRenderingContext2D, fromX: number, fromY: number, toX: number, toY: number) => {
+  const drawArrow = (
+    ctx: CanvasRenderingContext2D,
+    fromX: number,
+    fromY: number,
+    toX: number,
+    toY: number,
+  ) => {
     const headLength = 15;
     const angle = Math.atan2(toY - fromY, toX - fromX);
 
@@ -224,9 +263,15 @@ export const Whiteboard: React.FC<WhiteboardProps> = ({
     // Draw arrow head
     ctx.beginPath();
     ctx.moveTo(toX, toY);
-    ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
+    ctx.lineTo(
+      toX - headLength * Math.cos(angle - Math.PI / 6),
+      toY - headLength * Math.sin(angle - Math.PI / 6),
+    );
     ctx.moveTo(toX, toY);
-    ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6));
+    ctx.lineTo(
+      toX - headLength * Math.cos(angle + Math.PI / 6),
+      toY - headLength * Math.sin(angle + Math.PI / 6),
+    );
     ctx.stroke();
   };
 
@@ -288,7 +333,8 @@ export const Whiteboard: React.FC<WhiteboardProps> = ({
 
     ctx.strokeStyle = currentColor;
     ctx.lineWidth = currentWidth;
-    ctx.globalCompositeOperation = currentTool === "eraser" ? "destination-out" : "source-over";
+    ctx.globalCompositeOperation =
+      currentTool === "eraser" ? "destination-out" : "source-over";
 
     if (currentTool === "pen" || currentTool === "eraser") {
       ctx.beginPath();
@@ -304,7 +350,7 @@ export const Whiteboard: React.FC<WhiteboardProps> = ({
     if (!isDrawing || !currentStroke) return;
 
     setIsDrawing(false);
-    setStrokes(prev => [...prev, currentStroke]);
+    setStrokes((prev) => [...prev, currentStroke]);
 
     // Send to other users
     if (socket && roomId) {
@@ -336,7 +382,7 @@ export const Whiteboard: React.FC<WhiteboardProps> = ({
       timestamp: Date.now(),
     };
 
-    setTextElements(prev => [...prev, textElement]);
+    setTextElements((prev) => [...prev, textElement]);
 
     // Send to other users
     if (socket && roomId) {
@@ -360,18 +406,24 @@ export const Whiteboard: React.FC<WhiteboardProps> = ({
   };
 
   const undoLast = () => {
-    const userStrokes = strokes.filter(s => s.userId === (socket?.id || "local"));
-    const userTexts = textElements.filter(t => t.userId === (socket?.id || "local"));
-    
+    const userStrokes = strokes.filter(
+      (s) => s.userId === (socket?.id || "local"),
+    );
+    const userTexts = textElements.filter(
+      (t) => t.userId === (socket?.id || "local"),
+    );
+
     const lastStroke = userStrokes[userStrokes.length - 1];
     const lastText = userTexts[userTexts.length - 1];
 
-    let itemToUndo: { type: "stroke" | "text"; timestamp: number } | null = null;
+    let itemToUndo: { type: "stroke" | "text"; timestamp: number } | null =
+      null;
 
     if (lastStroke && lastText) {
-      itemToUndo = lastStroke.timestamp > lastText.timestamp 
-        ? { type: "stroke", timestamp: lastStroke.timestamp }
-        : { type: "text", timestamp: lastText.timestamp };
+      itemToUndo =
+        lastStroke.timestamp > lastText.timestamp
+          ? { type: "stroke", timestamp: lastStroke.timestamp }
+          : { type: "text", timestamp: lastText.timestamp };
     } else if (lastStroke) {
       itemToUndo = { type: "stroke", timestamp: lastStroke.timestamp };
     } else if (lastText) {
@@ -380,9 +432,13 @@ export const Whiteboard: React.FC<WhiteboardProps> = ({
 
     if (itemToUndo) {
       if (itemToUndo.type === "stroke") {
-        setStrokes(prev => prev.filter(s => s.timestamp !== itemToUndo!.timestamp));
+        setStrokes((prev) =>
+          prev.filter((s) => s.timestamp !== itemToUndo!.timestamp),
+        );
       } else {
-        setTextElements(prev => prev.filter(t => t.timestamp !== itemToUndo!.timestamp));
+        setTextElements((prev) =>
+          prev.filter((t) => t.timestamp !== itemToUndo!.timestamp),
+        );
       }
 
       if (socket && roomId) {
@@ -426,10 +482,26 @@ export const Whiteboard: React.FC<WhiteboardProps> = ({
               <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
                 {[
                   { tool: "pen" as DrawingTool, icon: Pen, title: "Caneta" },
-                  { tool: "eraser" as DrawingTool, icon: Eraser, title: "Borracha" },
-                  { tool: "rectangle" as DrawingTool, icon: Square, title: "Retângulo" },
-                  { tool: "circle" as DrawingTool, icon: Circle, title: "Círculo" },
-                  { tool: "arrow" as DrawingTool, icon: ArrowRight, title: "Seta" },
+                  {
+                    tool: "eraser" as DrawingTool,
+                    icon: Eraser,
+                    title: "Borracha",
+                  },
+                  {
+                    tool: "rectangle" as DrawingTool,
+                    icon: Square,
+                    title: "Retângulo",
+                  },
+                  {
+                    tool: "circle" as DrawingTool,
+                    icon: Circle,
+                    title: "Círculo",
+                  },
+                  {
+                    tool: "arrow" as DrawingTool,
+                    icon: ArrowRight,
+                    title: "Seta",
+                  },
                   { tool: "text" as DrawingTool, icon: Type, title: "Texto" },
                 ].map(({ tool, icon: Icon, title }) => (
                   <Button
@@ -446,13 +518,15 @@ export const Whiteboard: React.FC<WhiteboardProps> = ({
 
               {/* Colors */}
               <div className="flex items-center space-x-1">
-                {colors.map(color => (
+                {colors.map((color) => (
                   <button
                     key={color}
                     onClick={() => setCurrentColor(color)}
                     className={cn(
                       "w-6 h-6 rounded border-2 transition-all",
-                      currentColor === color ? "border-gray-600 scale-110" : "border-gray-300"
+                      currentColor === color
+                        ? "border-gray-600 scale-110"
+                        : "border-gray-300",
                     )}
                     style={{ backgroundColor: color }}
                     title={color}
@@ -462,19 +536,24 @@ export const Whiteboard: React.FC<WhiteboardProps> = ({
 
               {/* Width */}
               <div className="flex items-center space-x-1">
-                {widths.map(width => (
+                {widths.map((width) => (
                   <button
                     key={width}
                     onClick={() => setCurrentWidth(width)}
                     className={cn(
                       "w-8 h-8 rounded border-2 flex items-center justify-center transition-all",
-                      currentWidth === width ? "border-blue-500 bg-blue-50" : "border-gray-300"
+                      currentWidth === width
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-300",
                     )}
                     title={`Espessura: ${width}px`}
                   >
                     <div
                       className="rounded-full bg-current"
-                      style={{ width: `${Math.min(width, 6)}px`, height: `${Math.min(width, 6)}px` }}
+                      style={{
+                        width: `${Math.min(width, 6)}px`,
+                        height: `${Math.min(width, 6)}px`,
+                      }}
                     />
                   </button>
                 ))}
@@ -483,13 +562,28 @@ export const Whiteboard: React.FC<WhiteboardProps> = ({
 
             {/* Actions */}
             <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" onClick={undoLast} title="Desfazer">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={undoLast}
+                title="Desfazer"
+              >
                 <RotateCcw className="w-4 h-4" />
               </Button>
-              <Button variant="outline" size="sm" onClick={downloadWhiteboard} title="Baixar">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={downloadWhiteboard}
+                title="Baixar"
+              >
                 <Download className="w-4 h-4" />
               </Button>
-              <Button variant="destructive" size="sm" onClick={clearWhiteboard} title="Limpar tudo">
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={clearWhiteboard}
+                title="Limpar tudo"
+              >
                 <Trash2 className="w-4 h-4" />
               </Button>
             </div>
@@ -530,7 +624,7 @@ export const Whiteboard: React.FC<WhiteboardProps> = ({
                   onBlur={handleTextSubmit}
                   autoFocus
                   className="border rounded px-2 py-1 text-sm"
-                  style={{ 
+                  style={{
                     color: currentColor,
                     fontSize: `${fontSize}px`,
                   }}

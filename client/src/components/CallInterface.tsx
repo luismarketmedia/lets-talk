@@ -95,7 +95,9 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
 
   // Hand raise state
   const [isHandRaised, setIsHandRaised] = useState(false);
-  const [raisedHands, setRaisedHands] = useState(new Map<string, { name: string; timestamp: Date }>());
+  const [raisedHands, setRaisedHands] = useState(
+    new Map<string, { name: string; timestamp: Date }>(),
+  );
 
   // Reactions state
   const [recentReactions, setRecentReactions] = useState<any[]>([]);
@@ -114,7 +116,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
     const newState = !isHandRaised;
     setIsHandRaised(newState);
 
-    socket.emit('hand-raise', {
+    socket.emit("hand-raise", {
       roomId,
       isRaised: newState,
       participantName: userName,
@@ -135,22 +137,29 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
         timestamp: new Date(),
       };
 
-      setRecentReactions(prev => [...prev, newReaction]);
+      setRecentReactions((prev) => [...prev, newReaction]);
 
       // Remove reaction after 3 seconds
       setTimeout(() => {
-        setRecentReactions(prev => prev.filter(r => r.id !== newReaction.id));
+        setRecentReactions((prev) =>
+          prev.filter((r) => r.id !== newReaction.id),
+        );
       }, 3000);
     };
 
     const handleHandRaise = (data: any) => {
       if (data.isRaised) {
-        setRaisedHands(prev => new Map(prev.set(data.participantId, {
-          name: data.participantName,
-          timestamp: new Date(),
-        })));
+        setRaisedHands(
+          (prev) =>
+            new Map(
+              prev.set(data.participantId, {
+                name: data.participantName,
+                timestamp: new Date(),
+              }),
+            ),
+        );
       } else {
-        setRaisedHands(prev => {
+        setRaisedHands((prev) => {
           const newMap = new Map(prev);
           newMap.delete(data.participantId);
           return newMap;
@@ -158,12 +167,12 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
       }
     };
 
-    socket.on('reaction', handleReaction);
-    socket.on('hand-raise', handleHandRaise);
+    socket.on("reaction", handleReaction);
+    socket.on("hand-raise", handleHandRaise);
 
     return () => {
-      socket.off('reaction', handleReaction);
-      socket.off('hand-raise', handleHandRaise);
+      socket.off("reaction", handleReaction);
+      socket.off("hand-raise", handleHandRaise);
     };
   }, [socket]);
   const remoteStreamArray = Array.from(remoteStreams.entries());
@@ -288,7 +297,10 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col" data-call-interface>
+    <div
+      className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col"
+      data-call-interface
+    >
       {/* Scrollable main content */}
       <div className="flex-1 overflow-y-auto">
         <div className="p-4 pb-32">
@@ -500,7 +512,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                     className="animate-bounce text-4xl"
                     style={{
                       animationDelay: `${Math.random() * 0.5}s`,
-                      animationDuration: '2s',
+                      animationDuration: "2s",
                     }}
                   >
                     {reaction.emoji}

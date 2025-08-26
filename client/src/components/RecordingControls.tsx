@@ -1,16 +1,16 @@
 import React, { useState } from "react";
-import { 
-  Circle, 
-  Square, 
-  Pause, 
-  Play, 
-  Camera, 
+import {
+  Circle,
+  Square,
+  Pause,
+  Play,
+  Camera,
   Download,
   Mic,
   Video,
   Settings,
   Check,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
@@ -89,10 +89,14 @@ export const RecordingControls: React.FC<RecordingControlsProps> = ({
       {/* Recording Status Display */}
       {(recording.isRecording || recording.isPaused || recording.isStopped) && (
         <div className="flex items-center space-x-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-          <div className={cn(
-            "w-2 h-2 rounded-full",
-            recording.isRecording ? "bg-red-500 animate-pulse" : "bg-gray-400"
-          )} />
+          <div
+            className={cn(
+              "w-2 h-2 rounded-full",
+              recording.isRecording
+                ? "bg-red-500 animate-pulse"
+                : "bg-gray-400",
+            )}
+          />
           <span className="text-sm font-medium text-red-700">
             {recording.formatDuration(recording.recordingInfo.duration)}
           </span>
@@ -116,7 +120,7 @@ export const RecordingControls: React.FC<RecordingControlsProps> = ({
           className={cn(
             "w-10 h-10 rounded-full transition-all duration-200",
             recording.isRecording && "animate-pulse",
-            recording.isPaused && "bg-yellow-500 hover:bg-yellow-600"
+            recording.isPaused && "bg-yellow-500 hover:bg-yellow-600",
           )}
           title={
             recording.isPaused
@@ -163,7 +167,7 @@ export const RecordingControls: React.FC<RecordingControlsProps> = ({
           disabled={screenshotLoading}
           className={cn(
             "w-10 h-10 rounded-full transition-all duration-200",
-            screenshotSuccess && "bg-green-50 border-green-200 text-green-700"
+            screenshotSuccess && "bg-green-50 border-green-200 text-green-700",
           )}
           title="Capturar screenshot"
         >
@@ -212,7 +216,9 @@ export const RecordingControls: React.FC<RecordingControlsProps> = ({
                       name="recordingMode"
                       value="video"
                       checked={recordingMode === "video"}
-                      onChange={(e) => setRecordingMode(e.target.value as RecordingMode)}
+                      onChange={(e) =>
+                        setRecordingMode(e.target.value as RecordingMode)
+                      }
                       className="w-4 h-4 text-blue-600"
                     />
                     <div className="flex items-center space-x-2">
@@ -226,7 +232,9 @@ export const RecordingControls: React.FC<RecordingControlsProps> = ({
                       name="recordingMode"
                       value="audio-only"
                       checked={recordingMode === "audio-only"}
-                      onChange={(e) => setRecordingMode(e.target.value as RecordingMode)}
+                      onChange={(e) =>
+                        setRecordingMode(e.target.value as RecordingMode)
+                      }
                       className="w-4 h-4 text-blue-600"
                     />
                     <div className="flex items-center space-x-2">
@@ -242,21 +250,29 @@ export const RecordingControls: React.FC<RecordingControlsProps> = ({
                 <div className="flex items-start space-x-2">
                   <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
                   <div className="text-sm text-blue-700">
-                    <p className="font-medium mb-1">Informações sobre gravação:</p>
+                    <p className="font-medium mb-1">
+                      Informações sobre gravação:
+                    </p>
                     <ul className="text-xs space-y-1">
-                      <li>• A gravação é feita localmente no seu dispositivo</li>
+                      <li>
+                        • A gravação é feita localmente no seu dispositivo
+                      </li>
                       <li>• Inclui áudio de todos os participantes</li>
-                      <li>• Formato: WebM (compatível com navegadores modernos)</li>
-                      <li>• {recordingMode === "audio-only" ? "Arquivo menor, apenas áudio" : "Inclui vídeo de todos os participantes"}</li>
+                      <li>
+                        • Formato: WebM (compatível com navegadores modernos)
+                      </li>
+                      <li>
+                        •{" "}
+                        {recordingMode === "audio-only"
+                          ? "Arquivo menor, apenas áudio"
+                          : "Inclui vídeo de todos os participantes"}
+                      </li>
                     </ul>
                   </div>
                 </div>
               </div>
 
-              <Button
-                onClick={() => setShowSettings(false)}
-                className="w-full"
-              >
+              <Button onClick={() => setShowSettings(false)} className="w-full">
                 Salvar Configurações
               </Button>
             </div>

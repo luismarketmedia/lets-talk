@@ -17,7 +17,14 @@ import {
 import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
 
-type AnnotationTool = "pen" | "eraser" | "rectangle" | "circle" | "arrow" | "text" | "pointer";
+type AnnotationTool =
+  | "pen"
+  | "eraser"
+  | "rectangle"
+  | "circle"
+  | "arrow"
+  | "text"
+  | "pointer";
 
 interface AnnotationStroke {
   id: string;
@@ -63,11 +70,24 @@ export const ScreenAnnotations: React.FC<ScreenAnnotationsProps> = ({
   const [currentColor, setCurrentColor] = useState("#FF0000");
   const [currentWidth, setCurrentWidth] = useState(3);
   const [strokes, setStrokes] = useState<AnnotationStroke[]>([]);
-  const [currentStroke, setCurrentStroke] = useState<AnnotationStroke | null>(null);
-  const [pointers, setPointers] = useState<Map<string, PointerEvent>>(new Map());
+  const [currentStroke, setCurrentStroke] = useState<AnnotationStroke | null>(
+    null,
+  );
+  const [pointers, setPointers] = useState<Map<string, PointerEvent>>(
+    new Map(),
+  );
   const [showToolbar, setShowToolbar] = useState(false);
 
-  const colors = ["#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF", "#FFA500", "#FFFFFF"];
+  const colors = [
+    "#FF0000",
+    "#00FF00",
+    "#0000FF",
+    "#FFFF00",
+    "#FF00FF",
+    "#00FFFF",
+    "#FFA500",
+    "#FFFFFF",
+  ];
   const widths = [2, 4, 6, 8, 12];
 
   // Initialize canvas overlay
@@ -100,15 +120,15 @@ export const ScreenAnnotations: React.FC<ScreenAnnotationsProps> = ({
     if (!socket) return;
 
     const handleAnnotationStroke = (data: AnnotationStroke) => {
-      setStrokes(prev => [...prev, data]);
+      setStrokes((prev) => [...prev, data]);
     };
 
     const handleAnnotationPointer = (data: PointerEvent) => {
-      setPointers(prev => new Map(prev.set(data.userId, data)));
-      
+      setPointers((prev) => new Map(prev.set(data.userId, data)));
+
       // Remove pointer after 2 seconds
       setTimeout(() => {
-        setPointers(prev => {
+        setPointers((prev) => {
           const newMap = new Map(prev);
           newMap.delete(data.userId);
           return newMap;
@@ -142,14 +162,15 @@ export const ScreenAnnotations: React.FC<ScreenAnnotationsProps> = ({
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw all strokes
-    strokes.forEach(stroke => {
+    strokes.forEach((stroke) => {
       if (stroke.points.length < 2) return;
 
       ctx.strokeStyle = stroke.color;
       ctx.lineWidth = stroke.width;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
-      ctx.globalCompositeOperation = stroke.tool === "eraser" ? "destination-out" : "source-over";
+      ctx.globalCompositeOperation =
+        stroke.tool === "eraser" ? "destination-out" : "source-over";
 
       if (stroke.tool === "rectangle") {
         const startPoint = stroke.points[0];
@@ -161,7 +182,8 @@ export const ScreenAnnotations: React.FC<ScreenAnnotationsProps> = ({
         const startPoint = stroke.points[0];
         const endPoint = stroke.points[stroke.points.length - 1];
         const radius = Math.sqrt(
-          Math.pow(endPoint.x - startPoint.x, 2) + Math.pow(endPoint.y - startPoint.y, 2)
+          Math.pow(endPoint.x - startPoint.x, 2) +
+            Math.pow(endPoint.y - startPoint.y, 2),
         );
         ctx.beginPath();
         ctx.arc(startPoint.x, startPoint.y, radius, 0, 2 * Math.PI);
@@ -182,7 +204,13 @@ export const ScreenAnnotations: React.FC<ScreenAnnotationsProps> = ({
     });
   }, [strokes]);
 
-  const drawArrow = (ctx: CanvasRenderingContext2D, fromX: number, fromY: number, toX: number, toY: number) => {
+  const drawArrow = (
+    ctx: CanvasRenderingContext2D,
+    fromX: number,
+    fromY: number,
+    toX: number,
+    toY: number,
+  ) => {
     const headLength = 15;
     const angle = Math.atan2(toY - fromY, toX - fromX);
 
@@ -193,9 +221,15 @@ export const ScreenAnnotations: React.FC<ScreenAnnotationsProps> = ({
 
     ctx.beginPath();
     ctx.moveTo(toX, toY);
-    ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
+    ctx.lineTo(
+      toX - headLength * Math.cos(angle - Math.PI / 6),
+      toY - headLength * Math.sin(angle - Math.PI / 6),
+    );
     ctx.moveTo(toX, toY);
-    ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6));
+    ctx.lineTo(
+      toX - headLength * Math.cos(angle + Math.PI / 6),
+      toY - headLength * Math.sin(angle + Math.PI / 6),
+    );
     ctx.stroke();
   };
 
@@ -280,7 +314,7 @@ export const ScreenAnnotations: React.FC<ScreenAnnotationsProps> = ({
     };
 
     setCurrentStroke(updatedStroke);
-    
+
     // Update canvas with current stroke
     redrawCanvas();
     const canvas = canvasRef.current;
@@ -293,7 +327,8 @@ export const ScreenAnnotations: React.FC<ScreenAnnotationsProps> = ({
     ctx.lineWidth = currentWidth;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
-    ctx.globalCompositeOperation = currentTool === "eraser" ? "destination-out" : "source-over";
+    ctx.globalCompositeOperation =
+      currentTool === "eraser" ? "destination-out" : "source-over";
 
     if (currentTool === "pen" || currentTool === "eraser") {
       ctx.beginPath();
@@ -309,7 +344,7 @@ export const ScreenAnnotations: React.FC<ScreenAnnotationsProps> = ({
     if (!isDrawing || !currentStroke) return;
 
     setIsDrawing(false);
-    setStrokes(prev => [...prev, currentStroke]);
+    setStrokes((prev) => [...prev, currentStroke]);
 
     // Send to other users
     if (socket && roomId) {
@@ -332,11 +367,13 @@ export const ScreenAnnotations: React.FC<ScreenAnnotationsProps> = ({
   };
 
   const undoLast = () => {
-    const userStrokes = strokes.filter(s => s.userId === (socket?.id || "local"));
+    const userStrokes = strokes.filter(
+      (s) => s.userId === (socket?.id || "local"),
+    );
     const lastStroke = userStrokes[userStrokes.length - 1];
 
     if (lastStroke) {
-      setStrokes(prev => prev.filter(s => s.id !== lastStroke.id));
+      setStrokes((prev) => prev.filter((s) => s.id !== lastStroke.id));
     }
   };
 
@@ -345,10 +382,12 @@ export const ScreenAnnotations: React.FC<ScreenAnnotationsProps> = ({
   return (
     <div className="fixed inset-0 z-50 pointer-events-none">
       {/* Annotation Overlay */}
-      <div 
+      <div
         ref={overlayRef}
         className="absolute inset-0 pointer-events-auto"
-        style={{ cursor: currentTool === "pointer" ? "crosshair" : "crosshair" }}
+        style={{
+          cursor: currentTool === "pointer" ? "crosshair" : "crosshair",
+        }}
       >
         <canvas
           ref={canvasRef}
@@ -391,7 +430,11 @@ export const ScreenAnnotations: React.FC<ScreenAnnotationsProps> = ({
               onClick={() => setShowToolbar(!showToolbar)}
               className="w-8 h-8 p-0"
             >
-              {showToolbar ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              {showToolbar ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
             </Button>
 
             {showToolbar && (
@@ -399,12 +442,36 @@ export const ScreenAnnotations: React.FC<ScreenAnnotationsProps> = ({
                 {/* Tools */}
                 <div className="flex items-center space-x-1 bg-gray-100 rounded p-1">
                   {[
-                    { tool: "pen" as AnnotationTool, icon: Pen, title: "Caneta" },
-                    { tool: "eraser" as AnnotationTool, icon: Eraser, title: "Borracha" },
-                    { tool: "rectangle" as AnnotationTool, icon: Square, title: "Retângulo" },
-                    { tool: "circle" as AnnotationTool, icon: Circle, title: "Círculo" },
-                    { tool: "arrow" as AnnotationTool, icon: ArrowRight, title: "Seta" },
-                    { tool: "pointer" as AnnotationTool, icon: MousePointer, title: "Ponteiro Laser" },
+                    {
+                      tool: "pen" as AnnotationTool,
+                      icon: Pen,
+                      title: "Caneta",
+                    },
+                    {
+                      tool: "eraser" as AnnotationTool,
+                      icon: Eraser,
+                      title: "Borracha",
+                    },
+                    {
+                      tool: "rectangle" as AnnotationTool,
+                      icon: Square,
+                      title: "Retângulo",
+                    },
+                    {
+                      tool: "circle" as AnnotationTool,
+                      icon: Circle,
+                      title: "Círculo",
+                    },
+                    {
+                      tool: "arrow" as AnnotationTool,
+                      icon: ArrowRight,
+                      title: "Seta",
+                    },
+                    {
+                      tool: "pointer" as AnnotationTool,
+                      icon: MousePointer,
+                      title: "Ponteiro Laser",
+                    },
                   ].map(({ tool, icon: Icon, title }) => (
                     <Button
                       key={tool}
@@ -421,13 +488,15 @@ export const ScreenAnnotations: React.FC<ScreenAnnotationsProps> = ({
 
                 {/* Colors */}
                 <div className="flex items-center space-x-1">
-                  {colors.map(color => (
+                  {colors.map((color) => (
                     <button
                       key={color}
                       onClick={() => setCurrentColor(color)}
                       className={cn(
                         "w-5 h-5 rounded border-2 transition-all",
-                        currentColor === color ? "border-gray-600 scale-110" : "border-gray-300"
+                        currentColor === color
+                          ? "border-gray-600 scale-110"
+                          : "border-gray-300",
                       )}
                       style={{ backgroundColor: color }}
                       title={color}
@@ -437,19 +506,24 @@ export const ScreenAnnotations: React.FC<ScreenAnnotationsProps> = ({
 
                 {/* Width */}
                 <div className="flex items-center space-x-1">
-                  {widths.map(width => (
+                  {widths.map((width) => (
                     <button
                       key={width}
                       onClick={() => setCurrentWidth(width)}
                       className={cn(
                         "w-6 h-6 rounded border flex items-center justify-center transition-all",
-                        currentWidth === width ? "border-blue-500 bg-blue-50" : "border-gray-300"
+                        currentWidth === width
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-300",
                       )}
                       title={`Espessura: ${width}px`}
                     >
                       <div
                         className="rounded-full bg-current"
-                        style={{ width: `${Math.min(width, 4)}px`, height: `${Math.min(width, 4)}px` }}
+                        style={{
+                          width: `${Math.min(width, 4)}px`,
+                          height: `${Math.min(width, 4)}px`,
+                        }}
                       />
                     </button>
                   ))}
