@@ -1,7 +1,8 @@
 import React from 'react';
-import { Mic, MicOff, Video, VideoOff, Monitor, Phone } from 'lucide-react';
+import { Mic, MicOff, Video, VideoOff, Monitor, Phone, MonitorX } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '../lib/utils';
+import { useScreenShareSupport } from '../hooks/useScreenShareSupport';
 
 interface MediaControlsProps {
   isAudioEnabled: boolean;
