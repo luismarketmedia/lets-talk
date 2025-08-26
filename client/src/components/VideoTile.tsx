@@ -10,6 +10,7 @@ interface VideoTileProps {
   isVideoEnabled?: boolean;
   participantName?: string;
   className?: string;
+  peerConnection?: RTCPeerConnection | null;
 }
 
 export const VideoTile: React.FC<VideoTileProps> = ({
