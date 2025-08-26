@@ -45,6 +45,12 @@ export const useWebRTC = (
   const [participantStates, setParticipantStates] = useState<
     Map<string, { isAudioEnabled: boolean; isVideoEnabled: boolean }>
   >(new Map());
+  const [participantNames, setParticipantNames] = useState<Map<string, string>>(
+    new Map(),
+  );
+  const [screenSharingParticipant, setScreenSharingParticipant] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     // Conectar ao servidor Socket.IO via proxy do Vite
@@ -78,30 +84,54 @@ export const useWebRTC = (
       setCallState((prev) => ({ ...prev, connectionState: "failed" }));
     });
 
-    socket.on("user-joined", async (userId: string) => {
-      console.log("Usuário entrou:", userId);
-      await createOffer(userId);
+    socket.on("user-joined", async (data) => {
+      const { socketId, userName } =
+        typeof data === "string"
+          ? { socketId: data, userName: "Participante" }
+          : data;
+      console.log("Usuário entrou:", socketId, userName);
+
+      // Store participant name
+      setParticipantNames((prev) => {
+        const newNames = new Map(prev);
+        newNames.set(socketId, userName);
+        return newNames;
+      });
+
+      await createOffer(socketId);
     });
 
-    socket.on("user-left", (userId: string) => {
-      console.log("Usuário saiu:", userId);
-      const peerConnection = peerConnectionsRef.current.get(userId);
+    socket.on("user-left", (data) => {
+      const { socketId, userName } =
+        typeof data === "string"
+          ? { socketId: data, userName: "Participante" }
+          : data;
+      console.log("Usuário saiu:", socketId, userName);
+
+      const peerConnection = peerConnectionsRef.current.get(socketId);
       if (peerConnection) {
         peerConnection.close();
-        peerConnectionsRef.current.delete(userId);
+        peerConnectionsRef.current.delete(socketId);
       }
 
       setCallState((prev) => {
         const newRemoteStreams = new Map(prev.remoteStreams);
-        newRemoteStreams.delete(userId);
+        newRemoteStreams.delete(socketId);
         return { ...prev, remoteStreams: newRemoteStreams };
       });
 
       // Clean up participant state
       setParticipantStates((prev) => {
         const newStates = new Map(prev);
-        newStates.delete(userId);
+        newStates.delete(socketId);
         return newStates;
+      });
+
+      // Clean up participant names
+      setParticipantNames((prev) => {
+        const newNames = new Map(prev);
+        newNames.delete(socketId);
+        return newNames;
       });
     });
 
@@ -120,18 +150,65 @@ export const useWebRTC = (
     // Listen for participant state changes
     socket.on("participant-state-changed", (data) => {
       console.log("Participant state changed:", data);
-      const { participantId, isAudioEnabled, isVideoEnabled } = data;
+      const { participantId, isAudioEnabled, isVideoEnabled, isScreenSharing } =
+        data;
 
       setParticipantStates((prev) => {
         const newStates = new Map(prev);
         newStates.set(participantId, { isAudioEnabled, isVideoEnabled });
         return newStates;
       });
+
+      // Update screen sharing state
+      if (isScreenSharing !== undefined) {
+        setScreenSharingParticipant(isScreenSharing ? participantId : null);
+      }
     });
 
-    // Eventos do sistema de aprovação
+    // Listen for screen sharing events
+    socket.on("screen-share-started", (data) => {
+      console.log("Screen sharing started:", data);
+      setScreenSharingParticipant(data.participantId);
+      if (onNotification) {
+        onNotification(
+          "info",
+          "Compartilhamento de Tela",
+          `${data.userName} está compartilhando a tela`,
+        );
+      }
+    });
+
+    socket.on("screen-share-stopped", (data) => {
+      console.log("Screen sharing stopped:", data);
+      setScreenSharingParticipant(null);
+      if (onNotification) {
+        onNotification(
+          "info",
+          "Compartilhamento Finalizado",
+          `${data.userName} parou de compartilhar a tela`,
+        );
+      }
+    });
+
+    // Eventos do sistema de aprovação - This is for global handling
     socket.on("join-approved", (data) => {
-      console.log("Entrada aprovada na sala:", data.roomId);
+      console.log("Global join approval handler:", data.roomId);
+
+      // Load existing participants
+      if (data.existingParticipants) {
+        console.log(
+          "Loading existing participants:",
+          data.existingParticipants,
+        );
+        setParticipantNames((prev) => {
+          const newNames = new Map(prev);
+          data.existingParticipants.forEach((participant: any) => {
+            newNames.set(participant.socketId, participant.userName);
+          });
+          return newNames;
+        });
+      }
+
       if (onNotification) {
         onNotification(
           "success",
@@ -139,6 +216,18 @@ export const useWebRTC = (
           "Você foi aceito na sala!",
         );
       }
+    });
+
+    // Handle existing participants when joining a room
+    socket.on("existing-participants", (participants) => {
+      console.log("Participantes existentes:", participants);
+      setParticipantNames((prev) => {
+        const newNames = new Map(prev);
+        participants.forEach((participant: any) => {
+          newNames.set(participant.socketId, participant.userName);
+        });
+        return newNames;
+      });
     });
 
     socket.on("join-rejected", (data) => {
@@ -356,7 +445,10 @@ export const useWebRTC = (
 
       // Entrar na sala via Socket.IO como host
       if (socketRef.current) {
-        socketRef.current.emit("join-room", roomId);
+        socketRef.current.emit("join-room", {
+          roomId,
+          userName: "Criador da Sala",
+        });
         setIsHost(true); // Definir como host quando cria/entra diretamente na sala
       }
     } catch (error) {
@@ -498,12 +590,36 @@ export const useWebRTC = (
         }
 
         // Listener para aprovação
-        const handleApproval = () => {
+        const handleApproval = (data: any) => {
+          console.log("Join approval received:", data);
+
           setCallState((prev) => ({
             ...prev,
             isInCall: true,
             connectionState: "connected",
           }));
+
+          // Load existing participants and try to connect to them
+          if (
+            data.existingParticipants &&
+            data.existingParticipants.length > 0
+          ) {
+            console.log(
+              "Connecting to existing participants:",
+              data.existingParticipants,
+            );
+            // Give a small delay to ensure we're properly in the room
+            setTimeout(() => {
+              data.existingParticipants.forEach((participant: any) => {
+                console.log(
+                  "Creating offer for existing participant:",
+                  participant.socketId,
+                );
+                createOffer(participant.socketId);
+              });
+            }, 1000);
+          }
+
           socketRef.current?.off("join-approved", handleApproval);
         };
 
@@ -714,6 +830,20 @@ export const useWebRTC = (
 
         setCallState((prev) => ({ ...prev, isScreenSharing: true }));
 
+        // Notify server and other participants
+        if (socketRef.current && callState.roomId) {
+          socketRef.current.emit("screen-share-started", {
+            roomId: callState.roomId,
+          });
+
+          socketRef.current.emit("participant-state-change", {
+            roomId: callState.roomId,
+            isAudioEnabled: callState.isAudioEnabled,
+            isVideoEnabled: callState.isVideoEnabled,
+            isScreenSharing: true,
+          });
+        }
+
         // Notificar sucesso
         if (onNotification) {
           onNotification(
@@ -764,6 +894,20 @@ export const useWebRTC = (
           }
 
           setCallState((prev) => ({ ...prev, isScreenSharing: false }));
+
+          // Notify server and other participants
+          if (socketRef.current && callState.roomId) {
+            socketRef.current.emit("screen-share-stopped", {
+              roomId: callState.roomId,
+            });
+
+            socketRef.current.emit("participant-state-change", {
+              roomId: callState.roomId,
+              isAudioEnabled: callState.isAudioEnabled,
+              isVideoEnabled: callState.isVideoEnabled,
+              isScreenSharing: false,
+            });
+          }
 
           // Notificar fim do compartilhamento
           if (onNotification) {
@@ -826,6 +970,20 @@ export const useWebRTC = (
       }
 
       setCallState((prev) => ({ ...prev, isScreenSharing: false }));
+
+      // Notify server about stopping screen share
+      if (socketRef.current && callState.roomId) {
+        socketRef.current.emit("screen-share-stopped", {
+          roomId: callState.roomId,
+        });
+
+        socketRef.current.emit("participant-state-change", {
+          roomId: callState.roomId,
+          isAudioEnabled: callState.isAudioEnabled,
+          isVideoEnabled: callState.isVideoEnabled,
+          isScreenSharing: false,
+        });
+      }
     }
   }, [callState.isScreenSharing, checkScreenShareSupport]);
 
@@ -868,5 +1026,7 @@ export const useWebRTC = (
     isHost,
     peerConnections: peerConnectionsRef.current,
     participantStates,
+    participantNames,
+    screenSharingParticipant,
   };
 };

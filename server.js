@@ -23,9 +23,11 @@ app.get("/", (req, res) => {
 });
 
 // Armazenar salas e usuários
-const rooms = new Map();
+const rooms = new Map(); // roomId -> Set of socketIds
 // Armazenar pedidos de entrada pendentes
-const pendingRequests = new Map();
+const pendingRequests = new Map(); // roomId -> Map of socketId -> request data
+// Armazenar informações dos participantes
+const participants = new Map(); // socketId -> { userName, roomId }
 
 io.on("connection", (socket) => {
   console.log(
@@ -98,6 +100,9 @@ io.on("connection", (socket) => {
       return;
     }
 
+    // Get pending request info
+    const requestInfo = pendingRequests.get(roomId).get(socketId);
+
     // Remover pedido pendente
     pendingRequests.get(roomId).delete(socketId);
 
@@ -105,13 +110,45 @@ io.on("connection", (socket) => {
     rooms.get(roomId).add(socketId);
     io.sockets.sockets.get(socketId)?.join(roomId);
 
-    // Notificar aprovação
-    io.to(socketId).emit("join-approved", { roomId });
+    // Store participant info
+    participants.set(socketId, { userName: requestInfo.userName, roomId });
 
-    // Notificar outros usuários na sala
-    socket.to(roomId).emit("user-joined", socketId);
+    // Send existing participants info to new user
+    const existingParticipants = [];
+    for (const existingSocketId of rooms.get(roomId)) {
+      if (existingSocketId !== socketId) {
+        const participantInfo = participants.get(existingSocketId);
+        if (participantInfo) {
+          existingParticipants.push({
+            socketId: existingSocketId,
+            userName: participantInfo.userName,
+          });
+        }
+      }
+    }
 
-    console.log(`Entrada aprovada para ${socketId} na sala ${roomId}`);
+    // Notificar aprovação com informações da sala
+    io.to(socketId).emit("join-approved", {
+      roomId,
+      existingParticipants,
+    });
+
+    // Wait a moment then notify existing users about the new participant
+    // This ensures the new participant is ready to receive offers
+    setTimeout(() => {
+      socket.to(roomId).emit("user-joined", {
+        socketId: socketId,
+        userName: requestInfo.userName,
+      });
+
+      console.log(
+        `Notified existing participants about new user ${socketId} in room ${roomId}`,
+      );
+    }, 500);
+
+    console.log(
+      `Entrada aprovada para ${socketId} (${requestInfo.userName}) na sala ${roomId}`,
+    );
   });
 
   // Rejeitar entrada na sala
@@ -137,7 +174,12 @@ io.on("connection", (socket) => {
   });
 
   // Entrar em uma sala diretamente (para criadores de sala)
-  socket.on("join-room", (roomId) => {
+  socket.on("join-room", (data) => {
+    const { roomId, userName } =
+      typeof data === "string"
+        ? { roomId: data, userName: "Usuário Anônimo" }
+        : data;
+
     socket.join(roomId);
 
     if (!rooms.has(roomId)) {
@@ -146,10 +188,37 @@ io.on("connection", (socket) => {
 
     rooms.get(roomId).add(socket.id);
 
-    // Notificar outros usuários na sala
-    socket.to(roomId).emit("user-joined", socket.id);
+    // Store participant info
+    participants.set(socket.id, {
+      userName: userName || "Usuário Anônimo",
+      roomId,
+    });
 
-    console.log(`Usuário ${socket.id} entrou na sala ${roomId}`);
+    // Send existing participants info to new user
+    const existingParticipants = [];
+    for (const existingSocketId of rooms.get(roomId)) {
+      if (existingSocketId !== socket.id) {
+        const participantInfo = participants.get(existingSocketId);
+        if (participantInfo) {
+          existingParticipants.push({
+            socketId: existingSocketId,
+            userName: participantInfo.userName,
+          });
+        }
+      }
+    }
+
+    if (existingParticipants.length > 0) {
+      socket.emit("existing-participants", existingParticipants);
+    }
+
+    // Notificar outros usuários na sala sobre o novo participante
+    socket.to(roomId).emit("user-joined", {
+      socketId: socket.id,
+      userName: userName || "Usuário Anônimo",
+    });
+
+    console.log(`Usuário ${socket.id} (${userName}) entrou na sala ${roomId}`);
   });
 
   // Encaminhar oferta WebRTC
@@ -176,13 +245,14 @@ io.on("connection", (socket) => {
     });
   });
 
-  // Handle participant state changes (mute/video)
+  // Handle participant state changes (mute/video/screen sharing)
   socket.on("participant-state-change", (data) => {
-    const { roomId, isAudioEnabled, isVideoEnabled } = data;
+    const { roomId, isAudioEnabled, isVideoEnabled, isScreenSharing } = data;
 
     console.log(`[STATE] ${socket.id} changed state in room ${roomId}:`, {
       audio: isAudioEnabled,
       video: isVideoEnabled,
+      screenSharing: isScreenSharing,
     });
 
     // Verify user is in the room
@@ -196,6 +266,44 @@ io.on("connection", (socket) => {
       participantId: socket.id,
       isAudioEnabled,
       isVideoEnabled,
+      isScreenSharing,
+    });
+  });
+
+  // Handle screen sharing events
+  socket.on("screen-share-started", (data) => {
+    const { roomId } = data;
+
+    console.log(
+      `[SCREEN_SHARE] ${socket.id} started screen sharing in room ${roomId}`,
+    );
+
+    if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
+      return;
+    }
+
+    const participantInfo = participants.get(socket.id);
+    socket.to(roomId).emit("screen-share-started", {
+      participantId: socket.id,
+      userName: participantInfo ? participantInfo.userName : "Participante",
+    });
+  });
+
+  socket.on("screen-share-stopped", (data) => {
+    const { roomId } = data;
+
+    console.log(
+      `[SCREEN_SHARE] ${socket.id} stopped screen sharing in room ${roomId}`,
+    );
+
+    if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
+      return;
+    }
+
+    const participantInfo = participants.get(socket.id);
+    socket.to(roomId).emit("screen-share-stopped", {
+      participantId: socket.id,
+      userName: participantInfo ? participantInfo.userName : "Participante",
     });
   });
 
@@ -240,11 +348,20 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("Usuário desconectado:", socket.id);
 
+    const participantInfo = participants.get(socket.id);
+    const participantName = participantInfo
+      ? participantInfo.userName
+      : "Usuário Desconhecido";
+
     // Remover usuário de todas as salas
     for (let [roomId, users] of rooms.entries()) {
       if (users.has(socket.id)) {
         users.delete(socket.id);
-        socket.to(roomId).emit("user-left", socket.id);
+        // Send participant info when notifying about leaving
+        socket.to(roomId).emit("user-left", {
+          socketId: socket.id,
+          userName: participantName,
+        });
 
         // Remover sala se estiver vazia
         if (users.size === 0) {
@@ -254,6 +371,9 @@ io.on("connection", (socket) => {
         }
       }
     }
+
+    // Clean up participant info
+    participants.delete(socket.id);
 
     // Remover de pedidos pendentes
     for (let [roomId, requests] of pendingRequests.entries()) {

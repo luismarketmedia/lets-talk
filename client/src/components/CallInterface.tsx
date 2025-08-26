@@ -7,7 +7,6 @@ import { AudioDeviceModal } from "./AudioDeviceModal";
 import { DeviceTestModal } from "./DeviceTestModal";
 import { AdvancedMediaControls } from "./AdvancedMediaControls";
 import { ConnectionIndicator } from "./ConnectionIndicator";
-import { Chat } from "./Chat";
 import { JoinApproval } from "./JoinApproval";
 import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
@@ -29,6 +28,8 @@ interface CallInterfaceProps {
     string,
     { isAudioEnabled: boolean; isVideoEnabled: boolean }
   >;
+  participantNames: Map<string, string>;
+  screenSharingParticipant: string | null;
   onToggleAudio: () => void;
   onToggleVideo: () => void;
   onToggleScreenShare: () => void;
@@ -47,6 +48,8 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   userName = "Você",
   peerConnections,
   participantStates,
+  participantNames,
+  screenSharingParticipant,
   onToggleAudio,
   onToggleVideo,
   onToggleScreenShare,
@@ -202,7 +205,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col">
       {/* Scrollable main content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-4 pb-28">
+        <div className="p-4 pb-32">
           {/* Header */}
           <div className="max-w-6xl mx-auto mb-6">
             <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
@@ -221,6 +224,16 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                         {totalParticipants !== 1 ? "s" : ""} conectado
                         {totalParticipants !== 1 ? "s" : ""}
                       </p>
+                      {screenSharingParticipant && (
+                        <div className="flex items-center space-x-1 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                          <span>🖥️</span>
+                          <span>
+                            {participantNames.get(screenSharingParticipant) ||
+                              "Participante"}{" "}
+                            está compartilhando
+                          </span>
+                        </div>
+                      )}
                       {/* Sempre mostrar indicador de conexão quando em chamada */}
                       <ConnectionIndicator
                         quality={connectionStats.quality}
@@ -231,16 +244,8 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                   </div>
                 </div>
 
-                {/* Controles e código da sala */}
+                {/* Código da sala */}
                 <div className="flex items-center space-x-3">
-                  {/* Chat */}
-                  <Chat
-                    socket={socket}
-                    roomId={roomId}
-                    userName={userName}
-                    participantCount={totalParticipants}
-                  />
-
                   <div className="flex items-center space-x-2 bg-gray-100 rounded-xl px-4 py-2 border">
                     <span className="text-sm font-medium text-gray-700">
                       ID da Sala:
@@ -350,6 +355,13 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
               {/* Vídeos remotos */}
               {remoteStreamArray.map(([userId, stream], index) => {
                 const participantState = participantStates.get(userId);
+                const participantName =
+                  participantNames.get(userId) || `Participante ${index + 1}`;
+                const isSharing = screenSharingParticipant === userId;
+                const displayName = isSharing
+                  ? `🖥️ ${participantName} (Compartilhando)`
+                  : participantName;
+
                 return (
                   <VideoTile
                     key={userId}
@@ -363,8 +375,11 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                     isVideoEnabled={
                       participantState ? participantState.isVideoEnabled : true
                     }
-                    participantName={`Participante ${index + 1}`}
-                    className={getVideoHeight()}
+                    participantName={displayName}
+                    className={cn(
+                      getVideoHeight(),
+                      isSharing && "ring-2 ring-blue-500 ring-offset-2",
+                    )}
                     peerConnection={peerConnections.get(userId) || null}
                   />
                 );
@@ -394,22 +409,29 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
         </div>
       </div>
 
-      {/* Controles de mídia fixos na parte inferior */}
-      <div className="fixed bottom-0 left-0 right-0 border-gray-200 p-4 z-50">
+      {/* Controles de mídia e chat fixos na parte inferior */}
+      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-white/90 to-transparent backdrop-blur-sm border-t border-gray-200 p-4 z-50">
         <div className="max-w-6xl mx-auto">
-          <MediaControls
-            isAudioEnabled={isAudioEnabled}
-            isVideoEnabled={isVideoEnabled}
-            isScreenSharing={isScreenSharing}
-            isTemporarilyMuted={advancedControls.isTemporarilyMuted}
-            onToggleAudio={onToggleAudio}
-            onToggleVideo={onToggleVideo}
-            onToggleScreenShare={onToggleScreenShare}
-            onEndCall={onEndCall}
-            onOpenAudioSettings={() => setShowAudioModal(true)}
-            onOpenDeviceTest={() => setShowTestModal(true)}
-            onOpenAdvancedControls={() => setShowAdvancedControls(true)}
-          />
+          <div className="flex items-center justify-center">
+            {/* Controles de mídia com chat integrado */}
+            <MediaControls
+              isAudioEnabled={isAudioEnabled}
+              isVideoEnabled={isVideoEnabled}
+              isScreenSharing={isScreenSharing}
+              isTemporarilyMuted={advancedControls.isTemporarilyMuted}
+              onToggleAudio={onToggleAudio}
+              onToggleVideo={onToggleVideo}
+              onToggleScreenShare={onToggleScreenShare}
+              onEndCall={onEndCall}
+              onOpenAudioSettings={() => setShowAudioModal(true)}
+              onOpenDeviceTest={() => setShowTestModal(true)}
+              onOpenAdvancedControls={() => setShowAdvancedControls(true)}
+              socket={socket}
+              roomId={roomId}
+              userName={userName}
+              participantCount={totalParticipants}
+            />
+          </div>
         </div>
       </div>
 
