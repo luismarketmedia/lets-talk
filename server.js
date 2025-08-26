@@ -307,6 +307,51 @@ io.on("connection", (socket) => {
     });
   });
 
+  // Eventos de Reações
+  socket.on("reaction", (data) => {
+    const { roomId, emoji, name, participantName } = data;
+
+    console.log(`[REACTION] ${socket.id} (${participantName}) enviou reação ${emoji} na sala ${roomId}`);
+
+    // Verificar se o usuário está na sala
+    if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
+      console.log(`[REACTION ERROR] Usuário ${socket.id} não está na sala ${roomId}`);
+      return;
+    }
+
+    // Enviar reação para todos na sala (incluindo o remetente)
+    io.to(roomId).emit("reaction", {
+      emoji,
+      name,
+      participantId: socket.id,
+      participantName: participantName || "Usuário Anônimo",
+      timestamp: new Date(),
+      roomId,
+    });
+  });
+
+  // Eventos de Levantar Mão
+  socket.on("hand-raise", (data) => {
+    const { roomId, isRaised, participantName } = data;
+
+    console.log(`[HAND_RAISE] ${socket.id} (${participantName}) ${isRaised ? 'levantou' : 'baixou'} a mão na sala ${roomId}`);
+
+    // Verificar se o usuário está na sala
+    if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
+      console.log(`[HAND_RAISE ERROR] Usuário ${socket.id} não está na sala ${roomId}`);
+      return;
+    }
+
+    // Enviar evento para todos na sala (incluindo o remetente)
+    io.to(roomId).emit("hand-raise", {
+      participantId: socket.id,
+      participantName: participantName || "Usuário Anônimo",
+      isRaised,
+      timestamp: new Date(),
+      roomId,
+    });
+  });
+
   // Eventos de Chat
   socket.on("chat-message", (data) => {
     const { roomId, message, userName } = data;
