@@ -191,16 +191,35 @@ io.on('connection', (socket) => {
     // Lidar com desconexão
     socket.on('disconnect', () => {
         console.log('Usuário desconectado:', socket.id);
-        
+
         // Remover usuário de todas as salas
         for (let [roomId, users] of rooms.entries()) {
             if (users.has(socket.id)) {
                 users.delete(socket.id);
                 socket.to(roomId).emit('user-left', socket.id);
-                
+
                 // Remover sala se estiver vazia
                 if (users.size === 0) {
                     rooms.delete(roomId);
+                    // Limpar pedidos pendentes da sala vazia
+                    pendingRequests.delete(roomId);
+                }
+            }
+        }
+
+        // Remover de pedidos pendentes
+        for (let [roomId, requests] of pendingRequests.entries()) {
+            if (requests.has(socket.id)) {
+                requests.delete(socket.id);
+
+                // Notificar host que o pedido foi cancelado
+                const roomUsers = Array.from(rooms.get(roomId) || []);
+                const hostSocketId = roomUsers[0];
+                if (hostSocketId) {
+                    io.to(hostSocketId).emit('join-request-cancelled', {
+                        socketId: socket.id,
+                        roomId
+                    });
                 }
             }
         }
