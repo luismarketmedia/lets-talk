@@ -286,6 +286,13 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                           )}
                         </Button>
                       )}
+                      {/* Seletor de modo de visualização */}
+                      <ViewModeSelector
+                        currentMode={viewModeControls.viewMode}
+                        onModeChange={viewModeControls.changeViewMode}
+                        participantCount={totalParticipants}
+                        activeSpeaker={speakerInfo.activeSpeaker}
+                      />
                     </div>
                   </div>
                 </div>
