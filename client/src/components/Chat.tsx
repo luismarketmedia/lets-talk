@@ -4,6 +4,7 @@ import { MessageCircle, Send, Users, Smile } from "lucide-react";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
