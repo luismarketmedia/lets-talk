@@ -130,15 +130,20 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   };
 
   const fallbackCopyPrompt = () => {
-    // Método final: mostrar prompt para cópia manual
+    // Mostrar aviso sobre restrições se aplicável
+    if (isInIframe) {
+      setShowClipboardWarning(true);
+    }
+
+    // M��todo final: mostrar prompt para cópia manual
     if (window.prompt) {
       window.prompt(
-        'Copie o código da sala manualmente (Ctrl+C / Cmd+C):',
+        'Ambiente restrito detectado. Copie o código manualmente (Ctrl+C / Cmd+C):',
         roomId
       );
     } else {
       // Se nem prompt funcionar, mostrar alert
-      alert(`Código da sala: ${roomId}\n\nCopie manualmente este código.`);
+      alert(`Código da sala: ${roomId}\n\nAmbiente com restrições - Copie manualmente este código.`);
     }
 
     // Simular "copied" por feedback visual
