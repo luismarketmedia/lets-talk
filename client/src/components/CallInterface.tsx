@@ -408,29 +408,33 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
       {/* Controles de mídia fixos na parte inferior */}
       <div className="fixed bottom-0 left-0 right-0 border-gray-200 p-4 z-50">
         <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-center space-x-4">
-            {/* Chat integrado aos controles */}
-            <Chat
-              socket={socket}
-              roomId={roomId}
-              userName={userName}
-              participantCount={totalParticipants}
-            />
+          <div className="flex items-center justify-center space-x-6">
+            {/* Chat - posicionado à esquerda dos controles */}
+            <div className="flex items-center">
+              <Chat
+                socket={socket}
+                roomId={roomId}
+                userName={userName}
+                participantCount={totalParticipants}
+              />
+            </div>
 
-            {/* Controles de mídia */}
-            <MediaControls
-              isAudioEnabled={isAudioEnabled}
-              isVideoEnabled={isVideoEnabled}
-              isScreenSharing={isScreenSharing}
-              isTemporarilyMuted={advancedControls.isTemporarilyMuted}
-              onToggleAudio={onToggleAudio}
-              onToggleVideo={onToggleVideo}
-              onToggleScreenShare={onToggleScreenShare}
-              onEndCall={onEndCall}
-              onOpenAudioSettings={() => setShowAudioModal(true)}
-              onOpenDeviceTest={() => setShowTestModal(true)}
-              onOpenAdvancedControls={() => setShowAdvancedControls(true)}
-            />
+            {/* Controles de mídia centralizados */}
+            <div className="flex items-center">
+              <MediaControls
+                isAudioEnabled={isAudioEnabled}
+                isVideoEnabled={isVideoEnabled}
+                isScreenSharing={isScreenSharing}
+                isTemporarilyMuted={advancedControls.isTemporarilyMuted}
+                onToggleAudio={onToggleAudio}
+                onToggleVideo={onToggleVideo}
+                onToggleScreenShare={onToggleScreenShare}
+                onEndCall={onEndCall}
+                onOpenAudioSettings={() => setShowAudioModal(true)}
+                onOpenDeviceTest={() => setShowTestModal(true)}
+                onOpenAdvancedControls={() => setShowAdvancedControls(true)}
+              />
+            </div>
           </div>
         </div>
       </div>
