@@ -194,10 +194,16 @@ export const Chat: React.FC<ChatProps> = ({
             unreadCount > 0 && "bg-blue-50 border-blue-400 text-blue-700"
           )}
         >
-          <MessageCircle className={cn(
-            "w-4 h-4",
-            unreadCount > 0 ? "text-blue-600" : "text-gray-600"
-          )} />
+          <div className="relative">
+            <MessageCircle className={cn(
+              "w-4 h-4",
+              unreadCount > 0 ? "text-blue-600" : "text-gray-600"
+            )} />
+            {/* Indicador de atividade quando há participantes */}
+            {participantCount > 1 && unreadCount === 0 && (
+              <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+            )}
+          </div>
           <span>Chat</span>
           {unreadCount > 0 && (
             <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
