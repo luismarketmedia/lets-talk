@@ -8,6 +8,7 @@ import {
   Phone,
   MonitorX,
   Settings,
+  Sliders,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
@@ -17,24 +18,28 @@ interface MediaControlsProps {
   isAudioEnabled: boolean;
   isVideoEnabled: boolean;
   isScreenSharing: boolean;
+  isTemporarilyMuted?: boolean;
   onToggleAudio: () => void;
   onToggleVideo: () => void;
   onToggleScreenShare: () => void;
   onEndCall: () => void;
   onOpenAudioSettings?: () => void;
   onOpenDeviceTest?: () => void;
+  onOpenAdvancedControls?: () => void;
 }
 
 export const MediaControls: React.FC<MediaControlsProps> = ({
   isAudioEnabled,
   isVideoEnabled,
   isScreenSharing,
+  isTemporarilyMuted = false,
   onToggleAudio,
   onToggleVideo,
   onToggleScreenShare,
   onEndCall,
   onOpenAudioSettings,
   onOpenDeviceTest,
+  onOpenAdvancedControls,
 }) => {
   const screenShareSupport = useScreenShareSupport();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -76,24 +81,40 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
       <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200 p-4">
         <div className="flex items-center space-x-3">
           {/* Controle de Áudio */}
-          <Button
-            variant={isAudioEnabled ? "default" : "destructive"}
-            size="icon"
-            onClick={onToggleAudio}
-            className={cn(
-              "w-12 h-12 rounded-full transition-all duration-200",
-              isAudioEnabled
-                ? "bg-primary-500 hover:bg-primary-600 text-white"
-                : "bg-red-500 hover:bg-red-600 text-white",
+          <div className="relative">
+            <Button
+              variant={
+                isAudioEnabled && !isTemporarilyMuted
+                  ? "default"
+                  : "destructive"
+              }
+              size="icon"
+              onClick={onToggleAudio}
+              className={cn(
+                "w-12 h-12 rounded-full transition-all duration-200",
+                isAudioEnabled && !isTemporarilyMuted
+                  ? "bg-primary-500 hover:bg-primary-600 text-white"
+                  : "bg-red-500 hover:bg-red-600 text-white",
+                isTemporarilyMuted && "ring-2 ring-yellow-400 ring-offset-2",
+              )}
+              title={
+                isTemporarilyMuted
+                  ? "Microfone temporariamente silenciado (Solte ESPAÇO)"
+                  : isAudioEnabled
+                    ? "Desativar microfone"
+                    : "Ativar microfone"
+              }
+            >
+              {isAudioEnabled && !isTemporarilyMuted ? (
+                <Mic className="w-5 h-5" />
+              ) : (
+                <MicOff className="w-5 h-5" />
+              )}
+            </Button>
+            {isTemporarilyMuted && (
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse" />
             )}
-            title={isAudioEnabled ? "Desativar microfone" : "Ativar microfone"}
-          >
-            {isAudioEnabled ? (
-              <Mic className="w-5 h-5" />
-            ) : (
-              <MicOff className="w-5 h-5" />
-            )}
-          </Button>
+          </div>
 
           {/* Controle de Vídeo */}
           <Button
@@ -174,7 +195,23 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
                   role="menu"
                   aria-label="Opções de configuração"
                 >
-                  <div className="bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[180px]">
+                  <div className="bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[250px]">
+                    {onOpenAdvancedControls && (
+                      <button
+                        onClick={() => {
+                          onOpenAdvancedControls();
+                          setIsSettingsOpen(false);
+                        }}
+                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors focus:bg-gray-50 focus:outline-none"
+                        role="menuitem"
+                        tabIndex={0}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <Sliders className="w-4 h-4" />
+                          <span>Controles Avançados</span>
+                        </div>
+                      </button>
+                    )}
                     {onOpenAudioSettings && (
                       <button
                         onClick={() => {

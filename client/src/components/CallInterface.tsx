@@ -5,10 +5,14 @@ import { VideoTile } from "./VideoTile";
 import { MediaControls } from "./MediaControls";
 import { AudioDeviceModal } from "./AudioDeviceModal";
 import { DeviceTestModal } from "./DeviceTestModal";
+import { AdvancedMediaControls } from "./AdvancedMediaControls";
+import { ConnectionIndicator } from "./ConnectionIndicator";
 import { Chat } from "./Chat";
 import { JoinApproval } from "./JoinApproval";
 import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
+import { useAdvancedMediaControls } from "../hooks/useAdvancedMediaControls";
+import { useConnectionMonitor } from "../hooks/useConnectionMonitor";
 
 interface CallInterfaceProps {
   roomId: string;
@@ -54,10 +58,26 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   >("clipboard");
   const [showAudioModal, setShowAudioModal] = useState(false);
   const [showTestModal, setShowTestModal] = useState(false);
+  const [showAdvancedControls, setShowAdvancedControls] = useState(false);
   const [isInIframe, setIsInIframe] = useState(false);
   const [showClipboardWarning, setShowClipboardWarning] = useState(false);
   const remoteStreamArray = Array.from(remoteStreams.entries());
   const totalParticipants = 1 + remoteStreamArray.length; // Local + remotes
+
+  // Advanced media controls
+  const advancedControls = useAdvancedMediaControls({
+    localStream,
+    onVideoQualityChange: (quality) => {
+      console.log("Video quality changed to:", quality);
+      // Here you would implement actual video quality change
+    },
+  });
+
+  // Connection monitoring
+  const connectionStats = useConnectionMonitor({
+    peerConnections,
+    enabled: totalParticipants > 1, // Only monitor when there are remote participants
+  });
 
   useEffect(() => {
     // Detectar se estamos em iframe
@@ -185,25 +205,34 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
         <div className="p-4 pb-28">
           {/* Header */}
           <div className="max-w-6xl mx-auto mb-6">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+            <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
-                    <Users className="w-5 h-5 text-white" />
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center shadow-md">
+                    <Users className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-lg font-semibold text-gray-900">
-                      Chamada em andamento
+                    <h1 className="text-xl font-bold text-gray-900 mb-1">
+                      Chamada em Andamento
                     </h1>
-                    <p className="text-sm text-gray-600">
-                      {totalParticipants} participante
-                      {totalParticipants !== 1 ? "s" : ""}
-                    </p>
+                    <div className="flex items-center space-x-4">
+                      <p className="text-sm font-medium text-gray-600">
+                        {totalParticipants} participante
+                        {totalParticipants !== 1 ? "s" : ""} conectado
+                        {totalParticipants !== 1 ? "s" : ""}
+                      </p>
+                      {/* Sempre mostrar indicador de conexão quando em chamada */}
+                      <ConnectionIndicator
+                        quality={connectionStats.quality}
+                        rtt={connectionStats.rtt}
+                        bandwidth={connectionStats.bandwidth}
+                      />
+                    </div>
                   </div>
                 </div>
 
                 {/* Controles e código da sala */}
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3">
                   {/* Chat */}
                   <Chat
                     socket={socket}
@@ -212,10 +241,12 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                     participantCount={totalParticipants}
                   />
 
-                  <div className="hidden sm:flex items-center space-x-2 bg-gray-50 rounded-lg px-3 py-2">
-                    <span className="text-sm text-gray-600">Sala:</span>
+                  <div className="flex items-center space-x-2 bg-gray-100 rounded-xl px-4 py-2 border">
+                    <span className="text-sm font-medium text-gray-700">
+                      ID da Sala:
+                    </span>
                     <span
-                      className="text-sm font-mono font-medium text-gray-900 select-all cursor-text px-1 py-0.5 rounded bg-white border border-gray-200"
+                      className="text-sm font-mono font-bold text-blue-600 select-all cursor-text px-2 py-1 rounded-lg bg-blue-50 border border-blue-200"
                       title="Clique para selecionar e copiar com Ctrl+C"
                     >
                       {roomId}
@@ -225,27 +256,28 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                     variant="outline"
                     size="sm"
                     onClick={copyRoomId}
-                    className={`flex items-center space-x-2 ${
+                    className={cn(
+                      "flex items-center space-x-2 font-medium",
                       copied && copyMethod === "manual"
-                        ? "border-yellow-400 bg-yellow-50"
-                        : ""
-                    }`}
+                        ? "border-yellow-400 bg-yellow-50 text-yellow-700"
+                        : "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100",
+                    )}
                   >
                     {copied ? (
                       copyMethod === "manual" ? (
-                        <Copy className="w-4 h-4 text-yellow-600" />
+                        <Copy className="w-4 h-4" />
                       ) : (
                         <Check className="w-4 h-4 text-green-600" />
                       )
                     ) : (
                       <Copy className="w-4 h-4" />
                     )}
-                    <span className="hidden sm:inline">
+                    <span>
                       {copied
                         ? copyMethod === "manual"
                           ? "Use Ctrl+C"
                           : "Copiado!"
-                        : "Copiar código"}
+                        : "Copiar"}
                     </span>
                   </Button>
                 </div>
@@ -369,12 +401,14 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
             isAudioEnabled={isAudioEnabled}
             isVideoEnabled={isVideoEnabled}
             isScreenSharing={isScreenSharing}
+            isTemporarilyMuted={advancedControls.isTemporarilyMuted}
             onToggleAudio={onToggleAudio}
             onToggleVideo={onToggleVideo}
             onToggleScreenShare={onToggleScreenShare}
             onEndCall={onEndCall}
             onOpenAudioSettings={() => setShowAudioModal(true)}
             onOpenDeviceTest={() => setShowTestModal(true)}
+            onOpenAdvancedControls={() => setShowAdvancedControls(true)}
           />
         </div>
       </div>
@@ -395,6 +429,21 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
       <DeviceTestModal
         isOpen={showTestModal}
         onClose={() => setShowTestModal(false)}
+      />
+
+      <AdvancedMediaControls
+        isVisible={showAdvancedControls}
+        onClose={() => setShowAdvancedControls(false)}
+        microphoneVolume={advancedControls.microphoneVolume}
+        speakerVolume={advancedControls.speakerVolume}
+        videoQuality={advancedControls.videoQuality}
+        dataSavingMode={advancedControls.dataSavingMode}
+        onMicrophoneVolumeChange={advancedControls.handleMicrophoneVolumeChange}
+        onSpeakerVolumeChange={advancedControls.handleSpeakerVolumeChange}
+        onVideoQualityChange={advancedControls.handleVideoQualityChange}
+        onDataSavingModeToggle={advancedControls.handleDataSavingModeToggle}
+        connectionQuality={connectionStats.quality}
+        bandwidth={connectionStats.bandwidth}
       />
     </div>
   );

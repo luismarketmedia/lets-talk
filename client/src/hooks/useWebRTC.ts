@@ -49,16 +49,17 @@ export const useWebRTC = (
   useEffect(() => {
     // Conectar ao servidor Socket.IO via proxy do Vite
     const serverUrl = import.meta.env.DEV
-      ? "http://localhost:3000"
+      ? window.location.origin // Use Vite proxy in development
       : window.location.origin;
 
     console.log("Conectando ao servidor WebRTC:", serverUrl);
     socketRef.current = io(serverUrl, {
       transports: ["websocket", "polling"],
-      timeout: 10000,
+      timeout: 20000,
       reconnection: true,
-      reconnectionAttempts: 5,
+      reconnectionAttempts: 10,
       reconnectionDelay: 1000,
+      forceNew: true,
     });
     const socket = socketRef.current;
 
@@ -618,8 +619,16 @@ export const useWebRTC = (
       return { supported: false, reason: "API não suportada pelo navegador" };
     }
 
-    // Verificar se estamos em contexto seguro (HTTPS ou localhost)
-    if (!window.isSecureContext && window.location.hostname !== "localhost") {
+    // Para desenvolvimento local, sempre permitir tentativa
+    if (
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1"
+    ) {
+      return { supported: true, reason: null };
+    }
+
+    // Para produção, verificar contexto seguro
+    if (!window.isSecureContext) {
       return { supported: false, reason: "Requer HTTPS para funcionar" };
     }
 

@@ -25,8 +25,12 @@ export const useScreenShareSupport = (): ScreenShareSupport => {
         return;
       }
 
-      // Verificar contexto seguro
-      if (!window.isSecureContext && window.location.hostname !== "localhost") {
+      // Verificar contexto seguro apenas se não for localhost
+      if (
+        !window.isSecureContext &&
+        window.location.hostname !== "localhost" &&
+        window.location.hostname !== "127.0.0.1"
+      ) {
         setSupport({
           isSupported: false,
           reason: "Requer HTTPS para funcionar",
@@ -35,36 +39,12 @@ export const useScreenShareSupport = (): ScreenShareSupport => {
         return;
       }
 
-      // Verificar políticas de permissão
-      if ("permissions" in navigator) {
-        navigator.permissions
-          .query({ name: "display-capture" as PermissionName })
-          .then((result) => {
-            const isAvailable = result.state !== "denied";
-            setSupport({
-              isSupported: isAvailable,
-              reason: isAvailable
-                ? undefined
-                : "Bloqueado por política de permissões",
-              canAttempt: isAvailable,
-            });
-          })
-          .catch(() => {
-            // Se não conseguir verificar permissões, assume que está disponível
-            setSupport({
-              isSupported: true,
-              reason: undefined,
-              canAttempt: true,
-            });
-          });
-      } else {
-        // Se não há API de permissões, verifica apenas se a API básica existe
-        setSupport({
-          isSupported: true,
-          reason: undefined,
-          canAttempt: true,
-        });
-      }
+      // Para desenvolvimento local ou contexto seguro, permitir tentativa
+      setSupport({
+        isSupported: true,
+        reason: undefined,
+        canAttempt: true,
+      });
     };
 
     checkSupport();
