@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Socket } from "socket.io-client";
-import { 
-  UserPlus, 
-  Check, 
-  X, 
-  Clock,
-  Users,
-  AlertCircle
-} from "lucide-react";
+import { UserPlus, Check, X, Clock, Users, AlertCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { cn } from "../lib/utils";
@@ -26,11 +19,11 @@ interface JoinApprovalProps {
   className?: string;
 }
 
-export const JoinApproval: React.FC<JoinApprovalProps> = ({ 
-  socket, 
-  roomId, 
+export const JoinApproval: React.FC<JoinApprovalProps> = ({
+  socket,
+  roomId,
   isHost,
-  className 
+  className,
 }) => {
   const [pendingRequests, setPendingRequests] = useState<JoinRequest[]>([]);
   const [processingIds, setProcessingIds] = useState<Set<string>>(new Set());
@@ -39,23 +32,29 @@ export const JoinApproval: React.FC<JoinApprovalProps> = ({
     if (!socket || !isHost) return;
 
     const handleJoinRequest = (data: JoinRequest) => {
-      setPendingRequests(prev => {
+      setPendingRequests((prev) => {
         // Evitar duplicatas
-        const exists = prev.some(req => req.socketId === data.socketId);
+        const exists = prev.some((req) => req.socketId === data.socketId);
         if (exists) return prev;
-        
-        return [...prev, {
-          ...data,
-          timestamp: new Date()
-        }];
+
+        return [
+          ...prev,
+          {
+            ...data,
+            timestamp: new Date(),
+          },
+        ];
       });
     };
 
-    const handleJoinRequestCancelled = (data: { socketId: string; roomId: string }) => {
-      setPendingRequests(prev => 
-        prev.filter(req => req.socketId !== data.socketId)
+    const handleJoinRequestCancelled = (data: {
+      socketId: string;
+      roomId: string;
+    }) => {
+      setPendingRequests((prev) =>
+        prev.filter((req) => req.socketId !== data.socketId),
       );
-      setProcessingIds(prev => {
+      setProcessingIds((prev) => {
         const newSet = new Set(prev);
         newSet.delete(data.socketId);
         return newSet;
@@ -63,24 +62,24 @@ export const JoinApproval: React.FC<JoinApprovalProps> = ({
     };
 
     const handleUserLeft = (socketId: string) => {
-      setPendingRequests(prev => 
-        prev.filter(req => req.socketId !== socketId)
+      setPendingRequests((prev) =>
+        prev.filter((req) => req.socketId !== socketId),
       );
-      setProcessingIds(prev => {
+      setProcessingIds((prev) => {
         const newSet = new Set(prev);
         newSet.delete(socketId);
         return newSet;
       });
     };
 
-    socket.on('join-request', handleJoinRequest);
-    socket.on('join-request-cancelled', handleJoinRequestCancelled);
-    socket.on('user-left', handleUserLeft);
+    socket.on("join-request", handleJoinRequest);
+    socket.on("join-request-cancelled", handleJoinRequestCancelled);
+    socket.on("user-left", handleUserLeft);
 
     return () => {
-      socket.off('join-request', handleJoinRequest);
-      socket.off('join-request-cancelled', handleJoinRequestCancelled);
-      socket.off('user-left', handleUserLeft);
+      socket.off("join-request", handleJoinRequest);
+      socket.off("join-request-cancelled", handleJoinRequestCancelled);
+      socket.off("user-left", handleUserLeft);
     };
   }, [socket, isHost]);
 
@@ -93,16 +92,16 @@ export const JoinApproval: React.FC<JoinApprovalProps> = ({
   const approveRequest = (socketId: string) => {
     if (!socket || !roomId || processingIds.has(socketId)) return;
 
-    setProcessingIds(prev => new Set(prev).add(socketId));
-    
-    socket.emit('approve-join', { roomId, socketId });
-    
+    setProcessingIds((prev) => new Set(prev).add(socketId));
+
+    socket.emit("approve-join", { roomId, socketId });
+
     // Remover da lista após aprovação
     setTimeout(() => {
-      setPendingRequests(prev => 
-        prev.filter(req => req.socketId !== socketId)
+      setPendingRequests((prev) =>
+        prev.filter((req) => req.socketId !== socketId),
       );
-      setProcessingIds(prev => {
+      setProcessingIds((prev) => {
         const newSet = new Set(prev);
         newSet.delete(socketId);
         return newSet;
@@ -113,16 +112,16 @@ export const JoinApproval: React.FC<JoinApprovalProps> = ({
   const rejectRequest = (socketId: string) => {
     if (!socket || !roomId || processingIds.has(socketId)) return;
 
-    setProcessingIds(prev => new Set(prev).add(socketId));
-    
-    socket.emit('reject-join', { roomId, socketId });
-    
+    setProcessingIds((prev) => new Set(prev).add(socketId));
+
+    socket.emit("reject-join", { roomId, socketId });
+
     // Remover da lista após rejeição
     setTimeout(() => {
-      setPendingRequests(prev => 
-        prev.filter(req => req.socketId !== socketId)
+      setPendingRequests((prev) =>
+        prev.filter((req) => req.socketId !== socketId),
       );
-      setProcessingIds(prev => {
+      setProcessingIds((prev) => {
         const newSet = new Set(prev);
         newSet.delete(socketId);
         return newSet;
@@ -132,10 +131,12 @@ export const JoinApproval: React.FC<JoinApprovalProps> = ({
 
   const formatTimeAgo = (timestamp: Date) => {
     const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - timestamp.getTime()) / 1000);
-    
+    const diffInSeconds = Math.floor(
+      (now.getTime() - timestamp.getTime()) / 1000,
+    );
+
     if (diffInSeconds < 60) {
-      return 'agora';
+      return "agora";
     } else if (diffInSeconds < 3600) {
       const minutes = Math.floor(diffInSeconds / 60);
       return `${minutes}min atrás`;
@@ -155,11 +156,11 @@ export const JoinApproval: React.FC<JoinApprovalProps> = ({
         <UserPlus className="w-4 h-4" />
         <span>Pedidos de Entrada ({pendingRequests.length})</span>
       </div>
-      
+
       <div className="space-y-2 max-h-60 overflow-y-auto">
         {pendingRequests.map((request) => {
           const isProcessing = processingIds.has(request.socketId);
-          
+
           return (
             <Card key={request.socketId} className="p-3">
               <div className="flex items-center justify-between">
@@ -174,12 +175,14 @@ export const JoinApproval: React.FC<JoinApprovalProps> = ({
                     <div className="flex items-center space-x-1 text-xs text-gray-500">
                       <Clock className="w-3 h-3" />
                       <span>
-                        {request.timestamp ? formatTimeAgo(request.timestamp) : 'agora'}
+                        {request.timestamp
+                          ? formatTimeAgo(request.timestamp)
+                          : "agora"}
                       </span>
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center space-x-2">
                   <Button
                     variant="outline"
@@ -201,7 +204,7 @@ export const JoinApproval: React.FC<JoinApprovalProps> = ({
                   </Button>
                 </div>
               </div>
-              
+
               {isProcessing && (
                 <div className="mt-2 flex items-center space-x-2 text-xs text-gray-500">
                   <div className="w-3 h-3 border border-gray-300 border-t-blue-500 rounded-full animate-spin" />
@@ -212,14 +215,15 @@ export const JoinApproval: React.FC<JoinApprovalProps> = ({
           );
         })}
       </div>
-      
+
       <div className="text-xs text-gray-500 bg-yellow-50 border border-yellow-200 rounded-lg p-2">
         <div className="flex items-start space-x-2">
           <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
           <div>
             <p className="font-medium text-yellow-800">Host da Sala</p>
             <p className="text-yellow-700">
-              Como criador desta sala, você pode aprovar ou rejeitar pedidos de entrada.
+              Como criador desta sala, você pode aprovar ou rejeitar pedidos de
+              entrada.
             </p>
           </div>
         </div>

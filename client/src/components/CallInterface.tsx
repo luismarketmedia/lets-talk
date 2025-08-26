@@ -134,11 +134,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
       {isHost && (
         <div className="max-w-6xl mx-auto mb-6">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-            <JoinApproval
-              socket={socket}
-              roomId={roomId}
-              isHost={isHost}
-            />
+            <JoinApproval socket={socket} roomId={roomId} isHost={isHost} />
           </div>
         </div>
       )}

@@ -1,11 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Socket } from "socket.io-client";
-import { 
-  MessageCircle, 
-  Send, 
-  Users,
-  Smile
-} from "lucide-react";
+import { MessageCircle, Send, Users, Smile } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -32,11 +27,11 @@ interface ChatProps {
   participantCount: number;
 }
 
-export const Chat: React.FC<ChatProps> = ({ 
-  socket, 
-  roomId, 
+export const Chat: React.FC<ChatProps> = ({
+  socket,
+  roomId,
   userName = "Você",
-  participantCount 
+  participantCount,
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -67,21 +62,24 @@ export const Chat: React.FC<ChatProps> = ({
     if (!socket) return;
 
     const handleChatMessage = (data: ChatMessage) => {
-      setMessages(prev => [...prev, {
-        ...data,
-        timestamp: new Date(data.timestamp)
-      }]);
-      
+      setMessages((prev) => [
+        ...prev,
+        {
+          ...data,
+          timestamp: new Date(data.timestamp),
+        },
+      ]);
+
       // Incrementar contador de não lidas se chat está fechado
       if (!isOpen && data.sender !== socket.id) {
-        setUnreadCount(prev => prev + 1);
+        setUnreadCount((prev) => prev + 1);
       }
     };
 
-    socket.on('chat-message', handleChatMessage);
+    socket.on("chat-message", handleChatMessage);
 
     return () => {
-      socket.off('chat-message', handleChatMessage);
+      socket.off("chat-message", handleChatMessage);
     };
   }, [socket, isOpen]);
 
@@ -95,26 +93,26 @@ export const Chat: React.FC<ChatProps> = ({
   const sendMessage = () => {
     if (!socket || !roomId || !newMessage.trim()) return;
 
-    socket.emit('chat-message', {
+    socket.emit("chat-message", {
       roomId,
       message: newMessage.trim(),
-      userName
+      userName,
     });
 
     setNewMessage("");
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
   };
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('pt-BR', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return date.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -129,21 +127,17 @@ export const Chat: React.FC<ChatProps> = ({
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="relative"
-        >
+        <Button variant="outline" size="sm" className="relative">
           <MessageCircle className="w-4 h-4 mr-2" />
           Chat
           {unreadCount > 0 && (
             <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-              {unreadCount > 9 ? '9+' : unreadCount}
+              {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
         </Button>
       </SheetTrigger>
-      
+
       <SheetContent className="w-[400px] sm:w-[500px] flex flex-col">
         <SheetHeader>
           <SheetTitle className="flex items-center justify-between">
@@ -170,16 +164,19 @@ export const Chat: React.FC<ChatProps> = ({
             ) : (
               messages.map((msg, index) => {
                 const isOwn = isOwnMessage(msg.sender);
-                const showUserName = index === 0 || 
+                const showUserName =
+                  index === 0 ||
                   messages[index - 1].sender !== msg.sender ||
-                  (new Date(msg.timestamp).getTime() - new Date(messages[index - 1].timestamp).getTime()) > 300000; // 5 min
+                  new Date(msg.timestamp).getTime() -
+                    new Date(messages[index - 1].timestamp).getTime() >
+                    300000; // 5 min
 
                 return (
                   <div
                     key={index}
                     className={cn(
                       "flex flex-col",
-                      isOwn ? "items-end" : "items-start"
+                      isOwn ? "items-end" : "items-start",
                     )}
                   >
                     {showUserName && !isOwn && (
@@ -192,14 +189,14 @@ export const Chat: React.FC<ChatProps> = ({
                         "max-w-[70%] rounded-lg px-3 py-2 break-words",
                         isOwn
                           ? "bg-blue-500 text-white rounded-br-sm"
-                          : "bg-gray-100 text-gray-900 rounded-bl-sm"
+                          : "bg-gray-100 text-gray-900 rounded-bl-sm",
                       )}
                     >
                       <p className="text-sm">{msg.message}</p>
                       <span
                         className={cn(
                           "text-xs mt-1 block",
-                          isOwn ? "text-blue-100" : "text-gray-500"
+                          isOwn ? "text-blue-100" : "text-gray-500",
                         )}
                       >
                         {formatTime(msg.timestamp)}
@@ -224,7 +221,7 @@ export const Chat: React.FC<ChatProps> = ({
                 className="flex-1"
                 maxLength={500}
               />
-              <Button 
+              <Button
                 onClick={sendMessage}
                 disabled={!newMessage.trim()}
                 size="sm"

@@ -5,6 +5,7 @@ Esta documentação explica como fazer o deploy da aplicação Let's Talk em amb
 ## 📋 Pré-requisitos
 
 ### Software Necessário
+
 - **Windows Server 2016+** ou **Windows 10/11 Pro**
 - **IIS** instalado com os recursos:
   - Servidor Web (IIS)
@@ -15,6 +16,7 @@ Esta documentação explica como fazer o deploy da aplicação Let's Talk em amb
 - **npm** ou **yarn**
 
 ### Instalação dos Recursos IIS
+
 ```powershell
 # Habilitar IIS via PowerShell (executar como Administrador)
 Enable-WindowsOptionalFeature -Online -FeatureName IIS-WebServerRole
@@ -25,6 +27,7 @@ Enable-WindowsOptionalFeature -Online -FeatureName IIS-NetFxExtensibility45
 ```
 
 ### Módulos Adicionais para IIS
+
 1. **Application Request Routing (ARR)**
    - Download: https://www.iis.net/downloads/microsoft/application-request-routing
    - Necessário para proxy reverso
@@ -57,6 +60,7 @@ npm run build
 O comando `npm run build` criará uma pasta `dist/` com os arquivos estáticos otimizados.
 
 ### 2. Estrutura após Build
+
 ```
 client/
 ├── dist/
@@ -152,6 +156,7 @@ Criar arquivo `C:\inetpub\wwwroot\letstalk-client\web.config`:
 ### Opção A: Usando IISNode (Recomendado)
 
 #### 1. Instalar IISNode
+
 - Download: https://github.com/Azure/iisnode/releases
 - Instalar a versão x64
 
@@ -176,7 +181,7 @@ Criar `web.config` no diretório raiz do projeto:
     <handlers>
       <add name="iisnode" path="server.js" verb="*" modules="iisnode"/>
     </handlers>
-    
+
     <rewrite>
       <rules>
         <rule name="DynamicContent">
@@ -185,7 +190,7 @@ Criar `web.config` no diretório raiz do projeto:
         </rule>
       </rules>
     </rewrite>
-    
+
     <!-- Configurações do IISNode -->
     <iisnode
       nodeProcessCommandLine="&quot;C:\Program Files\nodejs\node.exe&quot;"
@@ -220,11 +225,13 @@ Criar `web.config` no diretório raiz do projeto:
    - **Port**: `3000`
 
 2. **Copiar arquivos do servidor:**
+
 ```powershell
 xcopy "C:\caminho\para\lets-talk\*" "C:\inetpub\wwwroot\letstalk-server\" /E /Y /EXCLUDE:excludelist.txt
 ```
 
 3. **Criar excludelist.txt** (para não copiar client):
+
 ```
 client\
 node_modules\
@@ -257,6 +264,7 @@ pm2 save
 Criar site IIS para proxy:
 
 **web.config para proxy reverso:**
+
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
@@ -295,6 +303,7 @@ Criar site IIS para proxy:
 ### 1. HTTPS/SSL
 
 #### Configurar Certificado SSL:
+
 1. Obter certificado SSL (Let's Encrypt, DigiCert, etc.)
 2. Importar no Windows Certificate Store
 3. Configurar binding HTTPS no IIS
@@ -319,7 +328,7 @@ Para suporte completo a WebSockets no IIS:
 <!-- Adicionar ao web.config do servidor -->
 <system.webServer>
   <webSocket enabled="true" />
-  
+
   <!-- Headers para WebSocket -->
   <httpProtocol>
     <customHeaders>
@@ -333,11 +342,13 @@ Para suporte completo a WebSockets no IIS:
 ### 3. Monitoramento e Logs
 
 #### Configurar logs do IIS:
+
 1. Habilitar **Failed Request Tracing**
 2. Configurar **IIS Logs**
 3. Monitorar logs do Node.js em `logs/` (IISNode)
 
 #### Script PowerShell para monitoramento:
+
 ```powershell
 # monitor.ps1
 $logPath = "C:\inetpub\wwwroot\letstalk-server\logs"
@@ -401,18 +412,21 @@ Write-Host "Deploy concluído com sucesso!" -ForegroundColor Green
 ## 📝 Checklist de Deploy
 
 ### Pré-Deploy
+
 - [ ] IIS instalado com módulos necessários
 - [ ] Node.js instalado
 - [ ] Certificados SSL configurados (se necessário)
 - [ ] Firewall configurado para as portas necessárias
 
 ### Deploy do Cliente
+
 - [ ] Build executado com sucesso
 - [ ] Arquivos copiados para diretório IIS
 - [ ] web.config configurado
 - [ ] Site IIS criado e funcionando
 
 ### Deploy do Servidor
+
 - [ ] Dependências instaladas
 - [ ] web.config configurado (IISNode) ou pm2 configurado
 - [ ] Site IIS criado ou proxy reverso configurado
@@ -420,6 +434,7 @@ Write-Host "Deploy concluído com sucesso!" -ForegroundColor Green
 - [ ] Logs configurados
 
 ### Pós-Deploy
+
 - [ ] Teste de conectividade cliente-servidor
 - [ ] Teste de funcionalidades WebRTC
 - [ ] Teste de chat em tempo real
@@ -450,6 +465,7 @@ Write-Host "Deploy concluído com sucesso!" -ForegroundColor Green
    - Verificar firewall e proxy
 
 ### Logs Importantes
+
 - **IIS Access Logs**: `C:\inetpub\logs\LogFiles\`
 - **IISNode Logs**: `C:\inetpub\wwwroot\letstalk-server\logs\`
 - **Event Viewer**: Windows Logs > Application
@@ -460,6 +476,7 @@ Write-Host "Deploy concluído com sucesso!" -ForegroundColor Green
 ## 📞 Suporte
 
 Para suporte adicional, consulte:
+
 - [Documentação IIS](https://docs.microsoft.com/en-us/iis/)
 - [IISNode GitHub](https://github.com/Azure/iisnode)
 - [Socket.IO Documentation](https://socket.io/docs/)

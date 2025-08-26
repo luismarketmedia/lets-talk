@@ -34,9 +34,7 @@
   },
   "security": {
     "enableCORS": true,
-    "allowedOrigins": [
-      "https://meet.empresa.com.br"
-    ],
+    "allowedOrigins": ["https://meet.empresa.com.br"],
     "enableRateLimit": true,
     "maxRequestsPerMinute": 1000
   }

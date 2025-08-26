@@ -240,7 +240,7 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
         // Parar teste
         screenStream.getTracks().forEach((track) => track.stop());
         setScreenStream(null);
-        setErrorInfo(prev => ({ ...prev, screenShareError: undefined }));
+        setErrorInfo((prev) => ({ ...prev, screenShareError: undefined }));
         setTestStatus((prev) => ({ ...prev, screenShare: "idle" }));
         return;
       }
@@ -278,12 +278,14 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
         errorMessage = isInIframe
           ? "Bloqueado em ambiente iframe - funciona normalmente em produção"
           : "Permissão negada pelo usuário";
-        console.warn("Screen sharing blocked by permissions policy - this is normal in iframe environments");
+        console.warn(
+          "Screen sharing blocked by permissions policy - this is normal in iframe environments",
+        );
       } else if (error.message.includes("não é suportado")) {
         errorMessage = "Não suportado neste navegador";
       }
 
-      setErrorInfo(prev => ({ ...prev, screenShareError: errorMessage }));
+      setErrorInfo((prev) => ({ ...prev, screenShareError: errorMessage }));
       setTestStatus((prev) => ({ ...prev, screenShare: "error" }));
     }
   };
@@ -535,7 +537,10 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
                 <div className="flex items-center space-x-3">
                   {getStatusIcon(testStatus.screenShare)}
                   <span className="text-sm text-gray-600">
-                    {getStatusText(testStatus.screenShare, errorInfo.screenShareError)}
+                    {getStatusText(
+                      testStatus.screenShare,
+                      errorInfo.screenShareError,
+                    )}
                   </span>
                   <Button
                     variant={screenStream ? "destructive" : "outline"}
@@ -564,11 +569,13 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
                   <div className="flex items-start space-x-2">
                     <AlertTriangle className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
                     <div className="text-sm">
-                      <p className="text-yellow-800 font-medium">Ambiente de Desenvolvimento</p>
+                      <p className="text-yellow-800 font-medium">
+                        Ambiente de Desenvolvimento
+                      </p>
                       <p className="text-yellow-700 mt-1">
-                        O compartilhamento de tela pode ser bloqueado neste ambiente.
-                        Esta funcionalidade funcionará normalmente quando o app for acessado diretamente
-                        (não em iframe).
+                        O compartilhamento de tela pode ser bloqueado neste
+                        ambiente. Esta funcionalidade funcionará normalmente
+                        quando o app for acessado diretamente (não em iframe).
                       </p>
                     </div>
                   </div>

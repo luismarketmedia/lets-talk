@@ -232,12 +232,14 @@ npm run build:client
 ### 🚀 Deploy em Produção
 
 #### Windows/IIS
+
 Para deployment em ambiente Windows com IIS, consulte a documentação completa:
 
 - **📖 [Guia Completo de Deploy Windows/IIS](DEPLOYMENT_WINDOWS_IIS.md)** - Instruções detalhadas
 - **⚡ [Quick Start Deploy](DEPLOY_QUICK_START.md)** - Guia rápido para começar
 
 **Deploy automático em Windows:**
+
 ```batch
 # Executar como Administrador
 cd scripts
@@ -245,6 +247,7 @@ quick-deploy.bat
 ```
 
 **Atualização automática:**
+
 ```batch
 # Executar como Administrador
 cd scripts
@@ -252,6 +255,7 @@ quick-update.bat
 ```
 
 #### Outras Plataformas
+
 - **Linux/Apache**: Configuração similar ao IIS usando proxy reverso
 - **Docker**: Containerização para deploy em Kubernetes/Docker Swarm
 - **Cloud Providers**: AWS, Azure, GCP com load balancers
