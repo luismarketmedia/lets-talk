@@ -73,6 +73,20 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   const participantManager = useParticipantManager(socket, roomId, isHost);
   const [showParticipantModal, setShowParticipantModal] = useState(false);
 
+  // View mode management
+  const viewModeControls = useViewMode("gallery");
+
+  // Speaker detection
+  const speakerInfo = useSpeakerDetection({
+    remoteStreams,
+    localStream,
+    threshold: 25,
+    updateInterval: 100,
+  });
+
+  // Poll modal
+  const [showPollModal, setShowPollModal] = useState(false);
+
   // Auto-open participant modal when there are pending requests
   useEffect(() => {
     if (participantManager.pendingCount > 0 && !showParticipantModal) {
