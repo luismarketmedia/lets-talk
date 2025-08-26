@@ -212,8 +212,8 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                     <Users className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-xl font-bold text-gray-900 mb-1">
-                      Chamada em Andamento
+                    <h1 className="text-xl font-bold text-red-900 mb-1" style={{backgroundColor: "yellow", padding: "4px"}}>
+                      🔴 CABEÇALHO VISÍVEL - Chamada em Andamento
                     </h1>
                     <div className="flex items-center space-x-4">
                       <p className="text-sm font-medium text-gray-600">
