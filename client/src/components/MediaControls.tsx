@@ -248,6 +248,18 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
           </Button>
         )}
 
+        {/* Ferramentas Colaborativas */}
+        {socket && roomId && (
+          <CollaborativeTools
+            localStream={localStream}
+            remoteStreams={remoteStreams}
+            socket={socket}
+            roomId={roomId}
+            userName={userName}
+            isScreenSharing={isScreenSharing}
+          />
+        )}
+
         {/* Chat */}
         {socket && roomId && (
           <Chat
