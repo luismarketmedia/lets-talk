@@ -253,7 +253,7 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
         {/* Ferramentas Colaborativas */}
         {socket && roomId && (
           <CollaborativeTools
-            localStream={localStream}
+            localStream={localStream || null}
             remoteStreams={remoteStreams}
             socket={socket}
             roomId={roomId}
