@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Video, Users, Plus, ArrowRight } from 'lucide-react';
+import { Video, Users, Plus, ArrowRight, AlertCircle, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
@@ -7,9 +7,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 interface JoinRoomProps {
   onJoinRoom: (roomId: string) => void;
   isConnecting: boolean;
+  error?: string | null;
+  onClearError?: () => void;
 }
 
-export const JoinRoom: React.FC<JoinRoomProps> = ({ onJoinRoom, isConnecting }) => {
+export const JoinRoom: React.FC<JoinRoomProps> = ({
+  onJoinRoom,
+  isConnecting,
+  error,
+  onClearError
+}) => {
   const [roomId, setRoomId] = useState('');
   const [mode, setMode] = useState<'join' | 'create'>('join');
 
