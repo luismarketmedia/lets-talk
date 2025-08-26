@@ -169,6 +169,62 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
 
             {/* Formulário */}
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Campo de nome do usuário */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="userName"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Seu nome
+                </label>
+                <Input
+                  id="userName"
+                  type="text"
+                  placeholder="Digite seu nome"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                  disabled={isConnecting}
+                  maxLength={50}
+                />
+                <p className="text-xs text-gray-500">
+                  Como outros participantes irão te ver
+                </p>
+              </div>
+
+              {/* Tipo de entrada (apenas para join) */}
+              {mode === "join" && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Tipo de entrada
+                  </label>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant={entryType === "request" ? "default" : "outline"}
+                      className="flex-1 text-sm"
+                      onClick={() => setEntryType("request")}
+                      disabled={isConnecting}
+                    >
+                      Solicitar entrada
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={entryType === "direct" ? "default" : "outline"}
+                      className="flex-1 text-sm"
+                      onClick={() => setEntryType("direct")}
+                      disabled={isConnecting}
+                    >
+                      Entrar diretamente
+                    </Button>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    {entryType === "request"
+                      ? "Host aprovará sua entrada"
+                      : "Entrar como co-host da sala"}
+                  </p>
+                </div>
+              )}
+
               <div className="space-y-2">
                 <label
                   htmlFor="roomId"
