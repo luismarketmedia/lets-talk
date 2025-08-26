@@ -130,6 +130,11 @@ export const Chat: React.FC<ChatProps> = ({
     socket.emit("chat-message", messageData);
 
     setNewMessage("");
+
+    // Focus back to input after sending
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -150,8 +155,22 @@ export const Chat: React.FC<ChatProps> = ({
     return socket?.id === senderId;
   };
 
+  // Show chat button even when not connected, but disable it
+  const isConnected = socket && roomId && socket.connected;
+
   if (!socket || !roomId) {
-    return null;
+    // Show disabled chat button
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        disabled
+        className="relative flex items-center space-x-2 font-medium bg-gray-100 text-gray-400 cursor-not-allowed"
+      >
+        <MessageCircle className="w-4 h-4" />
+        <span>Chat</span>
+      </Button>
+    );
   }
 
   return (
