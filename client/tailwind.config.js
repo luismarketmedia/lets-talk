@@ -32,6 +32,30 @@ export default {
       fontFamily: {
         sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
       },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+        "in": "in 0.2s ease-out",
+        "out": "out 0.2s ease-in",
+        "fade-in": "fade-in 0.2s ease-out",
+        "fade-out": "fade-out 0.2s ease-in",
+        "zoom-in": "zoom-in 0.2s ease-out",
+        "zoom-out": "zoom-out 0.2s ease-in",
+        "slide-in-from-left-1/2": "slide-in-from-left-half 0.2s ease-out",
+        "slide-in-from-top-[48%]": "slide-in-from-top-half 0.2s ease-out",
+        "slide-out-to-left-1/2": "slide-out-to-left-half 0.2s ease-in",
+        "slide-out-to-top-[48%]": "slide-out-to-top-half 0.2s ease-in",
+      },
+      keyframes: {
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+      },
     },
   },
   plugins: [],

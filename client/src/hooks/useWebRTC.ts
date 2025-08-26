@@ -25,6 +25,10 @@ export const useWebRTC = (
     requestJoinRoom: (roomId: string, userName?: string) => Promise<void>;
     socket: Socket | null;
     isHost: boolean;
+    peerConnections: Map<string, RTCPeerConnection>;
+    participantStates: Map<string, { isAudioEnabled: boolean; isVideoEnabled: boolean }>;
+    participantNames: Map<string, string>;
+    screenSharingParticipant: string | null;
   } => {
   const { onNotification } = options;
   const [callState, setCallState] = useState<CallState>({
@@ -768,7 +772,6 @@ export const useWebRTC = (
           // Tentar obter compartilhamento de tela
           screenStream = await navigator.mediaDevices.getDisplayMedia({
             video: {
-              mediaSource: "screen",
               width: { ideal: 1920 },
               height: { ideal: 1080 },
               frameRate: { ideal: 30 },
@@ -788,7 +791,6 @@ export const useWebRTC = (
           // Fallback: tentar apenas vídeo
           screenStream = await navigator.mediaDevices.getDisplayMedia({
             video: {
-              mediaSource: "screen",
               width: { ideal: 1920 },
               height: { ideal: 1080 },
               frameRate: { ideal: 30 },

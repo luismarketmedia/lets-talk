@@ -1,17 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { Users, Copy, Check, AlertTriangle } from "lucide-react";
 import { Socket } from "socket.io-client";
-import { VideoTile } from "./VideoTile";
+import { VideoGrid } from "./VideoGrid";
+import { ViewModeSelector, useViewMode } from "./ViewModeSelector";
+import { ReactionsPanel } from "./ReactionsPanel";
+import { PollModal } from "./PollModal";
 import { MediaControls } from "./MediaControls";
 import { AudioDeviceModal } from "./AudioDeviceModal";
 import { DeviceTestModal } from "./DeviceTestModal";
 import { AdvancedMediaControls } from "./AdvancedMediaControls";
 import { ConnectionIndicator } from "./ConnectionIndicator";
-import { JoinApproval } from "./JoinApproval";
+import {
+  ParticipantManagerModal,
+  useParticipantManager,
+} from "./ParticipantManagerModal";
 import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
 import { useAdvancedMediaControls } from "../hooks/useAdvancedMediaControls";
 import { useConnectionMonitor } from "../hooks/useConnectionMonitor";
+import { useSpeakerDetection } from "../hooks/useSpeakerDetection";
 
 interface CallInterfaceProps {
   roomId: string;
@@ -64,6 +71,31 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   const [showAdvancedControls, setShowAdvancedControls] = useState(false);
   const [isInIframe, setIsInIframe] = useState(false);
   const [showClipboardWarning, setShowClipboardWarning] = useState(false);
+
+  // Participant manager modal
+  const participantManager = useParticipantManager(socket, roomId, isHost);
+  const [showParticipantModal, setShowParticipantModal] = useState(false);
+
+  // View mode management
+  const viewModeControls = useViewMode("gallery");
+
+  // Speaker detection
+  const speakerInfo = useSpeakerDetection({
+    remoteStreams,
+    localStream,
+    threshold: 25,
+    updateInterval: 100,
+  });
+
+  // Poll modal
+  const [showPollModal, setShowPollModal] = useState(false);
+
+  // Auto-open participant modal when there are pending requests
+  useEffect(() => {
+    if (participantManager.pendingCount > 0 && !showParticipantModal) {
+      setShowParticipantModal(true);
+    }
+  }, [participantManager.pendingCount, showParticipantModal]);
   const remoteStreamArray = Array.from(remoteStreams.entries());
   const totalParticipants = 1 + remoteStreamArray.length; // Local + remotes
 
@@ -185,22 +217,6 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
     setTimeout(() => setCopied(false), 3000);
   };
 
-  // Determinar layout da grade
-  const getGridClass = () => {
-    if (totalParticipants === 1) return "grid-cols-1";
-    if (totalParticipants === 2) return "grid-cols-1 lg:grid-cols-2";
-    if (totalParticipants <= 4) return "grid-cols-2";
-    if (totalParticipants <= 6) return "grid-cols-2 lg:grid-cols-3";
-    return "grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
-  };
-
-  const getVideoHeight = () => {
-    if (totalParticipants === 1) return "h-[400px] lg:h-[500px]";
-    if (totalParticipants === 2) return "h-[300px] lg:h-[400px]";
-    if (totalParticipants <= 4) return "h-[200px] lg:h-[300px]";
-    return "h-[150px] lg:h-[200px]";
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col">
       {/* Scrollable main content */}
@@ -239,6 +255,30 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                         quality={connectionStats.quality}
                         rtt={connectionStats.rtt}
                         bandwidth={connectionStats.bandwidth}
+                      />
+                      {/* Botão para gerenciar participantes */}
+                      {isHost && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowParticipantModal(true)}
+                          className="relative flex items-center space-x-2"
+                        >
+                          <Users className="w-4 h-4" />
+                          <span>Gerenciar</span>
+                          {participantManager.pendingCount > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
+                              {participantManager.pendingCount}
+                            </span>
+                          )}
+                        </Button>
+                      )}
+                      {/* Seletor de modo de visualização */}
+                      <ViewModeSelector
+                        currentMode={viewModeControls.viewMode}
+                        onModeChange={viewModeControls.changeViewMode}
+                        participantCount={totalParticipants}
+                        activeSpeaker={speakerInfo.activeSpeaker}
                       />
                     </div>
                   </div>
@@ -330,61 +370,29 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
             </div>
           )}
 
-          {/* Sistema de aprovação de entrada */}
-          {isHost && (
-            <div className="max-w-6xl mx-auto mb-6">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-                <JoinApproval socket={socket} roomId={roomId} isHost={isHost} />
-              </div>
-            </div>
-          )}
-
           {/* Grade de vídeos */}
           <div className="max-w-6xl mx-auto mb-8">
-            <div className={cn("grid gap-4", getGridClass())}>
-              {/* Vídeo local */}
-              <VideoTile
-                stream={localStream}
-                isLocal={true}
-                isMuted={!isAudioEnabled}
-                isVideoEnabled={isVideoEnabled}
-                participantName="Você"
-                className={getVideoHeight()}
-              />
-
-              {/* Vídeos remotos */}
-              {remoteStreamArray.map(([userId, stream], index) => {
-                const participantState = participantStates.get(userId);
-                const participantName =
-                  participantNames.get(userId) || `Participante ${index + 1}`;
-                const isSharing = screenSharingParticipant === userId;
-                const displayName = isSharing
-                  ? `🖥️ ${participantName} (Compartilhando)`
-                  : participantName;
-
-                return (
-                  <VideoTile
-                    key={userId}
-                    stream={stream}
-                    isLocal={false}
-                    isMuted={
-                      participantState
-                        ? !participantState.isAudioEnabled
-                        : false
-                    }
-                    isVideoEnabled={
-                      participantState ? participantState.isVideoEnabled : true
-                    }
-                    participantName={displayName}
-                    className={cn(
-                      getVideoHeight(),
-                      isSharing && "ring-2 ring-blue-500 ring-offset-2",
-                    )}
-                    peerConnection={peerConnections.get(userId) || null}
-                  />
-                );
-              })}
-            </div>
+            <VideoGrid
+              viewMode={viewModeControls.viewMode}
+              localStream={localStream}
+              remoteStreams={remoteStreams}
+              participantStates={participantStates}
+              participantNames={participantNames}
+              peerConnections={peerConnections}
+              screenSharingParticipant={screenSharingParticipant}
+              activeSpeaker={speakerInfo.activeSpeaker}
+              spotlightParticipant={viewModeControls.spotlightParticipant}
+              isAudioEnabled={isAudioEnabled}
+              isVideoEnabled={isVideoEnabled}
+              onParticipantClick={(participantId) => {
+                if (
+                  viewModeControls.viewMode === "spotlight" ||
+                  participantId !== viewModeControls.spotlightParticipant
+                ) {
+                  viewModeControls.setSpotlight(participantId);
+                }
+              }}
+            />
 
             {/* Mensagem quando não há participantes */}
             {totalParticipants === 1 && (
@@ -411,7 +419,38 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
 
       {/* Controles de mídia e chat fixos na parte inferior */}
       <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-white/90 to-transparent backdrop-blur-sm border-t border-gray-200 p-4 z-50">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto space-y-4">
+          {/* Reações e engagement */}
+          <div className="flex items-center justify-center space-x-4">
+            <ReactionsPanel
+              socket={socket}
+              roomId={roomId}
+              userName={userName}
+              participantCount={totalParticipants}
+            />
+
+            {/* Botão de votações */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowPollModal(true)}
+              className="flex items-center space-x-2 bg-white/95 backdrop-blur-sm border border-gray-200 hover:bg-blue-50 text-gray-600 hover:text-blue-600"
+              title="Votações"
+            >
+              <svg
+                className="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <path d="M8 12h8M8 8h8M8 16h8" />
+              </svg>
+              <span className="hidden sm:inline text-xs">Votações</span>
+            </Button>
+          </div>
+
           <div className="flex items-center justify-center">
             {/* Controles de mídia com chat integrado */}
             <MediaControls
@@ -464,8 +503,35 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
         onSpeakerVolumeChange={advancedControls.handleSpeakerVolumeChange}
         onVideoQualityChange={advancedControls.handleVideoQualityChange}
         onDataSavingModeToggle={advancedControls.handleDataSavingModeToggle}
-        connectionQuality={connectionStats.quality}
+        connectionQuality={
+          connectionStats.quality === "unknown"
+            ? undefined
+            : connectionStats.quality
+        }
         bandwidth={connectionStats.bandwidth}
+      />
+
+      {/* Participant Manager Modal */}
+      <ParticipantManagerModal
+        socket={socket}
+        roomId={roomId}
+        isHost={isHost}
+        isOpen={showParticipantModal}
+        onClose={() => setShowParticipantModal(false)}
+        participants={participantNames}
+        participantStates={participantStates}
+        localSocketId={socket?.id}
+      />
+
+      {/* Poll Modal */}
+      <PollModal
+        isOpen={showPollModal}
+        onClose={() => setShowPollModal(false)}
+        socket={socket}
+        roomId={roomId}
+        userName={userName}
+        isHost={isHost}
+        participantCount={totalParticipants}
       />
     </div>
   );

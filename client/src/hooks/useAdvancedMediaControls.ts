@@ -9,7 +9,7 @@ interface AdvancedMediaState {
 }
 
 interface UseAdvancedMediaControlsOptions {
-  localStream: MediaStream | null;
+  localStream?: MediaStream | null;
   onVideoQualityChange?: (quality: "360p" | "720p" | "1080p") => void;
 }
 
@@ -137,7 +137,7 @@ export const useAdvancedMediaControls = (
         !event.repeat &&
         !(event.target instanceof HTMLInputElement) &&
         !(event.target instanceof HTMLTextAreaElement) &&
-        !(event.target as Element)?.isContentEditable
+        !((event.target as HTMLElement)?.isContentEditable)
       ) {
         event.preventDefault();
 
@@ -158,7 +158,7 @@ export const useAdvancedMediaControls = (
         state.isTemporarilyMuted &&
         !(event.target instanceof HTMLInputElement) &&
         !(event.target instanceof HTMLTextAreaElement) &&
-        !(event.target as Element)?.isContentEditable
+        !((event.target as HTMLElement)?.isContentEditable)
       ) {
         event.preventDefault();
 
