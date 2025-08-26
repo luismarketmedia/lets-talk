@@ -35,6 +35,7 @@ function AppContent() {
     endCall,
     socket,
     isHost,
+    peerConnections,
   } = useWebRTC({
     onNotification: (type, title, message) => {
       addToast({ type, title, message });
