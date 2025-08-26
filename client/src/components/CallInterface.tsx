@@ -50,6 +50,20 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   const remoteStreamArray = Array.from(remoteStreams.entries());
   const totalParticipants = 1 + remoteStreamArray.length; // Local + remotes
 
+  useEffect(() => {
+    // Detectar se estamos em iframe
+    const inIframe = window !== window.top;
+    setIsInIframe(inIframe);
+
+    // Detectar se clipboard API está disponível
+    const hasClipboard = !!(navigator.clipboard && window.isSecureContext);
+
+    // Mostrar aviso se estamos em iframe e pode ter restrições
+    if (inIframe && !hasClipboard) {
+      setShowClipboardWarning(true);
+    }
+  }, []);
+
   const copyRoomId = async () => {
     try {
       // Tentar usar Clipboard API moderna primeiro
