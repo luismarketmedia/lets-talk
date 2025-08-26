@@ -49,12 +49,81 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
 
   const copyRoomId = async () => {
     try {
-      await navigator.clipboard.writeText(roomId);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      // Tentar usar Clipboard API moderna primeiro
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(roomId);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+        return;
+      }
+
+      // Fallback 1: Método de seleção de texto (funciona na maioria dos ambientes)
+      const textArea = document.createElement('textarea');
+      textArea.value = roomId;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+
+      if (successful) {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+        return;
+      }
+
+      // Fallback 2: Mostrar prompt para cópia manual
+      fallbackCopyPrompt();
+
     } catch (error) {
-      console.error("Erro ao copiar código da sala:", error);
+      console.warn("Clipboard API bloqueada, usando fallback:", error);
+
+      // Se chegou aqui, tentar fallback de seleção
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = roomId;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textArea);
+
+        if (successful) {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        } else {
+          fallbackCopyPrompt();
+        }
+      } catch (fallbackError) {
+        console.warn("Fallback de seleção também falhou:", fallbackError);
+        fallbackCopyPrompt();
+      }
     }
+  };
+
+  const fallbackCopyPrompt = () => {
+    // Método final: mostrar prompt para cópia manual
+    if (window.prompt) {
+      window.prompt(
+        'Copie o código da sala manualmente (Ctrl+C / Cmd+C):',
+        roomId
+      );
+    } else {
+      // Se nem prompt funcionar, mostrar alert
+      alert(`Código da sala: ${roomId}\n\nCopie manualmente este código.`);
+    }
+
+    // Simular "copied" por feedback visual
+    setCopied(true);
+    setTimeout(() => setCopied(false), 3000);
   };
 
   // Determinar layout da grade
