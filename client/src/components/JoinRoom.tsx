@@ -3,6 +3,7 @@ import { Video, Users, Plus, ArrowRight, AlertCircle, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { DeviceCheck } from './DeviceCheck';
 
 interface JoinRoomProps {
   onJoinRoom: (roomId: string) => void;
