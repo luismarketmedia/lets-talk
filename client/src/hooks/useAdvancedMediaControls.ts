@@ -158,7 +158,7 @@ export const useAdvancedMediaControls = (
         state.isTemporarilyMuted &&
         !(event.target instanceof HTMLInputElement) &&
         !(event.target instanceof HTMLTextAreaElement) &&
-        !(event.target as Element)?.isContentEditable
+        !((event.target as HTMLElement)?.isContentEditable === 'true')
       ) {
         event.preventDefault();
 
