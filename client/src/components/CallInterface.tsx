@@ -429,8 +429,8 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
         onSpeakerVolumeChange={advancedControls.handleSpeakerVolumeChange}
         onVideoQualityChange={advancedControls.handleVideoQualityChange}
         onDataSavingModeToggle={advancedControls.handleDataSavingModeToggle}
-        connectionQuality="good"
-        bandwidth={1500}
+        connectionQuality={connectionStats.quality}
+        bandwidth={connectionStats.bandwidth}
       />
     </div>
   );
