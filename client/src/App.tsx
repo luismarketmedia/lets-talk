@@ -3,6 +3,7 @@ import { useWebRTC } from "./hooks/useWebRTC";
 import { JoinRoom } from "./components/JoinRoom";
 import { CallInterface } from "./components/CallInterface";
 import { ToastProvider, useToast } from "./components/ui/toast";
+import { loadUsername } from "./lib/userStorage";
 
 function App() {
   return (
