@@ -21,6 +21,7 @@ export const VideoTile: React.FC<VideoTileProps> = ({
   isVideoEnabled = true,
   participantName,
   className,
+  peerConnection = null,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -29,6 +30,12 @@ export const VideoTile: React.FC<VideoTileProps> = ({
     stream,
     enabled: !isMuted && !!stream,
     speakingThreshold: 25,
+  });
+
+  // Get connection stats for remote participants
+  const connectionStats = useConnectionStats({
+    peerConnection,
+    enabled: !isLocal && !!peerConnection,
   });
 
   useEffect(() => {
