@@ -180,6 +180,9 @@ export const Chat: React.FC<ChatProps> = ({
               <span>{participantCount}</span>
             </div>
           </SheetTitle>
+          <SheetDescription>
+            Converse com outros participantes da videochamada
+          </SheetDescription>
         </SheetHeader>
 
         {/* Connection Status */}
