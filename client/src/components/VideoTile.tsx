@@ -12,6 +12,7 @@ interface VideoTileProps {
   participantName?: string;
   className?: string;
   peerConnection?: RTCPeerConnection | null;
+  onClick?: () => void;
 }
 
 export const VideoTile: React.FC<VideoTileProps> = ({
@@ -22,6 +23,7 @@ export const VideoTile: React.FC<VideoTileProps> = ({
   participantName,
   className,
   peerConnection = null,
+  onClick,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -66,8 +68,10 @@ export const VideoTile: React.FC<VideoTileProps> = ({
         isSpeaking
           ? "border-green-400 shadow-green-400/30 shadow-lg scale-[1.02]"
           : "border-transparent hover:border-primary-300",
+        onClick && "cursor-pointer",
         className,
       )}
+      onClick={onClick}
     >
       {/* Vídeo */}
       {stream && isVideoEnabled ? (

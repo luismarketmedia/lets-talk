@@ -28,7 +28,7 @@ export const useSpeakerDetection = ({
   const audioContextsRef = useRef<Map<string, AudioContext>>(new Map());
   const analysersRef = useRef<Map<string, AnalyserNode>>(new Map());
   const dataArraysRef = useRef<Map<string, Uint8Array>>(new Map());
-  const intervalRef = useRef<NodeJS.Timeout>();
+  const intervalRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const lastSpeakerChangeRef = useRef<number>(0);
 
   // Minimum time before changing active speaker (to avoid rapid switching)

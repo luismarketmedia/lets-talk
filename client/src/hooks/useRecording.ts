@@ -27,7 +27,7 @@ export const useRecording = () => {
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const durationIntervalRef = useRef<NodeJS.Timeout>();
+  const durationIntervalRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const streamRef = useRef<MediaStream | null>(null);
 
   // Start recording
