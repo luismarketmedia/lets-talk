@@ -12,6 +12,7 @@ interface VideoTileProps {
   participantName?: string;
   className?: string;
   peerConnection?: RTCPeerConnection | null;
+  onClick?: () => void;
 }
 
 export const VideoTile: React.FC<VideoTileProps> = ({
@@ -22,6 +23,7 @@ export const VideoTile: React.FC<VideoTileProps> = ({
   participantName,
   className,
   peerConnection = null,
+  onClick,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
