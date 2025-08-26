@@ -408,7 +408,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
       {/* Controles de mídia e chat fixos na parte inferior */}
       <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-white/90 to-transparent backdrop-blur-sm border-t border-gray-200 p-4 z-50">
         <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex items-center justify-center gap-4 flex-wrap sm:flex-nowrap">
             {/* Chat - à esquerda */}
             <Chat
               socket={socket}
