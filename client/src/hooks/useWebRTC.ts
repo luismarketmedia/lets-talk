@@ -181,12 +181,13 @@ export const useWebRTC = (
       }
     });
 
-    // Eventos do sistema de aprovação
+    // Eventos do sistema de aprovação - This is for global handling
     socket.on("join-approved", (data) => {
-      console.log("Entrada aprovada na sala:", data.roomId);
+      console.log("Global join approval handler:", data.roomId);
 
       // Load existing participants
       if (data.existingParticipants) {
+        console.log("Loading existing participants:", data.existingParticipants);
         setParticipantNames(prev => {
           const newNames = new Map(prev);
           data.existingParticipants.forEach((participant: any) => {
@@ -574,12 +575,27 @@ export const useWebRTC = (
         }
 
         // Listener para aprovação
-        const handleApproval = () => {
+        const handleApproval = (data: any) => {
+          console.log("Join approval received:", data);
+
           setCallState((prev) => ({
             ...prev,
             isInCall: true,
             connectionState: "connected",
           }));
+
+          // Load existing participants and try to connect to them
+          if (data.existingParticipants && data.existingParticipants.length > 0) {
+            console.log("Connecting to existing participants:", data.existingParticipants);
+            // Give a small delay to ensure we're properly in the room
+            setTimeout(() => {
+              data.existingParticipants.forEach((participant: any) => {
+                console.log("Creating offer for existing participant:", participant.socketId);
+                createOffer(participant.socketId);
+              });
+            }, 1000);
+          }
+
           socketRef.current?.off("join-approved", handleApproval);
         };
 
