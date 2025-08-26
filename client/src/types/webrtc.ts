@@ -21,6 +21,17 @@ export interface MediaControls {
   endCall: () => void;
 }
 
+export interface ExtendedCallState extends CallState, MediaControls {
+  joinRoom: (roomId: string) => Promise<void>;
+  requestJoinRoom: (roomId: string, userName?: string) => Promise<void>;
+  socket: any | null; // Socket type from socket.io-client
+  isHost: boolean;
+  peerConnections: Map<string, RTCPeerConnection>;
+  participantStates: Map<string, { isAudioEnabled: boolean; isVideoEnabled: boolean }>;
+  participantNames: Map<string, string>;
+  screenSharingParticipant: string | null;
+}
+
 export interface SocketEvents {
   "join-room": (roomId: string) => void;
   "user-joined": (userId: string) => void;
