@@ -22,6 +22,8 @@ app.get('/', (req, res) => {
 
 // Armazenar salas e usuários
 const rooms = new Map();
+// Armazenar pedidos de entrada pendentes
+const pendingRequests = new Map();
 
 io.on('connection', (socket) => {
     console.log('Usuário conectado:', socket.id);
@@ -89,4 +91,3 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => {
     console.log(`Servidor WebRTC rodando na porta ${PORT}`);
 });
-
