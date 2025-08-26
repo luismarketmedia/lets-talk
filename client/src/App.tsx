@@ -15,6 +15,7 @@ function App() {
 
 function AppContent() {
   const [error, setError] = useState<string | null>(null);
+  const [currentUserName, setCurrentUserName] = useState<string>("Você");
   const { addToast } = useToast();
 
   const {
