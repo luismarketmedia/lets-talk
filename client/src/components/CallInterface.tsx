@@ -76,7 +76,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
     const inIframe = window !== window.top;
     setIsInIframe(inIframe);
 
-    // Detectar se clipboard API está disponível
+    // Detectar se clipboard API está dispon��vel
     const hasClipboard = navigator.clipboard && window.isSecureContext;
 
     // Mostrar aviso se estamos em iframe e pode ter restrições
@@ -409,6 +409,21 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
       <DeviceTestModal
         isOpen={showTestModal}
         onClose={() => setShowTestModal(false)}
+      />
+
+      <AdvancedMediaControls
+        isVisible={showAdvancedControls}
+        onClose={() => setShowAdvancedControls(false)}
+        microphoneVolume={advancedControls.microphoneVolume}
+        speakerVolume={advancedControls.speakerVolume}
+        videoQuality={advancedControls.videoQuality}
+        dataSavingMode={advancedControls.dataSavingMode}
+        onMicrophoneVolumeChange={advancedControls.handleMicrophoneVolumeChange}
+        onSpeakerVolumeChange={advancedControls.handleSpeakerVolumeChange}
+        onVideoQualityChange={advancedControls.handleVideoQualityChange}
+        onDataSavingModeToggle={advancedControls.handleDataSavingModeToggle}
+        connectionQuality="good"
+        bandwidth={1500}
       />
     </div>
   );
