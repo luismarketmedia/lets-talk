@@ -43,10 +43,12 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
   const renderGalleryView = () => {
     const getGridClass = () => {
       if (totalParticipants === 1) return "grid-cols-1";
-      if (totalParticipants === 2) return "grid-cols-1 lg:grid-cols-2";
-      if (totalParticipants <= 4) return "grid-cols-2";
-      if (totalParticipants <= 6) return "grid-cols-2 lg:grid-cols-3";
-      return "grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+      if (totalParticipants === 2) return "grid-cols-1 sm:grid-cols-2";
+      if (totalParticipants === 3) return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+      if (totalParticipants === 4) return "grid-cols-2 lg:grid-cols-4";
+      if (totalParticipants <= 6) return "grid-cols-2 md:grid-cols-3";
+      if (totalParticipants <= 9) return "grid-cols-2 md:grid-cols-3 lg:grid-cols-3";
+      return "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5";
     };
 
     const getVideoHeight = () => {
@@ -132,7 +134,7 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
       mainParticipant = {
         id: screenSharingParticipant,
         stream: remoteStreams.get(screenSharingParticipant) || null,
-        name: `🖥️ ${participantNames.get(screenSharingParticipant) || "Participante"} (Compartilhando)`,
+        name: `🖥�� ${participantNames.get(screenSharingParticipant) || "Participante"} (Compartilhando)`,
         isLocal: false,
       };
     } else if (activeSpeaker === "local") {
