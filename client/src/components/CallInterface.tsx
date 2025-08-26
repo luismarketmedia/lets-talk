@@ -45,6 +45,8 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   const [copyMethod, setCopyMethod] = useState<'clipboard' | 'fallback' | 'manual'>('clipboard');
   const [showAudioModal, setShowAudioModal] = useState(false);
   const [showTestModal, setShowTestModal] = useState(false);
+  const [isInIframe, setIsInIframe] = useState(false);
+  const [showClipboardWarning, setShowClipboardWarning] = useState(false);
   const remoteStreamArray = Array.from(remoteStreams.entries());
   const totalParticipants = 1 + remoteStreamArray.length; // Local + remotes
 
