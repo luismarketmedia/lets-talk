@@ -285,20 +285,33 @@ export const Chat: React.FC<ChatProps> = ({
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Digite sua mensagem..."
+                placeholder={
+                  !socket?.connected
+                    ? "Aguardando conexão..."
+                    : !roomId
+                    ? "Não conectado à sala..."
+                    : "Digite sua mensagem..."
+                }
                 className="flex-1"
                 maxLength={500}
+                disabled={!socket?.connected || !roomId}
               />
               <Button
                 onClick={sendMessage}
-                disabled={!newMessage.trim()}
+                disabled={
+                  !newMessage.trim() || !socket?.connected || !roomId
+                }
                 size="sm"
               >
                 <Send className="w-4 h-4" />
               </Button>
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              Pressione Enter para enviar
+              {!socket?.connected
+                ? "Aguardando conexão com o servidor..."
+                : !roomId
+                ? "Não conectado à sala de chat"
+                : "Pressione Enter para enviar"}
             </p>
           </div>
         </div>
