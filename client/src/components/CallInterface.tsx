@@ -135,7 +135,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
       setShowClipboardWarning(true);
     }
 
-    // M��todo final: mostrar prompt para cópia manual
+    // Método final: mostrar prompt para cópia manual
     if (window.prompt) {
       window.prompt(
         'Ambiente restrito detectado. Copie o código manualmente (Ctrl+C / Cmd+C):',
@@ -232,6 +232,36 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Aviso sobre restrições de clipboard */}
+      {showClipboardWarning && (
+        <div className="max-w-6xl mx-auto mb-4">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+            <div className="flex items-start space-x-3">
+              <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <h3 className="text-sm font-medium text-yellow-800 mb-1">
+                  Restrições de Ambiente Detectadas
+                </h3>
+                <p className="text-sm text-yellow-700 mb-2">
+                  A cópia automática pode não funcionar neste ambiente. Use os métodos alternativos:
+                </p>
+                <ul className="text-xs text-yellow-700 space-y-1">
+                  <li>• <strong>Seleção manual:</strong> Clique no código e copie com Ctrl+C</li>
+                  <li>• <strong>Prompt do navegador:</strong> Use a janela de prompt quando aparecer</li>
+                  <li>• <strong>Compartilhamento:</strong> Compartilhe diretamente a URL da página</li>
+                </ul>
+              </div>
+              <button
+                onClick={() => setShowClipboardWarning(false)}
+                className="text-yellow-400 hover:text-yellow-600 transition-colors"
+              >
+                <Check className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Sistema de aprovação de entrada */}
       {isHost && (
