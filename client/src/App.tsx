@@ -95,7 +95,7 @@ function AppContent() {
       isScreenSharing={isScreenSharing}
       socket={socket}
       isHost={isHost}
-      userName="Você"
+      userName={currentUserName}
       onToggleAudio={toggleAudio}
       onToggleVideo={toggleVideo}
       onToggleScreenShare={toggleScreenShare}
