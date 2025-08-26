@@ -197,7 +197,7 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
                   type="text"
                   placeholder="Digite seu nome"
                   value={userName}
-                  onChange={(e) => setUserName(e.target.value)}
+                  onChange={handleUserNameChange}
                   disabled={isConnecting}
                   maxLength={50}
                 />
