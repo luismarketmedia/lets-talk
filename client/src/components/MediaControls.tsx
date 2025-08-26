@@ -23,7 +23,9 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
   onToggleAudio,
   onToggleVideo,
   onToggleScreenShare,
-  onEndCall
+  onEndCall,
+  onOpenAudioSettings,
+  onOpenDeviceTest
 }) => {
   const screenShareSupport = useScreenShareSupport();
   return (
