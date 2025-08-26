@@ -256,7 +256,7 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
             socket={socket}
             roomId={roomId}
             userName={userName}
-            isScreenSharing={isScreenSharing}
+            isScreenSharing={isScreenSharingForTools}
           />
         )}
 
