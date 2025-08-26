@@ -576,13 +576,24 @@ export const useWebRTC = (
       const videoTrack = localStreamRef.current.getVideoTracks()[0];
       if (videoTrack) {
         videoTrack.enabled = !videoTrack.enabled;
+        const newState = videoTrack.enabled;
+
         setCallState((prev) => ({
           ...prev,
-          isVideoEnabled: videoTrack.enabled,
+          isVideoEnabled: newState,
         }));
+
+        // Emit state change to other participants
+        if (socketRef.current && callState.roomId) {
+          socketRef.current.emit("participant-state-change", {
+            roomId: callState.roomId,
+            isAudioEnabled: callState.isAudioEnabled,
+            isVideoEnabled: newState,
+          });
+        }
       }
     }
-  }, []);
+  }, [callState.roomId, callState.isAudioEnabled]);
 
   const checkScreenShareSupport = useCallback(() => {
     // Verificar se a API de compartilhamento de tela está disponível
