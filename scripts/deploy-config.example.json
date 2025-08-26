@@ -1,0 +1,43 @@
+{
+  "deployment": {
+    "domain": "meet.empresa.com.br",
+    "useHttps": true,
+    "serverPort": 3000,
+    "serverDeploymentMode": "Standalone",
+    "iisPath": "C:\\inetpub\\wwwroot",
+    "sourcePath": "C:\\dev\\lets-talk"
+  },
+  "iis": {
+    "clientSiteName": "LetsTalk-Client",
+    "serverSiteName": "LetsTalk-Server",
+    "proxySiteName": "LetsTalk-Proxy",
+    "enableCompression": true,
+    "enableCaching": true
+  },
+  "ssl": {
+    "certificateThumbprint": "",
+    "certificateStore": "My",
+    "sslFlags": "0"
+  },
+  "server": {
+    "environment": "production",
+    "maxMemoryRestart": "1G",
+    "instances": 1,
+    "autorestart": true,
+    "logLevel": "info"
+  },
+  "monitoring": {
+    "enableIISLogs": true,
+    "enableFailedRequestTracing": true,
+    "logRetentionDays": 30,
+    "enablePerformanceCounters": true
+  },
+  "security": {
+    "enableCORS": true,
+    "allowedOrigins": [
+      "https://meet.empresa.com.br"
+    ],
+    "enableRateLimit": true,
+    "maxRequestsPerMinute": 1000
+  }
+}
