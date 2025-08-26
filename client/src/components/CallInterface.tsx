@@ -58,7 +58,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
     setIsInIframe(inIframe);
 
     // Detectar se clipboard API está disponível
-    const hasClipboard = !!(navigator.clipboard && window.isSecureContext);
+    const hasClipboard = (navigator.clipboard && window.isSecureContext);
 
     // Mostrar aviso se estamos em iframe e pode ter restrições
     if (inIframe && !hasClipboard) {
@@ -344,7 +344,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
       </div>
 
       {/* Controles de mídia fixos na parte inferior */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 p-4 z-50">
+      <div className="fixed bottom-0 left-0 right-0 border-gray-200 p-4 z-50">
         <div className="max-w-6xl mx-auto">
           <MediaControls
             isAudioEnabled={isAudioEnabled}

@@ -93,10 +93,9 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
       <div className="w-full max-w-lg">
         {/* Logo/Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-500 rounded-2xl mb-4 shadow-lg">
-            <Video className="w-8 h-8 text-white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 mb-4">
+              <img src="/logo.png" className="w-full h-full object-cover"  alt="Logo"/>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Let's Talk</h1>
           <p className="text-gray-600">
             Conecte-se facilmente com videochamadas de alta qualidade
           </p>
@@ -285,7 +284,7 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
 
                   {mode === "create" && !roomId && (
                     <p className="text-xs text-gray-500">
-                      Clique no ��cone para gerar um código de reunião{" "}
+                      Clique no ícone para gerar um código de reunião{" "}
                     </p>
                   )}
                 </div>
