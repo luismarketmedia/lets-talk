@@ -109,13 +109,24 @@ export const Chat: React.FC<ChatProps> = ({
   }, [isOpen]);
 
   const sendMessage = () => {
-    if (!socket || !roomId || !newMessage.trim()) return;
+    if (!socket || !roomId || !newMessage.trim()) {
+      console.warn("[CHAT] Não é possível enviar mensagem:", {
+        hasSocket: !!socket,
+        hasRoomId: !!roomId,
+        hasMessage: !!newMessage.trim(),
+        socketConnected: socket?.connected,
+      });
+      return;
+    }
 
-    socket.emit("chat-message", {
+    const messageData = {
       roomId,
       message: newMessage.trim(),
       userName,
-    });
+    };
+
+    console.log("[CHAT] Enviando mensagem:", messageData);
+    socket.emit("chat-message", messageData);
 
     setNewMessage("");
   };
