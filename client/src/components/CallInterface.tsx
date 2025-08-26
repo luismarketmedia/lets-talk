@@ -32,7 +32,9 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   onToggleScreenShare,
   onEndCall
 }) => {
-  const [copied, setCopied] = React.useState(false);
+  const [copied, setCopied] = useState(false);
+  const [showAudioModal, setShowAudioModal] = useState(false);
+  const [showTestModal, setShowTestModal] = useState(false);
   const remoteStreamArray = Array.from(remoteStreams.entries());
   const totalParticipants = 1 + remoteStreamArray.length; // Local + remotes
 
