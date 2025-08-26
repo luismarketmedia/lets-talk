@@ -462,8 +462,12 @@ export const useWebRTC = (options: WebRTCOptions = {}): CallState & MediaControl
         }
       }
 
-      // Mostrar erro para o usuário (você pode implementar um sistema de notificações)
-      alert(errorMessage);
+      // Mostrar erro para o usuário via notificação
+      if (onNotification) {
+        onNotification('error', 'Erro no Compartilhamento de Tela', errorMessage);
+      } else {
+        console.error('Erro no compartilhamento de tela:', errorMessage);
+      }
 
       setCallState(prev => ({ ...prev, isScreenSharing: false }));
     }
