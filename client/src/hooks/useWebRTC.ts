@@ -25,6 +25,10 @@ export const useWebRTC = (
     requestJoinRoom: (roomId: string, userName?: string) => Promise<void>;
     socket: Socket | null;
     isHost: boolean;
+    peerConnections: Map<string, RTCPeerConnection>;
+    participantStates: Map<string, { isAudioEnabled: boolean; isVideoEnabled: boolean }>;
+    participantNames: Map<string, string>;
+    screenSharingParticipant: string | null;
   } => {
   const { onNotification } = options;
   const [callState, setCallState] = useState<CallState>({
