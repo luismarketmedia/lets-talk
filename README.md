@@ -148,8 +148,24 @@ O Let's Talk suporta diferentes formatos de código de reunião, similares às p
 ### Controles Durante a Chamada
 - **🎤 Microfone**: Ativar/desativar áudio
 - **📹 Câmera**: Ativar/desativar vídeo
-- **🖥️ Compartilhar Tela**: Compartilhar sua tela
+- **🖥️ Compartilhar Tela**: Compartilhar sua tela (com detecção automática de suporte)
 - **📞 Encerrar**: Sair da chamada
+
+### 🖥️ Compartilhamento de Tela
+O Let's Talk inclui compartilhamento de tela avançado com:
+
+- ✅ **Detecção automática**: Verifica se o navegador e ambiente suportam compartilhamento
+- ✅ **Fallback inteligente**: Tenta áudio + vídeo, depois apenas vídeo se necessário
+- ✅ **Volta automática**: Retorna para câmera quando compartilhamento termina
+- ✅ **Indicadores visuais**: Ícones mostram status (disponível/indisponível)
+- ✅ **Notificações**: Feedback em tempo real sobre status do compartilhamento
+- ✅ **Políticas de segurança**: Configurado para funcionar em diferentes ambientes
+
+#### Requisitos para Compartilhamento:
+- 🔒 **HTTPS** ou localhost (requisito de segurança)
+- 🌐 **Navegador moderno** (Chrome, Firefox, Safari, Edge)
+- 📋 **Permissões** concedidas pelo usuário
+- 🖥️ **Sistema operacional** com suporte a captura de tela
 
 ## 🎨 Personalização
 
