@@ -730,7 +730,7 @@ export const useWebRTC = (
           errorMessage =
             "Compartilhamento de tela bloqueado por política de segurança. Recarregue a página ou use HTTPS.";
         } else if (error.name === "AbortError") {
-          errorMessage = "Compartilhamento de tela cancelado pelo usuário.";
+          errorMessage = "Compartilhamento de tela cancelado pelo usu��rio.";
         } else {
           errorMessage = error.message;
         }
@@ -775,15 +775,18 @@ export const useWebRTC = (
       isScreenSharing: false,
       connectionState: "connected",
     });
+    setIsHost(false);
   }, []);
 
   return {
     ...callState,
     joinRoom,
+    requestJoinRoom,
     toggleAudio,
     toggleVideo,
     toggleScreenShare,
     endCall,
     socket: socketRef.current,
+    isHost,
   };
 };
