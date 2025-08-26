@@ -171,13 +171,13 @@ export const Chat: React.FC<ChatProps> = ({
     // Show disabled chat button
     return (
       <Button
-        variant="outline"
-        size="sm"
+        variant="secondary"
+        size="icon"
         disabled
-        className="relative flex items-center space-x-2 font-medium bg-gray-100 text-gray-400 cursor-not-allowed"
+        className="w-12 h-12 rounded-full bg-gray-100 text-gray-400 cursor-not-allowed transition-all duration-200"
+        title="Chat indisponível"
       >
-        <MessageCircle className="w-4 h-4" />
-        <span>Chat</span>
+        <MessageCircle className="w-5 h-5" />
       </Button>
     );
   }
@@ -186,28 +186,21 @@ export const Chat: React.FC<ChatProps> = ({
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <Button
-          variant="outline"
-          size="sm"
+          variant="secondary"
+          size="icon"
           className={cn(
-            "relative flex items-center space-x-2 font-medium transition-all duration-200",
-            "bg-white/95 backdrop-blur-sm border-gray-300 hover:bg-blue-50 hover:border-blue-400",
-            "shadow-md hover:shadow-lg",
-            unreadCount > 0 && "bg-blue-50 border-blue-400 text-blue-700",
+            "w-12 h-12 rounded-full transition-all duration-200 relative",
+            unreadCount > 0
+              ? "bg-blue-500 hover:bg-blue-600 text-white"
+              : "bg-gray-200 hover:bg-gray-300 text-gray-700",
           )}
+          title={unreadCount > 0 ? `Chat (${unreadCount} mensagens não lidas)` : "Chat"}
         >
-          <div className="relative">
-            <MessageCircle
-              className={cn(
-                "w-4 h-4",
-                unreadCount > 0 ? "text-blue-600" : "text-gray-600",
-              )}
-            />
-            {/* Indicador de atividade quando há participantes */}
-            {participantCount > 1 && unreadCount === 0 && (
-              <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-            )}
-          </div>
-          <span>Chat</span>
+          <MessageCircle className="w-5 h-5" />
+          {/* Indicador de atividade quando há participantes */}
+          {participantCount > 1 && unreadCount === 0 && (
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse" />
+          )}
           {unreadCount > 0 && (
             <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
               {unreadCount > 9 ? "9+" : unreadCount}
