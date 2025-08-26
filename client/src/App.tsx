@@ -72,6 +72,9 @@ function AppContent() {
       isAudioEnabled={isAudioEnabled}
       isVideoEnabled={isVideoEnabled}
       isScreenSharing={isScreenSharing}
+      socket={socket}
+      isHost={isHost}
+      userName="Você" // TODO: Add user name input in future
       onToggleAudio={toggleAudio}
       onToggleVideo={toggleVideo}
       onToggleScreenShare={toggleScreenShare}
