@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Video,
   Users,
@@ -25,6 +25,7 @@ import {
   formatMeetingCode,
   validateMeetingCode,
 } from "../lib/meetingCodeGenerator";
+import { loadUsername, saveUsername } from "../lib/userStorage";
 
 interface JoinRoomProps {
   onJoinRoom: (roomId: string) => void;
