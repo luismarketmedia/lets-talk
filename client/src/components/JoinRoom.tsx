@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { DeviceCheck } from './DeviceCheck';
-import { generateMeetingCode, formatMeetingCode, validateMeetingCode, type MeetingCodeFormat } from '../lib/meetingCodeGenerator';
+import { generateMeetingCode, formatMeetingCode, validateMeetingCode } from '../lib/meetingCodeGenerator';
 
 interface JoinRoomProps {
   onJoinRoom: (roomId: string) => void;
