@@ -45,9 +45,9 @@ export const useWebRTC = (
 
   useEffect(() => {
     // Conectar ao servidor Socket.IO via proxy do Vite
-    const serverUrl = window.location.origin; // Usar a mesma origem (proxy do Vite)
+    const serverUrl = import.meta.env.DEV ? "http://localhost:3000" : window.location.origin;
 
-    console.log("Conectando ao servidor WebRTC via proxy:", serverUrl);
+    console.log("Conectando ao servidor WebRTC:", serverUrl);
     socketRef.current = io(serverUrl, {
       transports: ["websocket", "polling"],
       timeout: 10000,
@@ -345,7 +345,7 @@ export const useWebRTC = (
           error.message.includes("Requested device not found")
         ) {
           throw new Error(
-            "Dispositivo não encontrado. Verifique se sua câmera e microfone estão conectados e funcionando.",
+            "Dispositivo n��o encontrado. Verifique se sua câmera e microfone estão conectados e funcionando.",
           );
         } else if (
           error.name === "NotAllowedError" ||
