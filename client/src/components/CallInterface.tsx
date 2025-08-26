@@ -167,6 +167,23 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
         onToggleVideo={onToggleVideo}
         onToggleScreenShare={onToggleScreenShare}
         onEndCall={onEndCall}
+        onOpenAudioSettings={() => setShowAudioModal(true)}
+        onOpenDeviceTest={() => setShowTestModal(true)}
+      />
+
+      {/* Modais */}
+      <AudioDeviceModal
+        isOpen={showAudioModal}
+        onClose={() => setShowAudioModal(false)}
+        onDeviceChange={(input, output) => {
+          console.log('Dispositivos selecionados durante chamada:', { input, output });
+          // Aqui você pode atualizar os dispositivos durante a chamada
+        }}
+      />
+
+      <DeviceTestModal
+        isOpen={showTestModal}
+        onClose={() => setShowTestModal(false)}
       />
     </div>
   );
