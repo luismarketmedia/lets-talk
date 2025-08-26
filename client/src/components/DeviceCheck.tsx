@@ -11,6 +11,8 @@ interface DeviceStatus {
 
 interface DeviceCheckProps {
   onDeviceCheck?: (status: DeviceStatus) => void;
+  onOpenAudioSettings?: () => void;
+  onOpenDeviceTest?: () => void;
 }
 
 export const DeviceCheck: React.FC<DeviceCheckProps> = ({ onDeviceCheck }) => {
