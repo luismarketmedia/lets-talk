@@ -99,6 +99,7 @@ function AppContent() {
       isHost={isHost}
       userName={currentUserName}
       peerConnections={peerConnections}
+      participantStates={participantStates}
       onToggleAudio={toggleAudio}
       onToggleVideo={toggleVideo}
       onToggleScreenShare={toggleScreenShare}
