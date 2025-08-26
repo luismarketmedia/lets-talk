@@ -91,6 +91,13 @@ export const useWebRTC = (
         newRemoteStreams.delete(userId);
         return { ...prev, remoteStreams: newRemoteStreams };
       });
+
+      // Clean up participant state
+      setParticipantStates(prev => {
+        const newStates = new Map(prev);
+        newStates.delete(userId);
+        return newStates;
+      });
     });
 
     socket.on("offer", async (data) => {
