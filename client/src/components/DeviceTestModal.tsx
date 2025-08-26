@@ -22,6 +22,10 @@ interface DeviceTest {
   screenShare: TestStatus;
 }
 
+interface ErrorInfo {
+  screenShareError?: string;
+}
+
 interface DeviceTestModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -50,6 +54,9 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
     speakers: "",
   });
 
+  const [errorInfo, setErrorInfo] = useState<ErrorInfo>({});
+  const [isInIframe, setIsInIframe] = useState(false);
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -58,6 +65,8 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       loadDeviceInfo();
+      // Check if running in iframe
+      setIsInIframe(window !== window.top);
     } else {
       stopAllTests();
     }
@@ -260,11 +269,19 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
     } catch (error: any) {
       console.error("Erro no teste de compartilhamento:", error);
 
+      let errorMessage = "Erro desconhecido";
+
       // Handle specific permission errors
       if (error.name === "NotAllowedError") {
+        errorMessage = isInIframe
+          ? "Bloqueado em ambiente iframe - funciona normalmente em produção"
+          : "Permissão negada pelo usuário";
         console.warn("Screen sharing blocked by permissions policy - this is normal in iframe environments");
+      } else if (error.message.includes("não é suportado")) {
+        errorMessage = "Não suportado neste navegador";
       }
 
+      setErrorInfo(prev => ({ ...prev, screenShareError: errorMessage }));
       setTestStatus((prev) => ({ ...prev, screenShare: "error" }));
     }
   };
@@ -284,14 +301,14 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
     }
   };
 
-  const getStatusText = (status: TestStatus) => {
+  const getStatusText = (status: TestStatus, errorType?: string) => {
     switch (status) {
       case "testing":
         return "Testando...";
       case "success":
         return "Funcionando";
       case "error":
-        return "Erro";
+        return errorType || "Erro";
       default:
         return "Não testado";
     }
@@ -516,7 +533,7 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
                 <div className="flex items-center space-x-3">
                   {getStatusIcon(testStatus.screenShare)}
                   <span className="text-sm text-gray-600">
-                    {getStatusText(testStatus.screenShare)}
+                    {getStatusText(testStatus.screenShare, errorInfo.screenShareError)}
                   </span>
                   <Button
                     variant={screenStream ? "destructive" : "outline"}
