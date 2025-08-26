@@ -49,6 +49,21 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
   const [showAudioModal, setShowAudioModal] = useState(false);
   const [showTestModal, setShowTestModal] = useState(false);
 
+  // Load username from localStorage on component mount
+  useEffect(() => {
+    const savedUsername = loadUsername();
+    if (savedUsername) {
+      setUserName(savedUsername);
+    }
+  }, []);
+
+  // Handle username change and save to localStorage
+  const handleUserNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newUserName = e.target.value;
+    setUserName(newUserName);
+    saveUsername(newUserName);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanRoomId = roomId.trim();
