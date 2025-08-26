@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Video, Users, Plus, ArrowRight, AlertCircle, X } from 'lucide-react';
+import { Video, Users, Plus, ArrowRight, AlertCircle, X, Shuffle } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { DeviceCheck } from './DeviceCheck';
+import { generateMeetingCode, formatMeetingCode, validateMeetingCode, type MeetingCodeFormat } from '../lib/meetingCodeGenerator';
 
 interface JoinRoomProps {
   onJoinRoom: (roomId: string) => void;
