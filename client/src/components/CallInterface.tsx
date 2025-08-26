@@ -231,7 +231,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                 </div>
 
                 {/* Controles e código da sala */}
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3">
                   {/* Chat */}
                   <Chat
                     socket={socket}
@@ -240,10 +240,10 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                     participantCount={totalParticipants}
                   />
 
-                  <div className="hidden sm:flex items-center space-x-2 bg-gray-50 rounded-lg px-3 py-2">
-                    <span className="text-sm text-gray-600">Sala:</span>
+                  <div className="flex items-center space-x-2 bg-gray-100 rounded-xl px-4 py-2 border">
+                    <span className="text-sm font-medium text-gray-700">ID da Sala:</span>
                     <span
-                      className="text-sm font-mono font-medium text-gray-900 select-all cursor-text px-1 py-0.5 rounded bg-white border border-gray-200"
+                      className="text-sm font-mono font-bold text-blue-600 select-all cursor-text px-2 py-1 rounded-lg bg-blue-50 border border-blue-200"
                       title="Clique para selecionar e copiar com Ctrl+C"
                     >
                       {roomId}
@@ -253,27 +253,28 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                     variant="outline"
                     size="sm"
                     onClick={copyRoomId}
-                    className={`flex items-center space-x-2 ${
+                    className={cn(
+                      "flex items-center space-x-2 font-medium",
                       copied && copyMethod === "manual"
-                        ? "border-yellow-400 bg-yellow-50"
-                        : ""
-                    }`}
+                        ? "border-yellow-400 bg-yellow-50 text-yellow-700"
+                        : "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
+                    )}
                   >
                     {copied ? (
                       copyMethod === "manual" ? (
-                        <Copy className="w-4 h-4 text-yellow-600" />
+                        <Copy className="w-4 h-4" />
                       ) : (
                         <Check className="w-4 h-4 text-green-600" />
                       )
                     ) : (
                       <Copy className="w-4 h-4" />
                     )}
-                    <span className="hidden sm:inline">
+                    <span>
                       {copied
                         ? copyMethod === "manual"
                           ? "Use Ctrl+C"
                           : "Copiado!"
-                        : "Copiar código"}
+                        : "Copiar"}
                     </span>
                   </Button>
                 </div>
