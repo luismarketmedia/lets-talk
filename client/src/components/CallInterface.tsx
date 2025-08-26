@@ -3,8 +3,8 @@ import { Users, Copy, Check, AlertTriangle } from "lucide-react";
 import { Socket } from "socket.io-client";
 import { VideoGrid } from "./VideoGrid";
 import { ViewModeSelector, useViewMode } from "./ViewModeSelector";
-import { ReactionsPanel } from "./ReactionsPanel";
 import { PollModal } from "./PollModal";
+import { SimpleReactionsModal } from "./SimpleReactionsModal";
 import { MediaControls } from "./MediaControls";
 import { AudioDeviceModal } from "./AudioDeviceModal";
 import { DeviceTestModal } from "./DeviceTestModal";
@@ -585,6 +585,15 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
         participants={participantNames}
         participantStates={participantStates}
         localSocketId={socket?.id}
+      />
+
+      {/* Reactions Modal */}
+      <SimpleReactionsModal
+        isOpen={showReactionsModal}
+        onClose={() => setShowReactionsModal(false)}
+        socket={socket}
+        roomId={roomId}
+        userName={userName}
       />
 
       {/* Poll Modal */}
