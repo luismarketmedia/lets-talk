@@ -33,14 +33,14 @@ export const ViewModeSelector: React.FC<ViewModeSelectorProps> = ({
       name: "Palestrante",
       icon: Volume2,
       description: "Destacar quem está falando",
-      disabled: participantCount < 2,
+      disabled: false,
     },
     {
       id: "spotlight" as ViewMode,
       name: "Foco",
       icon: Focus,
       description: "Focar em um participante específico",
-      disabled: participantCount < 2,
+      disabled: false,
     },
   ];
 
@@ -64,12 +64,12 @@ export const ViewModeSelector: React.FC<ViewModeSelectorProps> = ({
             onClick={() => !isDisabled && onModeChange(mode.id)}
             disabled={isDisabled}
             className={cn(
-              "flex items-center space-x-2 px-3 py-2 text-xs font-medium transition-all duration-200",
+              "flex items-center space-x-2 px-3 py-2 text-xs font-medium transition-all duration-200 relative",
               isActive
-                ? "bg-blue-500 text-white shadow-md"
+                ? "bg-blue-500 text-white shadow-md transform scale-105"
                 : isDisabled
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-gray-600 hover:bg-blue-50 hover:text-blue-600",
+                  ? "text-gray-400 cursor-not-allowed opacity-50"
+                  : "text-gray-600 hover:bg-blue-50 hover:text-blue-600 hover:scale-105 hover:shadow-sm",
             )}
             title={
               isDisabled

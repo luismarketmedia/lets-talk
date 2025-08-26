@@ -3,8 +3,8 @@ import { Users, Copy, Check, AlertTriangle } from "lucide-react";
 import { Socket } from "socket.io-client";
 import { VideoGrid } from "./VideoGrid";
 import { ViewModeSelector, useViewMode } from "./ViewModeSelector";
-import { ReactionsPanel } from "./ReactionsPanel";
 import { PollModal } from "./PollModal";
+import { SimpleReactionsModal } from "./SimpleReactionsModal";
 import { MediaControls } from "./MediaControls";
 import { AudioDeviceModal } from "./AudioDeviceModal";
 import { DeviceTestModal } from "./DeviceTestModal";
@@ -90,12 +90,91 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   // Poll modal
   const [showPollModal, setShowPollModal] = useState(false);
 
+  // Reactions modal
+  const [showReactionsModal, setShowReactionsModal] = useState(false);
+
+  // Hand raise state
+  const [isHandRaised, setIsHandRaised] = useState(false);
+  const [raisedHands, setRaisedHands] = useState(
+    new Map<string, { name: string; timestamp: Date }>(),
+  );
+
+  // Reactions state
+  const [recentReactions, setRecentReactions] = useState<any[]>([]);
+
   // Auto-open participant modal when there are pending requests
   useEffect(() => {
     if (participantManager.pendingCount > 0 && !showParticipantModal) {
       setShowParticipantModal(true);
     }
   }, [participantManager.pendingCount, showParticipantModal]);
+
+  // Hand raise handler
+  const handleToggleHandRaise = () => {
+    if (!socket || !roomId) return;
+
+    const newState = !isHandRaised;
+    setIsHandRaised(newState);
+
+    socket.emit("hand-raise", {
+      roomId,
+      isRaised: newState,
+      participantName: userName,
+    });
+  };
+
+  // Handle reactions and hand raise events from other participants
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleReaction = (data: any) => {
+      const newReaction = {
+        id: `${Date.now()}-${Math.random()}`,
+        emoji: data.emoji,
+        name: data.name,
+        participantId: data.participantId,
+        participantName: data.participantName,
+        timestamp: new Date(),
+      };
+
+      setRecentReactions((prev) => [...prev, newReaction]);
+
+      // Remove reaction after 3 seconds
+      setTimeout(() => {
+        setRecentReactions((prev) =>
+          prev.filter((r) => r.id !== newReaction.id),
+        );
+      }, 3000);
+    };
+
+    const handleHandRaise = (data: any) => {
+      if (data.isRaised) {
+        setRaisedHands(
+          (prev) =>
+            new Map(
+              prev.set(data.participantId, {
+                name: data.participantName,
+                timestamp: new Date(),
+              }),
+            ),
+        );
+      } else {
+        setRaisedHands((prev) => {
+          const newMap = new Map(prev);
+          newMap.delete(data.participantId);
+          return newMap;
+        });
+      }
+    };
+
+    socket.on("reaction", handleReaction);
+    socket.on("hand-raise", handleHandRaise);
+
+    return () => {
+      socket.off("reaction", handleReaction);
+      socket.off("hand-raise", handleHandRaise);
+    };
+  }, [socket]);
   const remoteStreamArray = Array.from(remoteStreams.entries());
   const totalParticipants = 1 + remoteStreamArray.length; // Local + remotes
 
@@ -218,7 +297,10 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col">
+    <div
+      className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col"
+      data-call-interface
+    >
       {/* Scrollable main content */}
       <div className="flex-1 overflow-y-auto">
         <div className="p-4 pb-32">
@@ -330,7 +412,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
             </div>
           </div>
 
-          {/* Aviso sobre restrições de clipboard */}
+          {/* Aviso sobre restri��ões de clipboard */}
           {showClipboardWarning && (
             <div className="max-w-6xl mx-auto mb-4">
               <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
@@ -420,36 +502,25 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
       {/* Controles de mídia e chat fixos na parte inferior */}
       <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-white/90 to-transparent backdrop-blur-sm border-t border-gray-200 p-4 z-50">
         <div className="max-w-6xl mx-auto space-y-4">
-          {/* Reações e engagement */}
-          <div className="flex items-center justify-center space-x-4">
-            <ReactionsPanel
-              socket={socket}
-              roomId={roomId}
-              userName={userName}
-              participantCount={totalParticipants}
-            />
-
-            {/* Botão de votações */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowPollModal(true)}
-              className="flex items-center space-x-2 bg-white/95 backdrop-blur-sm border border-gray-200 hover:bg-blue-50 text-gray-600 hover:text-blue-600"
-              title="Votações"
-            >
-              <svg
-                className="w-4 h-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <path d="M8 12h8M8 8h8M8 16h8" />
-              </svg>
-              <span className="hidden sm:inline text-xs">Votações</span>
-            </Button>
-          </div>
+          {/* Floating reactions display */}
+          {recentReactions.length > 0 && (
+            <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 pointer-events-none z-40">
+              <div className="flex space-x-2">
+                {recentReactions.slice(-5).map((reaction) => (
+                  <div
+                    key={reaction.id}
+                    className="animate-bounce text-4xl"
+                    style={{
+                      animationDelay: `${Math.random() * 0.5}s`,
+                      animationDuration: "2s",
+                    }}
+                  >
+                    {reaction.emoji}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="flex items-center justify-center">
             {/* Controles de mídia com chat integrado */}
@@ -469,6 +540,14 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
               roomId={roomId}
               userName={userName}
               participantCount={totalParticipants}
+              onOpenReactions={() => setShowReactionsModal(true)}
+              onToggleHandRaise={handleToggleHandRaise}
+              isHandRaised={isHandRaised}
+              raisedHandsCount={raisedHands.size}
+              onOpenVoting={() => setShowPollModal(true)}
+              localStream={localStream}
+              remoteStreams={remoteStreams}
+              isScreenSharingForTools={isScreenSharing}
             />
           </div>
         </div>
@@ -521,6 +600,15 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
         participants={participantNames}
         participantStates={participantStates}
         localSocketId={socket?.id}
+      />
+
+      {/* Reactions Modal */}
+      <SimpleReactionsModal
+        isOpen={showReactionsModal}
+        onClose={() => setShowReactionsModal(false)}
+        socket={socket}
+        roomId={roomId}
+        userName={userName}
       />
 
       {/* Poll Modal */}

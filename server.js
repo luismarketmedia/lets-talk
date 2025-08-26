@@ -307,6 +307,158 @@ io.on("connection", (socket) => {
     });
   });
 
+  // Eventos de Reações
+  socket.on("reaction", (data) => {
+    const { roomId, emoji, name, participantName } = data;
+
+    console.log(
+      `[REACTION] ${socket.id} (${participantName}) enviou reação ${emoji} na sala ${roomId}`,
+    );
+
+    // Verificar se o usuário está na sala
+    if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
+      console.log(
+        `[REACTION ERROR] Usuário ${socket.id} não está na sala ${roomId}`,
+      );
+      return;
+    }
+
+    // Enviar reação para todos na sala (incluindo o remetente)
+    io.to(roomId).emit("reaction", {
+      emoji,
+      name,
+      participantId: socket.id,
+      participantName: participantName || "Usuário Anônimo",
+      timestamp: new Date(),
+      roomId,
+    });
+  });
+
+  // Eventos de Levantar Mão
+  socket.on("hand-raise", (data) => {
+    const { roomId, isRaised, participantName } = data;
+
+    console.log(
+      `[HAND_RAISE] ${socket.id} (${participantName}) ${isRaised ? "levantou" : "baixou"} a mão na sala ${roomId}`,
+    );
+
+    // Verificar se o usuário está na sala
+    if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
+      console.log(
+        `[HAND_RAISE ERROR] Usuário ${socket.id} não está na sala ${roomId}`,
+      );
+      return;
+    }
+
+    // Enviar evento para todos na sala (incluindo o remetente)
+    io.to(roomId).emit("hand-raise", {
+      participantId: socket.id,
+      participantName: participantName || "Usuário Anônimo",
+      isRaised,
+      timestamp: new Date(),
+      roomId,
+    });
+  });
+
+  // Eventos de Whiteboard
+  socket.on("whiteboard-stroke", (data) => {
+    const { roomId, stroke } = data;
+
+    console.log(
+      `[WHITEBOARD] ${socket.id} desenhou no quadro da sala ${roomId}`,
+    );
+
+    // Verificar se o usuário está na sala
+    if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
+      console.log(
+        `[WHITEBOARD ERROR] Usuário ${socket.id} não está na sala ${roomId}`,
+      );
+      return;
+    }
+
+    // Enviar stroke para todos na sala (exceto o remetente)
+    socket.to(roomId).emit("whiteboard-stroke", stroke);
+  });
+
+  socket.on("whiteboard-text", (data) => {
+    const { roomId, textElement } = data;
+
+    console.log(
+      `[WHITEBOARD] ${socket.id} adicionou texto no quadro da sala ${roomId}`,
+    );
+
+    if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
+      return;
+    }
+
+    socket.to(roomId).emit("whiteboard-text", textElement);
+  });
+
+  socket.on("whiteboard-clear", (data) => {
+    const { roomId } = data;
+
+    console.log(`[WHITEBOARD] ${socket.id} limpou o quadro da sala ${roomId}`);
+
+    if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
+      return;
+    }
+
+    socket.to(roomId).emit("whiteboard-clear");
+  });
+
+  socket.on("whiteboard-undo", (data) => {
+    const { roomId, userId, timestamp } = data;
+
+    console.log(
+      `[WHITEBOARD] ${socket.id} desfez ação no quadro da sala ${roomId}`,
+    );
+
+    if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
+      return;
+    }
+
+    socket.to(roomId).emit("whiteboard-undo", { userId, timestamp });
+  });
+
+  // Eventos de Anotações na Tela
+  socket.on("screen-annotation", (data) => {
+    const { roomId, stroke } = data;
+
+    console.log(
+      `[SCREEN_ANNOTATION] ${socket.id} anotou na tela da sala ${roomId}`,
+    );
+
+    if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
+      return;
+    }
+
+    socket.to(roomId).emit("screen-annotation", stroke);
+  });
+
+  socket.on("screen-pointer", (data) => {
+    const { roomId, pointer } = data;
+
+    if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
+      return;
+    }
+
+    socket.to(roomId).emit("screen-pointer", pointer);
+  });
+
+  socket.on("screen-annotation-clear", (data) => {
+    const { roomId } = data;
+
+    console.log(
+      `[SCREEN_ANNOTATION] ${socket.id} limpou anotações da sala ${roomId}`,
+    );
+
+    if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
+      return;
+    }
+
+    socket.to(roomId).emit("screen-annotation-clear");
+  });
+
   // Eventos de Chat
   socket.on("chat-message", (data) => {
     const { roomId, message, userName } = data;

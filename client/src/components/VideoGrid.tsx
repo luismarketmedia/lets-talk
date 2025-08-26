@@ -1,5 +1,5 @@
 import React from "react";
-import { Users } from "lucide-react";
+import { Users, Focus } from "lucide-react";
 import { VideoTile } from "./VideoTile";
 import { ViewMode } from "./ViewModeSelector";
 import { cn } from "../lib/utils";
@@ -43,21 +43,28 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
   const renderGalleryView = () => {
     const getGridClass = () => {
       if (totalParticipants === 1) return "grid-cols-1";
-      if (totalParticipants === 2) return "grid-cols-1 lg:grid-cols-2";
-      if (totalParticipants <= 4) return "grid-cols-2";
-      if (totalParticipants <= 6) return "grid-cols-2 lg:grid-cols-3";
-      return "grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+      if (totalParticipants === 2) return "grid-cols-1 sm:grid-cols-2";
+      if (totalParticipants === 3)
+        return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+      if (totalParticipants === 4) return "grid-cols-2 lg:grid-cols-4";
+      if (totalParticipants <= 6) return "grid-cols-2 md:grid-cols-3";
+      if (totalParticipants <= 9)
+        return "grid-cols-2 md:grid-cols-3 lg:grid-cols-3";
+      return "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5";
     };
 
     const getVideoHeight = () => {
-      if (totalParticipants === 1) return "h-[400px] lg:h-[500px]";
-      if (totalParticipants === 2) return "h-[300px] lg:h-[400px]";
-      if (totalParticipants <= 4) return "h-[200px] lg:h-[300px]";
-      return "h-[150px] lg:h-[200px]";
+      if (totalParticipants === 1) return "h-[50vh] lg:h-[60vh] max-h-[500px]";
+      if (totalParticipants === 2) return "h-[40vh] lg:h-[45vh] max-h-[400px]";
+      if (totalParticipants === 3) return "h-[30vh] lg:h-[35vh] max-h-[350px]";
+      if (totalParticipants === 4) return "h-[25vh] lg:h-[30vh] max-h-[300px]";
+      if (totalParticipants <= 6) return "h-[22vh] lg:h-[25vh] max-h-[250px]";
+      if (totalParticipants <= 9) return "h-[18vh] lg:h-[20vh] max-h-[200px]";
+      return "h-[15vh] lg:h-[18vh] max-h-[180px]";
     };
 
     return (
-      <div className={cn("grid gap-4", getGridClass())}>
+      <div className={cn("grid gap-4", getGridClass())} data-video-grid>
         {/* Local video */}
         <VideoTile
           stream={localStream}
@@ -192,6 +199,12 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
 
     return (
       <div className="relative h-full">
+        {/* Speaker View Label */}
+        <div className="absolute top-4 left-4 z-10 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-2">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <span>Palestrante Principal</span>
+        </div>
+
         {/* Main participant */}
         <div className="h-full pb-24">
           {mainParticipant && (
@@ -210,7 +223,7 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
                       ?.isVideoEnabled ?? true)
               }
               participantName={mainParticipant.name}
-              className="h-full w-full"
+              className="h-full w-full ring-2 ring-green-500 ring-offset-4"
               peerConnection={
                 mainParticipant.isLocal
                   ? null
@@ -291,7 +304,13 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
     }
 
     return (
-      <div className="h-full flex items-center justify-center">
+      <div className="h-full flex items-center justify-center relative">
+        {/* Spotlight Mode Label */}
+        <div className="absolute top-4 left-4 z-10 bg-purple-600/90 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-2">
+          <Focus className="w-4 h-4" />
+          <span>Modo Foco</span>
+        </div>
+
         {spotlightStream ? (
           <VideoTile
             stream={spotlightStream}
@@ -307,7 +326,7 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
                 : (participantStates.get(spotlightId)?.isVideoEnabled ?? true)
             }
             participantName={spotlightName}
-            className="w-full h-full max-w-4xl max-h-[80vh]"
+            className="w-full h-full max-w-4xl max-h-[80vh] ring-4 ring-purple-500 ring-offset-4"
             peerConnection={
               isSpotlightLocal ? null : peerConnections.get(spotlightId) || null
             }
