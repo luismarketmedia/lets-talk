@@ -126,6 +126,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
     }
 
     // Simular "copied" por feedback visual
+    setCopyMethod('manual');
     setCopied(true);
     setTimeout(() => setCopied(false), 3000);
   };
