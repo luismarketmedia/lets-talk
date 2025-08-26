@@ -23,6 +23,8 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
 }) => {
   const [roomId, setRoomId] = useState('');
   const [mode, setMode] = useState<'join' | 'create'>('join');
+  const [showAudioModal, setShowAudioModal] = useState(false);
+  const [showTestModal, setShowTestModal] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
