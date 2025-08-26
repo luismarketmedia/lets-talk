@@ -45,6 +45,9 @@ export const useWebRTC = (
   const [participantStates, setParticipantStates] = useState<
     Map<string, { isAudioEnabled: boolean; isVideoEnabled: boolean }>
   >(new Map());
+  const [participantNames, setParticipantNames] = useState<
+    Map<string, string>
+  >(new Map());
 
   useEffect(() => {
     // Conectar ao servidor Socket.IO via proxy do Vite
@@ -78,30 +81,48 @@ export const useWebRTC = (
       setCallState((prev) => ({ ...prev, connectionState: "failed" }));
     });
 
-    socket.on("user-joined", async (userId: string) => {
-      console.log("Usuário entrou:", userId);
-      await createOffer(userId);
+    socket.on("user-joined", async (data) => {
+      const { socketId, userName } = typeof data === 'string' ? { socketId: data, userName: 'Participante' } : data;
+      console.log("Usuário entrou:", socketId, userName);
+
+      // Store participant name
+      setParticipantNames(prev => {
+        const newNames = new Map(prev);
+        newNames.set(socketId, userName);
+        return newNames;
+      });
+
+      await createOffer(socketId);
     });
 
-    socket.on("user-left", (userId: string) => {
-      console.log("Usuário saiu:", userId);
-      const peerConnection = peerConnectionsRef.current.get(userId);
+    socket.on("user-left", (data) => {
+      const { socketId, userName } = typeof data === 'string' ? { socketId: data, userName: 'Participante' } : data;
+      console.log("Usuário saiu:", socketId, userName);
+
+      const peerConnection = peerConnectionsRef.current.get(socketId);
       if (peerConnection) {
         peerConnection.close();
-        peerConnectionsRef.current.delete(userId);
+        peerConnectionsRef.current.delete(socketId);
       }
 
       setCallState((prev) => {
         const newRemoteStreams = new Map(prev.remoteStreams);
-        newRemoteStreams.delete(userId);
+        newRemoteStreams.delete(socketId);
         return { ...prev, remoteStreams: newRemoteStreams };
       });
 
       // Clean up participant state
       setParticipantStates((prev) => {
         const newStates = new Map(prev);
-        newStates.delete(userId);
+        newStates.delete(socketId);
         return newStates;
+      });
+
+      // Clean up participant names
+      setParticipantNames((prev) => {
+        const newNames = new Map(prev);
+        newNames.delete(socketId);
+        return newNames;
       });
     });
 
@@ -356,7 +377,7 @@ export const useWebRTC = (
 
       // Entrar na sala via Socket.IO como host
       if (socketRef.current) {
-        socketRef.current.emit("join-room", roomId);
+        socketRef.current.emit("join-room", { roomId, userName: "Criador da Sala" });
         setIsHost(true); // Definir como host quando cria/entra diretamente na sala
       }
     } catch (error) {
