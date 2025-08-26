@@ -288,7 +288,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col" data-call-interface>
       {/* Scrollable main content */}
       <div className="flex-1 overflow-y-auto">
         <div className="p-4 pb-32">
