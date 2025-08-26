@@ -228,6 +228,21 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
           Powered by WebRTC • Seguro e privado
         </div>
       </div>
+
+      {/* Modais */}
+      <AudioDeviceModal
+        isOpen={showAudioModal}
+        onClose={() => setShowAudioModal(false)}
+        onDeviceChange={(input, output) => {
+          console.log('Dispositivos selecionados:', { input, output });
+          // Aqui você pode salvar as preferências do usuário
+        }}
+      />
+
+      <DeviceTestModal
+        isOpen={showTestModal}
+        onClose={() => setShowTestModal(false)}
+      />
     </div>
   );
 };
