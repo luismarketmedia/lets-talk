@@ -130,6 +130,19 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
         </div>
       </div>
 
+      {/* Sistema de aprovação de entrada */}
+      {isHost && (
+        <div className="max-w-6xl mx-auto mb-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+            <JoinApproval
+              socket={socket}
+              roomId={roomId}
+              isHost={isHost}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Grade de vídeos */}
       <div className="max-w-6xl mx-auto mb-20">
         <div className={cn("grid gap-4", getGridClass())}>
