@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Camera, Mic, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Camera, Mic, AlertTriangle, CheckCircle, Settings, TestTube } from 'lucide-react';
 import { Button } from './ui/button';
 
 interface DeviceStatus {
