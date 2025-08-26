@@ -2,16 +2,21 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 // https://vite.dev/config/
-export default defineConfig({
-  plugins: [react()],
-  server: {
-    proxy: {
-      "/socket.io": {
-        target: "http://localhost:3000",
-        ws: true,
-        changeOrigin: true,
+export default defineConfig(({ mode }) => ({
+    plugins: [react()],
+    server: mode === 'development' ? {
+      proxy: {
+          "/socket.io": {
+              target: "http://localhost:3000",
+              ws: true,
+              changeOrigin: true,
+              secure: false, // Add this for HTTP connections
+              // Optional: Add timeout settings
+              // timeout: 60000,
+              // Optional: Add reconnect logic handling
+              // ws: true,
+          },
       },
-    },
     headers: {
       // Permissions Policy para permitir recursos de mídia
       "Permissions-Policy":
@@ -22,7 +27,17 @@ export default defineConfig({
     },
     // HTTPS opcional para desenvolvimento (descomente se necessário)
     // https: true
-  },
+      hmr: {
+          protocol: 'ws',
+          host: 'localhost',
+          port: 3000,
+          timeout: 30000,
+          overlay: false
+      },
+      watch: {
+          usePolling: true // Useful if you're in a Docker/VM environment
+      }
+  } : {},
   // Otimizações para WebRTC
   build: {
     target: "es2020",
@@ -35,4 +50,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));
