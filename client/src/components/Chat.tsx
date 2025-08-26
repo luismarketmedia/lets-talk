@@ -4,6 +4,7 @@ import { MessageCircle, Send, Users, Smile } from "lucide-react";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -179,6 +180,9 @@ export const Chat: React.FC<ChatProps> = ({
               <span>{participantCount}</span>
             </div>
           </SheetTitle>
+          <SheetDescription>
+            Converse com outros participantes da videochamada
+          </SheetDescription>
         </SheetHeader>
 
         {/* Connection Status */}

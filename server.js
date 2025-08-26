@@ -176,6 +176,29 @@ io.on("connection", (socket) => {
     });
   });
 
+  // Handle participant state changes (mute/video)
+  socket.on("participant-state-change", (data) => {
+    const { roomId, isAudioEnabled, isVideoEnabled } = data;
+
+    console.log(`[STATE] ${socket.id} changed state in room ${roomId}:`, {
+      audio: isAudioEnabled,
+      video: isVideoEnabled,
+    });
+
+    // Verify user is in the room
+    if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
+      console.log(`[STATE ERROR] User ${socket.id} not in room ${roomId}`);
+      return;
+    }
+
+    // Broadcast state change to all other users in the room
+    socket.to(roomId).emit("participant-state-changed", {
+      participantId: socket.id,
+      isAudioEnabled,
+      isVideoEnabled,
+    });
+  });
+
   // Eventos de Chat
   socket.on("chat-message", (data) => {
     const { roomId, message, userName } = data;

@@ -3,6 +3,7 @@ import { useWebRTC } from "./hooks/useWebRTC";
 import { JoinRoom } from "./components/JoinRoom";
 import { CallInterface } from "./components/CallInterface";
 import { ToastProvider, useToast } from "./components/ui/toast";
+import { loadUsername } from "./lib/userStorage";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
 
 function AppContent() {
   const [error, setError] = useState<string | null>(null);
+  const [currentUserName, setCurrentUserName] = useState<string>("Você");
   const { addToast } = useToast();
 
   const {
@@ -33,6 +35,8 @@ function AppContent() {
     endCall,
     socket,
     isHost,
+    peerConnections,
+    participantStates,
   } = useWebRTC({
     onNotification: (type, title, message) => {
       addToast({ type, title, message });
@@ -42,6 +46,8 @@ function AppContent() {
   const handleJoinRoom = async (roomId: string) => {
     try {
       setError(null);
+      // Update the current username from saved data
+      setCurrentUserName(loadUsername() || "Você");
       await joinRoom(roomId);
     } catch (error) {
       console.error("Erro ao entrar na sala:", error);
@@ -56,6 +62,8 @@ function AppContent() {
   const handleRequestJoinRoom = async (roomId: string, userName: string) => {
     try {
       setError(null);
+      // Update the current username
+      setCurrentUserName(userName || loadUsername() || "Você");
       await requestJoinRoom(roomId, userName);
     } catch (error) {
       console.error("Erro ao solicitar entrada na sala:", error);
@@ -89,7 +97,9 @@ function AppContent() {
       isScreenSharing={isScreenSharing}
       socket={socket}
       isHost={isHost}
-      userName="Você"
+      userName={currentUserName}
+      peerConnections={peerConnections}
+      participantStates={participantStates}
       onToggleAudio={toggleAudio}
       onToggleVideo={toggleVideo}
       onToggleScreenShare={toggleScreenShare}

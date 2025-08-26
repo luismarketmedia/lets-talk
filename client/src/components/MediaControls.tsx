@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Mic,
   MicOff,
@@ -37,6 +37,40 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
   onOpenDeviceTest,
 }) => {
   const screenShareSupport = useScreenShareSupport();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const settingsRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        settingsRef.current &&
+        !settingsRef.current.contains(event.target as Node)
+      ) {
+        setIsSettingsOpen(false);
+      }
+    };
+
+    if (isSettingsOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [isSettingsOpen]);
+
+  // Close dropdown on Escape key
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsSettingsOpen(false);
+      }
+    };
+
+    if (isSettingsOpen) {
+      document.addEventListener("keydown", handleEscape);
+      return () => document.removeEventListener("keydown", handleEscape);
+    }
+  }, [isSettingsOpen]);
   return (
     <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
       <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200 p-4">
@@ -114,37 +148,62 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
 
           {/* Configurações */}
           {(onOpenAudioSettings || onOpenDeviceTest) && (
-            <div className="relative group">
+            <div className="relative" ref={settingsRef}>
               <Button
                 variant="ghost"
                 size="icon"
-                className="w-12 h-12 rounded-full hover:bg-gray-100 text-gray-600 transition-all duration-200"
+                onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+                className={cn(
+                  "w-12 h-12 rounded-full transition-all duration-200",
+                  isSettingsOpen
+                    ? "bg-gray-200 text-gray-800"
+                    : "hover:bg-gray-100 text-gray-600",
+                )}
                 title="Configurações de áudio e dispositivos"
+                aria-expanded={isSettingsOpen}
+                aria-haspopup="menu"
+                aria-label="Menu de configurações"
               >
                 <Settings className="w-5 h-5" />
               </Button>
 
               {/* Dropdown */}
-              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
-                <div className="bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[180px]">
-                  {onOpenAudioSettings && (
-                    <button
-                      onClick={onOpenAudioSettings}
-                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      🎤 Configurar Áudio
-                    </button>
-                  )}
-                  {onOpenDeviceTest && (
-                    <button
-                      onClick={onOpenDeviceTest}
-                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      🧪 Testar Dispositivos
-                    </button>
-                  )}
+              {isSettingsOpen && (
+                <div
+                  className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-50"
+                  role="menu"
+                  aria-label="Opções de configuração"
+                >
+                  <div className="bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[180px]">
+                    {onOpenAudioSettings && (
+                      <button
+                        onClick={() => {
+                          onOpenAudioSettings();
+                          setIsSettingsOpen(false);
+                        }}
+                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors focus:bg-gray-50 focus:outline-none"
+                        role="menuitem"
+                        tabIndex={0}
+                      >
+                        🎤 Configurar Áudio
+                      </button>
+                    )}
+                    {onOpenDeviceTest && (
+                      <button
+                        onClick={() => {
+                          onOpenDeviceTest();
+                          setIsSettingsOpen(false);
+                        }}
+                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors focus:bg-gray-50 focus:outline-none"
+                        role="menuitem"
+                        tabIndex={0}
+                      >
+                        🧪 Testar Dispositivos
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 

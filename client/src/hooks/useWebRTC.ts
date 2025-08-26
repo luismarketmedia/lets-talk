@@ -42,12 +42,17 @@ export const useWebRTC = (
   const peerConnectionsRef = useRef<Map<string, RTCPeerConnection>>(new Map());
   const localStreamRef = useRef<MediaStream | null>(null);
   const [isHost, setIsHost] = useState(false);
+  const [participantStates, setParticipantStates] = useState<
+    Map<string, { isAudioEnabled: boolean; isVideoEnabled: boolean }>
+  >(new Map());
 
   useEffect(() => {
     // Conectar ao servidor Socket.IO via proxy do Vite
-    const serverUrl = window.location.origin; // Usar a mesma origem (proxy do Vite)
+    const serverUrl = import.meta.env.DEV
+      ? "http://localhost:3000"
+      : window.location.origin;
 
-    console.log("Conectando ao servidor WebRTC via proxy:", serverUrl);
+    console.log("Conectando ao servidor WebRTC:", serverUrl);
     socketRef.current = io(serverUrl, {
       transports: ["websocket", "polling"],
       timeout: 10000,
@@ -90,6 +95,13 @@ export const useWebRTC = (
         newRemoteStreams.delete(userId);
         return { ...prev, remoteStreams: newRemoteStreams };
       });
+
+      // Clean up participant state
+      setParticipantStates((prev) => {
+        const newStates = new Map(prev);
+        newStates.delete(userId);
+        return newStates;
+      });
     });
 
     socket.on("offer", async (data) => {
@@ -102,6 +114,18 @@ export const useWebRTC = (
 
     socket.on("ice-candidate", async (data) => {
       await handleIceCandidate(data.candidate, data.sender);
+    });
+
+    // Listen for participant state changes
+    socket.on("participant-state-changed", (data) => {
+      console.log("Participant state changed:", data);
+      const { participantId, isAudioEnabled, isVideoEnabled } = data;
+
+      setParticipantStates((prev) => {
+        const newStates = new Map(prev);
+        newStates.set(participantId, { isAudioEnabled, isVideoEnabled });
+        return newStates;
+      });
     });
 
     // Eventos do sistema de aprovação
@@ -345,7 +369,7 @@ export const useWebRTC = (
           error.message.includes("Requested device not found")
         ) {
           throw new Error(
-            "Dispositivo não encontrado. Verifique se sua câmera e microfone estão conectados e funcionando.",
+            "Dispositivo n��o encontrado. Verifique se sua câmera e microfone estão conectados e funcionando.",
           );
         } else if (
           error.name === "NotAllowedError" ||
@@ -545,26 +569,48 @@ export const useWebRTC = (
       const audioTrack = localStreamRef.current.getAudioTracks()[0];
       if (audioTrack) {
         audioTrack.enabled = !audioTrack.enabled;
+        const newState = audioTrack.enabled;
+
         setCallState((prev) => ({
           ...prev,
-          isAudioEnabled: audioTrack.enabled,
+          isAudioEnabled: newState,
         }));
+
+        // Emit state change to other participants
+        if (socketRef.current && callState.roomId) {
+          socketRef.current.emit("participant-state-change", {
+            roomId: callState.roomId,
+            isAudioEnabled: newState,
+            isVideoEnabled: callState.isVideoEnabled,
+          });
+        }
       }
     }
-  }, []);
+  }, [callState.roomId, callState.isVideoEnabled]);
 
   const toggleVideo = useCallback(() => {
     if (localStreamRef.current) {
       const videoTrack = localStreamRef.current.getVideoTracks()[0];
       if (videoTrack) {
         videoTrack.enabled = !videoTrack.enabled;
+        const newState = videoTrack.enabled;
+
         setCallState((prev) => ({
           ...prev,
-          isVideoEnabled: videoTrack.enabled,
+          isVideoEnabled: newState,
         }));
+
+        // Emit state change to other participants
+        if (socketRef.current && callState.roomId) {
+          socketRef.current.emit("participant-state-change", {
+            roomId: callState.roomId,
+            isAudioEnabled: callState.isAudioEnabled,
+            isVideoEnabled: newState,
+          });
+        }
       }
     }
-  }, []);
+  }, [callState.roomId, callState.isAudioEnabled]);
 
   const checkScreenShareSupport = useCallback(() => {
     // Verificar se a API de compartilhamento de tela está disponível
@@ -811,5 +857,7 @@ export const useWebRTC = (
     endCall,
     socket: socketRef.current,
     isHost,
+    peerConnections: peerConnectionsRef.current,
+    participantStates,
   };
 };

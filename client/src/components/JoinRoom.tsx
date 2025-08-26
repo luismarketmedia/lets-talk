@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Video,
   Users,
@@ -25,6 +25,7 @@ import {
   formatMeetingCode,
   validateMeetingCode,
 } from "../lib/meetingCodeGenerator";
+import { loadUsername, saveUsername } from "../lib/userStorage";
 
 interface JoinRoomProps {
   onJoinRoom: (roomId: string) => void;
@@ -47,6 +48,21 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
   const [entryType, setEntryType] = useState<"direct" | "request">("request");
   const [showAudioModal, setShowAudioModal] = useState(false);
   const [showTestModal, setShowTestModal] = useState(false);
+
+  // Load username from localStorage on component mount
+  useEffect(() => {
+    const savedUsername = loadUsername();
+    if (savedUsername) {
+      setUserName(savedUsername);
+    }
+  }, []);
+
+  // Handle username change and save to localStorage
+  const handleUserNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newUserName = e.target.value;
+    setUserName(newUserName);
+    saveUsername(newUserName);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,7 +110,11 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
         {/* Logo/Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 mb-4">
-              <img src="/logo.png" className="w-full h-full object-cover"  alt="Logo"/>
+            <img
+              src="/logo.png"
+              className="w-full h-full object-cover"
+              alt="Logo"
+            />
           </div>
           <p className="text-gray-600">
             Conecte-se facilmente com videochamadas de alta qualidade
@@ -181,7 +201,7 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
                   type="text"
                   placeholder="Digite seu nome"
                   value={userName}
-                  onChange={(e) => setUserName(e.target.value)}
+                  onChange={handleUserNameChange}
                   disabled={isConnecting}
                   maxLength={50}
                 />
