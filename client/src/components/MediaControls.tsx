@@ -12,6 +12,8 @@ interface MediaControlsProps {
   onToggleVideo: () => void;
   onToggleScreenShare: () => void;
   onEndCall: () => void;
+  onOpenAudioSettings?: () => void;
+  onOpenDeviceTest?: () => void;
 }
 
 export const MediaControls: React.FC<MediaControlsProps> = ({
