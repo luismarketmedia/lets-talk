@@ -318,6 +318,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                   isLocal={false}
                   participantName={`Participante ${index + 1}`}
                   className={getVideoHeight()}
+                  peerConnection={peerConnections.get(userId) || null}
                 />
               ))}
             </div>
