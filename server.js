@@ -166,6 +166,28 @@ io.on('connection', (socket) => {
         });
     });
 
+    // Eventos de Chat
+    socket.on('chat-message', (data) => {
+        const { roomId, message, userName } = data;
+
+        // Verificar se o usuário está na sala
+        if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
+            socket.emit('error', { message: 'Você não está nesta sala' });
+            return;
+        }
+
+        // Enviar mensagem para todos na sala (incluindo o remetente)
+        io.to(roomId).emit('chat-message', {
+            message: message.trim(),
+            sender: socket.id,
+            userName: userName || 'Usuário Anônimo',
+            timestamp: new Date(),
+            roomId
+        });
+
+        console.log(`Mensagem de ${socket.id} na sala ${roomId}: ${message}`);
+    });
+
     // Lidar com desconexão
     socket.on('disconnect', () => {
         console.log('Usuário desconectado:', socket.id);
