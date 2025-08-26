@@ -4,6 +4,8 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { DeviceCheck } from './DeviceCheck';
+import { AudioDeviceModal } from './AudioDeviceModal';
+import { DeviceTestModal } from './DeviceTestModal';
 import { generateMeetingCode, formatMeetingCode, validateMeetingCode } from '../lib/meetingCodeGenerator';
 
 interface JoinRoomProps {
