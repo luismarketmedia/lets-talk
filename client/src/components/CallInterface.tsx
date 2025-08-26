@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { Users, Copy, Check } from "lucide-react";
+import { Socket } from "socket.io-client";
 import { VideoTile } from "./VideoTile";
 import { MediaControls } from "./MediaControls";
 import { AudioDeviceModal } from "./AudioDeviceModal";
 import { DeviceTestModal } from "./DeviceTestModal";
+import { Chat } from "./Chat";
+import { JoinApproval } from "./JoinApproval";
 import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
 
