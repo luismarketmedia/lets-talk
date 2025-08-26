@@ -72,6 +72,12 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
     },
   });
 
+  // Connection monitoring
+  const connectionStats = useConnectionMonitor({
+    peerConnections,
+    enabled: totalParticipants > 1, // Only monitor when there are remote participants
+  });
+
   useEffect(() => {
     // Detectar se estamos em iframe
     const inIframe = window !== window.top;
