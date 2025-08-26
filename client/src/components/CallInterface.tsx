@@ -29,6 +29,7 @@ interface CallInterfaceProps {
     string,
     { isAudioEnabled: boolean; isVideoEnabled: boolean }
   >;
+  participantNames: Map<string, string>;
   onToggleAudio: () => void;
   onToggleVideo: () => void;
   onToggleScreenShare: () => void;
@@ -47,6 +48,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   userName = "Você",
   peerConnections,
   participantStates,
+  participantNames,
   onToggleAudio,
   onToggleVideo,
   onToggleScreenShare,
@@ -231,16 +233,8 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                   </div>
                 </div>
 
-                {/* Controles e código da sala */}
+                {/* Código da sala */}
                 <div className="flex items-center space-x-3">
-                  {/* Chat */}
-                  <Chat
-                    socket={socket}
-                    roomId={roomId}
-                    userName={userName}
-                    participantCount={totalParticipants}
-                  />
-
                   <div className="flex items-center space-x-2 bg-gray-100 rounded-xl px-4 py-2 border">
                     <span className="text-sm font-medium text-gray-700">
                       ID da Sala:
@@ -350,6 +344,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
               {/* Vídeos remotos */}
               {remoteStreamArray.map(([userId, stream], index) => {
                 const participantState = participantStates.get(userId);
+                const participantName = participantNames.get(userId) || `Participante ${index + 1}`;
                 return (
                   <VideoTile
                     key={userId}
@@ -363,7 +358,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                     isVideoEnabled={
                       participantState ? participantState.isVideoEnabled : true
                     }
-                    participantName={`Participante ${index + 1}`}
+                    participantName={participantName}
                     className={getVideoHeight()}
                     peerConnection={peerConnections.get(userId) || null}
                   />
@@ -397,19 +392,30 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
       {/* Controles de mídia fixos na parte inferior */}
       <div className="fixed bottom-0 left-0 right-0 border-gray-200 p-4 z-50">
         <div className="max-w-6xl mx-auto">
-          <MediaControls
-            isAudioEnabled={isAudioEnabled}
-            isVideoEnabled={isVideoEnabled}
-            isScreenSharing={isScreenSharing}
-            isTemporarilyMuted={advancedControls.isTemporarilyMuted}
-            onToggleAudio={onToggleAudio}
-            onToggleVideo={onToggleVideo}
-            onToggleScreenShare={onToggleScreenShare}
-            onEndCall={onEndCall}
-            onOpenAudioSettings={() => setShowAudioModal(true)}
-            onOpenDeviceTest={() => setShowTestModal(true)}
-            onOpenAdvancedControls={() => setShowAdvancedControls(true)}
-          />
+          <div className="flex items-center justify-center space-x-4">
+            {/* Chat integrado aos controles */}
+            <Chat
+              socket={socket}
+              roomId={roomId}
+              userName={userName}
+              participantCount={totalParticipants}
+            />
+
+            {/* Controles de mídia */}
+            <MediaControls
+              isAudioEnabled={isAudioEnabled}
+              isVideoEnabled={isVideoEnabled}
+              isScreenSharing={isScreenSharing}
+              isTemporarilyMuted={advancedControls.isTemporarilyMuted}
+              onToggleAudio={onToggleAudio}
+              onToggleVideo={onToggleVideo}
+              onToggleScreenShare={onToggleScreenShare}
+              onEndCall={onEndCall}
+              onOpenAudioSettings={() => setShowAudioModal(true)}
+              onOpenDeviceTest={() => setShowTestModal(true)}
+              onOpenAdvancedControls={() => setShowAdvancedControls(true)}
+            />
+          </div>
         </div>
       </div>
 
