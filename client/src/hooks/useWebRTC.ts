@@ -811,5 +811,6 @@ export const useWebRTC = (
     endCall,
     socket: socketRef.current,
     isHost,
+    peerConnections: peerConnectionsRef.current,
   };
 };
