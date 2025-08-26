@@ -102,17 +102,48 @@ webrtc-app/
 ### Criar uma Chamada
 1. Acesse o cliente moderno
 2. Clique em "Criar"
-3. Clique no botão "+" para gerar um código da sala
-4. Clique em "Iniciar chamada"
-5. Permita acesso à câmera e microfone
-6. Compartilhe o código da sala com outros participantes
+3. Escolha o formato do código de reunião (Google Meet, Zoom, Teams ou Simples)
+4. Clique no ícone 🔀 para gerar um código
+5. Clique em "Iniciar chamada"
+6. Permita acesso à câmera e microfone
+7. Compartilhe o código da reunião com outros participantes
 
 ### Entrar em uma Chamada
-1. Acesse o cliente moderno  
+1. Acesse o cliente moderno
 2. Mantenha "Entrar" selecionado
-3. Digite o código da sala recebido
+3. Digite o código da reunião recebido
 4. Clique em "Entrar na chamada"
 5. Permita acesso à câmera e microfone
+
+## 🎯 Formatos de Código de Reunião
+
+O Let's Talk suporta diferentes formatos de código de reunião, similares às principais plataformas:
+
+### 🎥 **Google Meet** (Padrão)
+- **Formato**: `abc-defg-hij`
+- **Exemplo**: `q3x-8mfk-wv2`
+- **Características**: Mistura letras e números, fácil de pronunciar
+
+### 📞 **Zoom**
+- **Formato**: `123-456-789`
+- **Exemplo**: `847-329-156`
+- **Características**: Apenas números, familiar para usuários Zoom
+
+### 👥 **Microsoft Teams**
+- **Formato**: `123 456 789`
+- **Exemplo**: `294 831 567`
+- **Características**: Números separados por espaços
+
+### ✨ **Simples**
+- **Formato**: `ABCD-1234`
+- **Exemplo**: `TALK-8529`
+- **Características**: 4 letras + 4 números, mais curto e memorável
+
+### 🔧 **Características Técnicas**
+- ✅ **Auto-formatação**: Códigos são formatados automaticamente durante digitação
+- ✅ **Validação**: Indicador visual de códigos válidos
+- ✅ **Flexibilidade**: Aceita códigos em qualquer formato
+- ✅ **Geração automática**: Cada formato gera códigos únicos
 
 ### Controles Durante a Chamada
 - **🎤 Microfone**: Ativar/desativar áudio
