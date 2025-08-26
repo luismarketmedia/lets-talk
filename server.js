@@ -230,13 +230,14 @@ io.on("connection", (socket) => {
     });
   });
 
-  // Handle participant state changes (mute/video)
+  // Handle participant state changes (mute/video/screen sharing)
   socket.on("participant-state-change", (data) => {
-    const { roomId, isAudioEnabled, isVideoEnabled } = data;
+    const { roomId, isAudioEnabled, isVideoEnabled, isScreenSharing } = data;
 
     console.log(`[STATE] ${socket.id} changed state in room ${roomId}:`, {
       audio: isAudioEnabled,
       video: isVideoEnabled,
+      screenSharing: isScreenSharing,
     });
 
     // Verify user is in the room
@@ -250,6 +251,40 @@ io.on("connection", (socket) => {
       participantId: socket.id,
       isAudioEnabled,
       isVideoEnabled,
+      isScreenSharing,
+    });
+  });
+
+  // Handle screen sharing events
+  socket.on("screen-share-started", (data) => {
+    const { roomId } = data;
+
+    console.log(`[SCREEN_SHARE] ${socket.id} started screen sharing in room ${roomId}`);
+
+    if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
+      return;
+    }
+
+    const participantInfo = participants.get(socket.id);
+    socket.to(roomId).emit("screen-share-started", {
+      participantId: socket.id,
+      userName: participantInfo ? participantInfo.userName : 'Participante'
+    });
+  });
+
+  socket.on("screen-share-stopped", (data) => {
+    const { roomId } = data;
+
+    console.log(`[SCREEN_SHARE] ${socket.id} stopped screen sharing in room ${roomId}`);
+
+    if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
+      return;
+    }
+
+    const participantInfo = participants.get(socket.id);
+    socket.to(roomId).emit("screen-share-stopped", {
+      participantId: socket.id,
+      userName: participantInfo ? participantInfo.userName : 'Participante'
     });
   });
 
