@@ -9,7 +9,7 @@ interface AdvancedMediaState {
 }
 
 interface UseAdvancedMediaControlsOptions {
-  localStream: MediaStream | null;
+  localStream?: MediaStream | null;
   onVideoQualityChange?: (quality: "360p" | "720p" | "1080p") => void;
 }
 
