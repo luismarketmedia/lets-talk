@@ -4,6 +4,11 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
+    "dev": "node server.js",
+    "client": "cd client && npm run dev",
+    "dev:all": "concurrently \"npm run dev\" \"npm run client\"",
+    "install:client": "cd client && npm install",
+    "build:client": "cd client && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -13,5 +18,8 @@
   "dependencies": {
     "express": "^5.1.0",
     "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
   }
 }
