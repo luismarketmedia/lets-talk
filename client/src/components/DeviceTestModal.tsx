@@ -277,7 +277,7 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
           ? "Bloqueado em ambiente iframe - funciona normalmente em produção"
           : "Permissão negada pelo usuário";
         console.warn("Screen sharing blocked by permissions policy - this is normal in iframe environments");
-      } else if (error.message.includes("não é suportado")) {
+      } else if (error.message.includes("n��o é suportado")) {
         errorMessage = "Não suportado neste navegador";
       }
 
@@ -555,6 +555,23 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
                   </Button>
                 </div>
               </div>
+
+              {/* Warning for iframe environment */}
+              {isInIframe && (
+                <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <div className="flex items-start space-x-2">
+                    <AlertTriangle className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                    <div className="text-sm">
+                      <p className="text-yellow-800 font-medium">Ambiente de Desenvolvimento</p>
+                      <p className="text-yellow-700 mt-1">
+                        O compartilhamento de tela pode ser bloqueado neste ambiente.
+                        Esta funcionalidade funcionará normalmente quando o app for acessado diretamente
+                        (não em iframe).
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
