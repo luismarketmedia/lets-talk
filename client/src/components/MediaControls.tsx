@@ -70,6 +70,9 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
   isHandRaised = false,
   raisedHandsCount = 0,
   onOpenVoting,
+  localStream,
+  remoteStreams = new Map(),
+  isScreenSharing = false,
 }) => {
   const screenShareSupport = useScreenShareSupport();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
