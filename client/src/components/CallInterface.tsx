@@ -30,6 +30,7 @@ interface CallInterfaceProps {
     { isAudioEnabled: boolean; isVideoEnabled: boolean }
   >;
   participantNames: Map<string, string>;
+  screenSharingParticipant: string | null;
   onToggleAudio: () => void;
   onToggleVideo: () => void;
   onToggleScreenShare: () => void;
@@ -49,6 +50,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   peerConnections,
   participantStates,
   participantNames,
+  screenSharingParticipant,
   onToggleAudio,
   onToggleVideo,
   onToggleScreenShare,
@@ -223,6 +225,14 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                         {totalParticipants !== 1 ? "s" : ""} conectado
                         {totalParticipants !== 1 ? "s" : ""}
                       </p>
+                      {screenSharingParticipant && (
+                        <div className="flex items-center space-x-1 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                          <span>🖥️</span>
+                          <span>
+                            {participantNames.get(screenSharingParticipant) || 'Participante'} está compartilhando
+                          </span>
+                        </div>
+                      )}
                       {/* Sempre mostrar indicador de conexão quando em chamada */}
                       <ConnectionIndicator
                         quality={connectionStats.quality}
@@ -345,6 +355,9 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
               {remoteStreamArray.map(([userId, stream], index) => {
                 const participantState = participantStates.get(userId);
                 const participantName = participantNames.get(userId) || `Participante ${index + 1}`;
+                const isSharing = screenSharingParticipant === userId;
+                const displayName = isSharing ? `🖥️ ${participantName} (Compartilhando)` : participantName;
+
                 return (
                   <VideoTile
                     key={userId}
@@ -358,8 +371,11 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                     isVideoEnabled={
                       participantState ? participantState.isVideoEnabled : true
                     }
-                    participantName={participantName}
-                    className={getVideoHeight()}
+                    participantName={displayName}
+                    className={cn(
+                      getVideoHeight(),
+                      isSharing && "ring-2 ring-blue-500 ring-offset-2"
+                    )}
                     peerConnection={peerConnections.get(userId) || null}
                   />
                 );
