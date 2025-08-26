@@ -124,8 +124,32 @@ export const DeviceCheck: React.FC<DeviceCheckProps> = ({
         </div>
       </div>
 
-      {/* Botão para testar novamente */}
-      <div className="mt-3 pt-3 border-t border-gray-200">
+      {/* Botões de ação */}
+      <div className="mt-3 pt-3 border-t border-gray-200 space-y-2">
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onOpenAudioSettings}
+            disabled={!onOpenAudioSettings}
+            className="flex items-center justify-center"
+          >
+            <Settings className="w-3 h-3 mr-1" />
+            Áudio
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onOpenDeviceTest}
+            disabled={!onOpenDeviceTest}
+            className="flex items-center justify-center"
+          >
+            <TestTube className="w-3 h-3 mr-1" />
+            Testes
+          </Button>
+        </div>
+
         <Button
           variant="outline"
           size="sm"
@@ -139,7 +163,7 @@ export const DeviceCheck: React.FC<DeviceCheckProps> = ({
               Verificando...
             </div>
           ) : (
-            'Testar Dispositivos'
+            'Verificar Novamente'
           )}
         </Button>
       </div>
