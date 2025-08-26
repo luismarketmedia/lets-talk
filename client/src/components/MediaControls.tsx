@@ -17,6 +17,7 @@ import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
 import { useScreenShareSupport } from "../hooks/useScreenShareSupport";
 import { Chat } from "./Chat";
+import { CollaborativeTools } from "./CollaborativeTools";
 import { Socket } from "socket.io-client";
 
 interface MediaControlsProps {
