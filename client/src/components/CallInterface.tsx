@@ -10,6 +10,7 @@ import { Chat } from "./Chat";
 import { JoinApproval } from "./JoinApproval";
 import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
+import { useAdvancedMediaControls } from "../hooks/useAdvancedMediaControls";
 
 interface CallInterfaceProps {
   roomId: string;
