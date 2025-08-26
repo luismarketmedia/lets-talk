@@ -29,3 +29,6 @@ export interface SocketEvents {
   'answer': (data: { answer: RTCSessionDescriptionInit; sender: string }) => void;
   'ice-candidate': (data: { candidate: RTCIceCandidate; sender: string }) => void;
 }
+
+// Type aliases for better compatibility
+export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'failed';
