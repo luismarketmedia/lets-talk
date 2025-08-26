@@ -71,6 +71,7 @@ function AppContent() {
     return (
       <JoinRoom
         onJoinRoom={handleJoinRoom}
+        onRequestJoinRoom={handleRequestJoinRoom}
         isConnecting={connectionState === "connecting"}
         error={error}
         onClearError={() => setError(null)}
