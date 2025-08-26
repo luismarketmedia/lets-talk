@@ -13,18 +13,18 @@ const io = socketIo(server, {
 
       // Lista de origens permitidas
       const allowedOrigins = [
-        "http://localhost:5173",  // Vite dev server
-        "http://localhost:3000",  // Server direto
-        "http://localhost",       // IIS local sem porta
-        "http://localhost:80",    // IIS local porta 80
-        "http://localhost:8080",  // Porta alternativa comum
-        /^https?:\/\/.*\.local$/,  // Qualquer .local
+        "http://localhost:5173", // Vite dev server
+        "http://localhost:3000", // Server direto
+        "http://localhost", // IIS local sem porta
+        "http://localhost:80", // IIS local porta 80
+        "http://localhost:8080", // Porta alternativa comum
+        /^https?:\/\/.*\.local$/, // Qualquer .local
         /^https?:\/\/.*\.localhost$/, // Qualquer .localhost
       ];
 
       // Verificar se a origem está na lista ou se match com regex
-      const isAllowed = allowedOrigins.some(allowed => {
-        if (typeof allowed === 'string') {
+      const isAllowed = allowedOrigins.some((allowed) => {
+        if (typeof allowed === "string") {
           return allowed === origin;
         }
         return allowed.test(origin);
