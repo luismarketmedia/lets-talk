@@ -619,8 +619,13 @@ export const useWebRTC = (
       return { supported: false, reason: "API não suportada pelo navegador" };
     }
 
-    // Verificar se estamos em contexto seguro (HTTPS ou localhost)
-    if (!window.isSecureContext && window.location.hostname !== "localhost") {
+    // Para desenvolvimento local, sempre permitir tentativa
+    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+      return { supported: true, reason: null };
+    }
+
+    // Para produção, verificar contexto seguro
+    if (!window.isSecureContext) {
       return { supported: false, reason: "Requer HTTPS para funcionar" };
     }
 
