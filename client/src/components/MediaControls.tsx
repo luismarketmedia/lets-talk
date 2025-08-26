@@ -192,6 +192,22 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
                   aria-label="Opções de configuração"
                 >
                   <div className="bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[250px]">
+                    {onOpenAdvancedControls && (
+                      <button
+                        onClick={() => {
+                          onOpenAdvancedControls();
+                          setIsSettingsOpen(false);
+                        }}
+                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors focus:bg-gray-50 focus:outline-none"
+                        role="menuitem"
+                        tabIndex={0}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <Sliders className="w-4 h-4" />
+                          <span>Controles Avançados</span>
+                        </div>
+                      </button>
+                    )}
                     {onOpenAudioSettings && (
                       <button
                         onClick={() => {
