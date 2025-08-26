@@ -34,15 +34,6 @@ export const useAudioLevel = ({
 
     const audioTracks = stream.getAudioTracks();
     if (audioTracks.length === 0) {
-      console.warn("No audio tracks found in stream");
-      cleanup();
-      return;
-    }
-
-    // Check if audio track is active
-    const audioTrack = audioTracks[0];
-    if (!audioTrack.enabled || audioTrack.readyState !== 'live') {
-      console.warn("Audio track is not active:", audioTrack.readyState);
       cleanup();
       return;
     }
@@ -51,20 +42,11 @@ export const useAudioLevel = ({
       // Create audio context and analyser
       const audioContext = new (window.AudioContext ||
         (window as any).webkitAudioContext)();
-
-      // Resume audio context if suspended
-      if (audioContext.state === 'suspended') {
-        audioContext.resume();
-      }
-
       const analyser = audioContext.createAnalyser();
       const source = audioContext.createMediaStreamSource(stream);
 
-      analyser.fftSize = 256; // Smaller for better performance
-      analyser.smoothingTimeConstant = 0.3; // Less smoothing for more responsive
-      analyser.minDecibels = -90;
-      analyser.maxDecibels = -10;
-
+      analyser.fftSize = 512;
+      analyser.smoothingTimeConstant = smoothing;
       source.connect(analyser);
 
       audioContextRef.current = audioContext;
@@ -73,41 +55,35 @@ export const useAudioLevel = ({
       const bufferLength = analyser.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
 
-      console.log("Audio level detection setup successful", {
-        audioTracks: audioTracks.length,
-        bufferLength,
-        contextState: audioContext.state
-      });
-
       const updateLevel = () => {
-        if (!analyser || !enabled || audioContext.state === 'closed') {
+        if (!analyser || !enabled) {
           return;
         }
 
         analyser.getByteFrequencyData(dataArray);
 
-        // Calculate average with more responsive method
+        // Calculate RMS (Root Mean Square) for better volume detection
         let sum = 0;
         for (let i = 0; i < bufferLength; i++) {
-          sum += dataArray[i];
+          sum += dataArray[i] * dataArray[i];
         }
-        const average = sum / bufferLength;
+        const rms = Math.sqrt(sum / bufferLength);
 
-        // Convert to percentage and apply smoothing
-        const normalizedLevel = (average / 255) * 100;
-        const smoothedLevel = lastLevelRef.current * smoothing + normalizedLevel * (1 - smoothing);
+        // Smooth the audio level to reduce jitter
+        const smoothedLevel =
+          lastLevelRef.current * smoothing + rms * (1 - smoothing);
         lastLevelRef.current = smoothedLevel;
 
-        const finalLevel = Math.min(100, Math.max(0, smoothedLevel));
-        setAudioLevel(finalLevel);
-        setIsSpeaking(finalLevel > speakingThreshold);
+        const normalizedLevel = Math.min(100, smoothedLevel);
+        setAudioLevel(normalizedLevel);
+        setIsSpeaking(normalizedLevel > speakingThreshold);
 
         animationFrameRef.current = requestAnimationFrame(updateLevel);
       };
 
       updateLevel();
     } catch (error) {
-      console.error("Failed to setup audio level detection:", error);
+      console.warn("Failed to setup audio level detection:", error);
       cleanup();
     }
 
