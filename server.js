@@ -23,9 +23,11 @@ app.get("/", (req, res) => {
 });
 
 // Armazenar salas e usuários
-const rooms = new Map();
+const rooms = new Map(); // roomId -> Set of socketIds
 // Armazenar pedidos de entrada pendentes
-const pendingRequests = new Map();
+const pendingRequests = new Map(); // roomId -> Map of socketId -> request data
+// Armazenar informações dos participantes
+const participants = new Map(); // socketId -> { userName, roomId }
 
 io.on("connection", (socket) => {
   console.log(
@@ -121,7 +123,7 @@ io.on("connection", (socket) => {
     // Verificar se o usuário é host da sala
     const roomUsers = Array.from(rooms.get(roomId) || []);
     if (!roomUsers.includes(socket.id) || roomUsers[0] !== socket.id) {
-      socket.emit("error", { message: "Você não é o host desta sala" });
+      socket.emit("error", { message: "Voc�� não é o host desta sala" });
       return;
     }
 
@@ -137,7 +139,9 @@ io.on("connection", (socket) => {
   });
 
   // Entrar em uma sala diretamente (para criadores de sala)
-  socket.on("join-room", (roomId) => {
+  socket.on("join-room", (data) => {
+    const { roomId, userName } = typeof data === 'string' ? { roomId: data, userName: 'Usuário Anônimo' } : data;
+
     socket.join(roomId);
 
     if (!rooms.has(roomId)) {
@@ -146,10 +150,34 @@ io.on("connection", (socket) => {
 
     rooms.get(roomId).add(socket.id);
 
-    // Notificar outros usuários na sala
-    socket.to(roomId).emit("user-joined", socket.id);
+    // Store participant info
+    participants.set(socket.id, { userName: userName || 'Usuário Anônimo', roomId });
 
-    console.log(`Usuário ${socket.id} entrou na sala ${roomId}`);
+    // Send existing participants info to new user
+    const existingParticipants = [];
+    for (const existingSocketId of rooms.get(roomId)) {
+      if (existingSocketId !== socket.id) {
+        const participantInfo = participants.get(existingSocketId);
+        if (participantInfo) {
+          existingParticipants.push({
+            socketId: existingSocketId,
+            userName: participantInfo.userName
+          });
+        }
+      }
+    }
+
+    if (existingParticipants.length > 0) {
+      socket.emit("existing-participants", existingParticipants);
+    }
+
+    // Notificar outros usuários na sala sobre o novo participante
+    socket.to(roomId).emit("user-joined", {
+      socketId: socket.id,
+      userName: userName || 'Usuário Anônimo'
+    });
+
+    console.log(`Usuário ${socket.id} (${userName}) entrou na sala ${roomId}`);
   });
 
   // Encaminhar oferta WebRTC
