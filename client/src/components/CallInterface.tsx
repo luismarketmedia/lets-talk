@@ -15,6 +15,7 @@ import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
 import { useAdvancedMediaControls } from "../hooks/useAdvancedMediaControls";
 import { useConnectionMonitor } from "../hooks/useConnectionMonitor";
+import { useSpeakerDetection } from "../hooks/useSpeakerDetection";
 
 interface CallInterfaceProps {
   roomId: string;
@@ -168,7 +169,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
           fallbackCopyPrompt();
         }
       } catch (fallbackError) {
-        console.warn("Fallback de seleção tamb��m falhou:", fallbackError);
+        console.warn("Fallback de seleção também falhou:", fallbackError);
         fallbackCopyPrompt();
       }
     }
