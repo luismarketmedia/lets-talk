@@ -95,6 +95,28 @@ export const useWebRTC = (
       await handleIceCandidate(data.candidate, data.sender);
     });
 
+    // Eventos do sistema de aprovação
+    socket.on("join-approved", (data) => {
+      console.log("Entrada aprovada na sala:", data.roomId);
+      if (onNotification) {
+        onNotification("success", "Entrada Aprovada", "Você foi aceito na sala!");
+      }
+    });
+
+    socket.on("join-rejected", (data) => {
+      console.log("Entrada rejeitada na sala:", data.roomId);
+      if (onNotification) {
+        onNotification("error", "Entrada Rejeitada", "Sua solicitação foi recusada.");
+      }
+    });
+
+    socket.on("join-error", (data) => {
+      console.log("Erro ao entrar na sala:", data.message);
+      if (onNotification) {
+        onNotification("error", "Erro", data.message);
+      }
+    });
+
     return () => {
       socket.disconnect();
       peerConnectionsRef.current.forEach((pc) => pc.close());
