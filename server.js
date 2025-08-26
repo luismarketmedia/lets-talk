@@ -175,22 +175,33 @@ io.on("connection", (socket) => {
   socket.on("chat-message", (data) => {
     const { roomId, message, userName } = data;
 
+    console.log(`[CHAT DEBUG] Mensagem recebida de ${socket.id}:`, {
+      roomId,
+      message: message?.substring(0, 50),
+      userName,
+      hasRoom: rooms.has(roomId),
+      isInRoom: rooms.has(roomId) ? rooms.get(roomId).has(socket.id) : false,
+      roomSize: rooms.has(roomId) ? rooms.get(roomId).size : 0
+    });
+
     // Verificar se o usuário está na sala
     if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
+      console.log(`[CHAT ERROR] Usuário ${socket.id} não está na sala ${roomId}`);
       socket.emit("error", { message: "Você não está nesta sala" });
       return;
     }
 
     // Enviar mensagem para todos na sala (incluindo o remetente)
-    io.to(roomId).emit("chat-message", {
+    const chatMessage = {
       message: message.trim(),
       sender: socket.id,
       userName: userName || "Usuário Anônimo",
       timestamp: new Date(),
       roomId,
-    });
+    };
 
-    console.log(`Mensagem de ${socket.id} na sala ${roomId}: ${message}`);
+    io.to(roomId).emit("chat-message", chatMessage);
+    console.log(`[CHAT SUCCESS] Mensagem enviada na sala ${roomId} por ${userName || 'Anônimo'}: ${message.trim()}`);
   });
 
   // Lidar com desconexão
