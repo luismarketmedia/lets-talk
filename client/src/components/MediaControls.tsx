@@ -174,7 +174,7 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
                   role="menu"
                   aria-label="Opções de configuração"
                 >
-                  <div className="bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[180px]">
+                  <div className="bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[250px]">
                     {onOpenAudioSettings && (
                       <button
                         onClick={() => {
