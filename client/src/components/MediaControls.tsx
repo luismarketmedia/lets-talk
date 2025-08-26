@@ -1,8 +1,17 @@
-import React from 'react';
-import { Mic, MicOff, Video, VideoOff, Monitor, Phone, MonitorX, Settings } from 'lucide-react';
-import { Button } from './ui/button';
-import { cn } from '../lib/utils';
-import { useScreenShareSupport } from '../hooks/useScreenShareSupport';
+import React from "react";
+import {
+  Mic,
+  MicOff,
+  Video,
+  VideoOff,
+  Monitor,
+  Phone,
+  MonitorX,
+  Settings,
+} from "lucide-react";
+import { Button } from "./ui/button";
+import { cn } from "../lib/utils";
+import { useScreenShareSupport } from "../hooks/useScreenShareSupport";
 
 interface MediaControlsProps {
   isAudioEnabled: boolean;
@@ -25,7 +34,7 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
   onToggleScreenShare,
   onEndCall,
   onOpenAudioSettings,
-  onOpenDeviceTest
+  onOpenDeviceTest,
 }) => {
   const screenShareSupport = useScreenShareSupport();
   return (
@@ -39,9 +48,9 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
             onClick={onToggleAudio}
             className={cn(
               "w-12 h-12 rounded-full transition-all duration-200",
-              isAudioEnabled 
-                ? "bg-primary-500 hover:bg-primary-600 text-white" 
-                : "bg-red-500 hover:bg-red-600 text-white"
+              isAudioEnabled
+                ? "bg-primary-500 hover:bg-primary-600 text-white"
+                : "bg-red-500 hover:bg-red-600 text-white",
             )}
             title={isAudioEnabled ? "Desativar microfone" : "Ativar microfone"}
           >
@@ -59,9 +68,9 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
             onClick={onToggleVideo}
             className={cn(
               "w-12 h-12 rounded-full transition-all duration-200",
-              isVideoEnabled 
-                ? "bg-primary-500 hover:bg-primary-600 text-white" 
-                : "bg-red-500 hover:bg-red-600 text-white"
+              isVideoEnabled
+                ? "bg-primary-500 hover:bg-primary-600 text-white"
+                : "bg-red-500 hover:bg-red-600 text-white",
             )}
             title={isVideoEnabled ? "Desativar câmera" : "Ativar câmera"}
           >
@@ -76,22 +85,24 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
           <Button
             variant={isScreenSharing ? "default" : "secondary"}
             size="icon"
-            onClick={screenShareSupport.canAttempt ? onToggleScreenShare : undefined}
+            onClick={
+              screenShareSupport.canAttempt ? onToggleScreenShare : undefined
+            }
             disabled={!screenShareSupport.canAttempt}
             className={cn(
               "w-12 h-12 rounded-full transition-all duration-200",
               isScreenSharing
                 ? "bg-primary-500 hover:bg-primary-600 text-white"
                 : screenShareSupport.canAttempt
-                ? "bg-gray-200 hover:bg-gray-300 text-gray-700"
-                : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  ? "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                  : "bg-gray-100 text-gray-400 cursor-not-allowed",
             )}
             title={
               !screenShareSupport.canAttempt
                 ? `Compartilhamento indisponível: ${screenShareSupport.reason}`
                 : isScreenSharing
-                ? "Parar compartilhamento de tela"
-                : "Compartilhar tela"
+                  ? "Parar compartilhamento de tela"
+                  : "Compartilhar tela"
             }
           >
             {!screenShareSupport.canAttempt ? (

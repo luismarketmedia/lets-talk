@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { Users, Copy, Check } from 'lucide-react';
-import { VideoTile } from './VideoTile';
-import { MediaControls } from './MediaControls';
-import { AudioDeviceModal } from './AudioDeviceModal';
-import { DeviceTestModal } from './DeviceTestModal';
-import { Button } from './ui/button';
-import { cn } from '../lib/utils';
+import React, { useState } from "react";
+import { Users, Copy, Check } from "lucide-react";
+import { VideoTile } from "./VideoTile";
+import { MediaControls } from "./MediaControls";
+import { AudioDeviceModal } from "./AudioDeviceModal";
+import { DeviceTestModal } from "./DeviceTestModal";
+import { Button } from "./ui/button";
+import { cn } from "../lib/utils";
 
 interface CallInterfaceProps {
   roomId: string;
@@ -30,7 +30,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   onToggleAudio,
   onToggleVideo,
   onToggleScreenShare,
-  onEndCall
+  onEndCall,
 }) => {
   const [copied, setCopied] = useState(false);
   const [showAudioModal, setShowAudioModal] = useState(false);
@@ -44,7 +44,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      console.error('Erro ao copiar código da sala:', error);
+      console.error("Erro ao copiar código da sala:", error);
     }
   };
 
@@ -79,7 +79,8 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                   Chamada em andamento
                 </h1>
                 <p className="text-sm text-gray-600">
-                  {totalParticipants} participante{totalParticipants !== 1 ? 's' : ''}
+                  {totalParticipants} participante
+                  {totalParticipants !== 1 ? "s" : ""}
                 </p>
               </div>
             </div>
@@ -104,7 +105,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                   <Copy className="w-4 h-4" />
                 )}
                 <span className="hidden sm:inline">
-                  {copied ? 'Copiado!' : 'Copiar código'}
+                  {copied ? "Copiado!" : "Copiar código"}
                 </span>
               </Button>
             </div>
@@ -114,10 +115,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
 
       {/* Grade de vídeos */}
       <div className="max-w-6xl mx-auto mb-20">
-        <div className={cn(
-          "grid gap-4",
-          getGridClass()
-        )}>
+        <div className={cn("grid gap-4", getGridClass())}>
           {/* Vídeo local */}
           <VideoTile
             stream={localStream}
@@ -150,7 +148,10 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
             <p className="text-gray-600 mb-4">
               Compartilhe o código da sala para que outros possam participar
             </p>
-            <Button onClick={copyRoomId} className="inline-flex items-center space-x-2">
+            <Button
+              onClick={copyRoomId}
+              className="inline-flex items-center space-x-2"
+            >
               <Copy className="w-4 h-4" />
               <span>Copiar código: {roomId}</span>
             </Button>
@@ -176,7 +177,10 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
         isOpen={showAudioModal}
         onClose={() => setShowAudioModal(false)}
         onDeviceChange={(input, output) => {
-          console.log('Dispositivos selecionados durante chamada:', { input, output });
+          console.log("Dispositivos selecionados durante chamada:", {
+            input,
+            output,
+          });
           // Aqui você pode atualizar os dispositivos durante a chamada
         }}
       />

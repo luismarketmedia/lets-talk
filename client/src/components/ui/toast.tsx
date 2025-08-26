@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { X, AlertCircle, CheckCircle, Info, AlertTriangle } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import React, { createContext, useContext, useState, useCallback } from "react";
+import { X, AlertCircle, CheckCircle, Info, AlertTriangle } from "lucide-react";
+import { cn } from "../../lib/utils";
 
-type ToastType = 'success' | 'error' | 'warning' | 'info';
+type ToastType = "success" | "error" | "warning" | "info";
 
 interface Toast {
   id: string;
@@ -14,7 +14,7 @@ interface Toast {
 
 interface ToastContextType {
   toasts: Toast[];
-  addToast: (toast: Omit<Toast, 'id'>) => void;
+  addToast: (toast: Omit<Toast, "id">) => void;
   removeToast: (id: string) => void;
 }
 
@@ -23,29 +23,31 @@ const ToastContext = createContext<ToastContextType | null>(null);
 export const useToast = () => {
   const context = useContext(ToastContext);
   if (!context) {
-    throw new Error('useToast must be used within a ToastProvider');
+    throw new Error("useToast must be used within a ToastProvider");
   }
   return context;
 };
 
-export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const addToast = useCallback((toast: Omit<Toast, 'id'>) => {
+  const addToast = useCallback((toast: Omit<Toast, "id">) => {
     const id = Math.random().toString(36).substring(2, 9);
     const newToast = { ...toast, id };
-    
-    setToasts(prev => [...prev, newToast]);
+
+    setToasts((prev) => [...prev, newToast]);
 
     // Auto-remove toast after duration
     const duration = toast.duration || 5000;
     setTimeout(() => {
-      setToasts(prev => prev.filter(t => t.id !== id));
+      setToasts((prev) => prev.filter((t) => t.id !== id));
     }, duration);
   }, []);
 
   const removeToast = useCallback((id: string) => {
-    setToasts(prev => prev.filter(t => t.id !== id));
+    setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
   return (
@@ -63,7 +65,7 @@ const ToastContainer: React.FC = () => {
 
   return (
     <div className="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
-      {toasts.map(toast => (
+      {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} />
       ))}
     </div>
@@ -75,27 +77,27 @@ const ToastItem: React.FC<{ toast: Toast }> = ({ toast }) => {
 
   const getIcon = () => {
     switch (toast.type) {
-      case 'success':
+      case "success":
         return <CheckCircle className="w-5 h-5 text-green-600" />;
-      case 'error':
+      case "error":
         return <AlertCircle className="w-5 h-5 text-red-600" />;
-      case 'warning':
+      case "warning":
         return <AlertTriangle className="w-5 h-5 text-yellow-600" />;
-      case 'info':
+      case "info":
         return <Info className="w-5 h-5 text-blue-600" />;
     }
   };
 
   const getBackgroundColor = () => {
     switch (toast.type) {
-      case 'success':
-        return 'bg-green-50 border-green-200';
-      case 'error':
-        return 'bg-red-50 border-red-200';
-      case 'warning':
-        return 'bg-yellow-50 border-yellow-200';
-      case 'info':
-        return 'bg-blue-50 border-blue-200';
+      case "success":
+        return "bg-green-50 border-green-200";
+      case "error":
+        return "bg-red-50 border-red-200";
+      case "warning":
+        return "bg-yellow-50 border-yellow-200";
+      case "info":
+        return "bg-blue-50 border-blue-200";
     }
   };
 
@@ -103,7 +105,7 @@ const ToastItem: React.FC<{ toast: Toast }> = ({ toast }) => {
     <div
       className={cn(
         "p-4 rounded-lg border shadow-lg animate-in slide-in-from-right-full",
-        getBackgroundColor()
+        getBackgroundColor(),
       )}
     >
       <div className="flex items-start space-x-3">
@@ -126,14 +128,22 @@ const ToastItem: React.FC<{ toast: Toast }> = ({ toast }) => {
 };
 
 // Helper functions for common toast types
-export const showSuccessToast = (addToast: ToastContextType['addToast']) => 
-  (title: string, message?: string) => addToast({ type: 'success', title, message });
+export const showSuccessToast =
+  (addToast: ToastContextType["addToast"]) =>
+  (title: string, message?: string) =>
+    addToast({ type: "success", title, message });
 
-export const showErrorToast = (addToast: ToastContextType['addToast']) => 
-  (title: string, message?: string) => addToast({ type: 'error', title, message });
+export const showErrorToast =
+  (addToast: ToastContextType["addToast"]) =>
+  (title: string, message?: string) =>
+    addToast({ type: "error", title, message });
 
-export const showWarningToast = (addToast: ToastContextType['addToast']) => 
-  (title: string, message?: string) => addToast({ type: 'warning', title, message });
+export const showWarningToast =
+  (addToast: ToastContextType["addToast"]) =>
+  (title: string, message?: string) =>
+    addToast({ type: "warning", title, message });
 
-export const showInfoToast = (addToast: ToastContextType['addToast']) => 
-  (title: string, message?: string) => addToast({ type: 'info', title, message });
+export const showInfoToast =
+  (addToast: ToastContextType["addToast"]) =>
+  (title: string, message?: string) =>
+    addToast({ type: "info", title, message });

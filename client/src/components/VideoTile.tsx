@@ -1,6 +1,6 @@
-import React, { useRef, useEffect } from 'react';
-import { Mic, MicOff, User } from 'lucide-react';
-import { cn } from '../lib/utils';
+import React, { useRef, useEffect } from "react";
+import { Mic, MicOff, User } from "lucide-react";
+import { cn } from "../lib/utils";
 
 interface VideoTileProps {
   stream: MediaStream | null;
@@ -17,7 +17,7 @@ export const VideoTile: React.FC<VideoTileProps> = ({
   isMuted = false,
   isVideoEnabled = true,
   participantName,
-  className
+  className,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -32,7 +32,7 @@ export const VideoTile: React.FC<VideoTileProps> = ({
       className={cn(
         "relative bg-gray-900 rounded-xl overflow-hidden shadow-lg",
         "border-2 border-transparent hover:border-primary-300 transition-colors",
-        className
+        className,
       )}
     >
       {/* Vídeo */}
@@ -58,7 +58,7 @@ export const VideoTile: React.FC<VideoTileProps> = ({
         <div className="flex items-center justify-between text-white">
           {/* Nome do participante */}
           <span className="text-sm font-medium truncate">
-            {participantName || (isLocal ? 'Você' : 'Participante')}
+            {participantName || (isLocal ? "Você" : "Participante")}
           </span>
 
           {/* Indicador de áudio */}

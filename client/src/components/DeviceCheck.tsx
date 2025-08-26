@@ -1,6 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Camera, Mic, AlertTriangle, CheckCircle, Settings, TestTube } from 'lucide-react';
-import { Button } from './ui/button';
+import React, { useState, useEffect } from "react";
+import {
+  Camera,
+  Mic,
+  AlertTriangle,
+  CheckCircle,
+  Settings,
+  TestTube,
+} from "lucide-react";
+import { Button } from "./ui/button";
 
 interface DeviceStatus {
   hasCamera: boolean;
@@ -18,23 +25,25 @@ interface DeviceCheckProps {
 export const DeviceCheck: React.FC<DeviceCheckProps> = ({
   onDeviceCheck,
   onOpenAudioSettings,
-  onOpenDeviceTest
+  onOpenDeviceTest,
 }) => {
   const [deviceStatus, setDeviceStatus] = useState<DeviceStatus>({
     hasCamera: false,
     hasMicrophone: false,
     permissionGranted: false,
-    isChecking: false
+    isChecking: false,
   });
 
   const checkDevices = async () => {
-    setDeviceStatus(prev => ({ ...prev, isChecking: true }));
-    
+    setDeviceStatus((prev) => ({ ...prev, isChecking: true }));
+
     try {
       // Verificar dispositivos disponíveis
       const devices = await navigator.mediaDevices.enumerateDevices();
-      const hasCamera = devices.some(device => device.kind === 'videoinput');
-      const hasMicrophone = devices.some(device => device.kind === 'audioinput');
+      const hasCamera = devices.some((device) => device.kind === "videoinput");
+      const hasMicrophone = devices.some(
+        (device) => device.kind === "audioinput",
+      );
 
       let permissionGranted = false;
 
@@ -42,15 +51,18 @@ export const DeviceCheck: React.FC<DeviceCheckProps> = ({
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: hasCamera,
-          audio: hasMicrophone
+          audio: hasMicrophone,
         });
-        
+
         permissionGranted = true;
-        
+
         // Parar as tracks imediatamente
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach((track) => track.stop());
       } catch (error) {
-        console.warn('Permissão não concedida ou dispositivos não disponíveis:', error);
+        console.warn(
+          "Permissão não concedida ou dispositivos não disponíveis:",
+          error,
+        );
         permissionGranted = false;
       }
 
@@ -58,15 +70,14 @@ export const DeviceCheck: React.FC<DeviceCheckProps> = ({
         hasCamera,
         hasMicrophone,
         permissionGranted,
-        isChecking: false
+        isChecking: false,
       };
 
       setDeviceStatus(status);
       onDeviceCheck?.(status);
-
     } catch (error) {
-      console.error('Erro ao verificar dispositivos:', error);
-      setDeviceStatus(prev => ({ ...prev, isChecking: false }));
+      console.error("Erro ao verificar dispositivos:", error);
+      setDeviceStatus((prev) => ({ ...prev, isChecking: false }));
     }
   };
 
@@ -79,7 +90,7 @@ export const DeviceCheck: React.FC<DeviceCheckProps> = ({
       <h3 className="text-sm font-medium text-gray-900 mb-3">
         Status dos Dispositivos
       </h3>
-      
+
       <div className="space-y-2">
         {/* Status da Câmera */}
         <div className="flex items-center space-x-3">
@@ -91,7 +102,7 @@ export const DeviceCheck: React.FC<DeviceCheckProps> = ({
             <AlertTriangle className="w-4 h-4 text-yellow-500" />
           )}
           <span className="text-xs text-gray-500">
-            {deviceStatus.hasCamera ? 'Detectada' : 'Não encontrada'}
+            {deviceStatus.hasCamera ? "Detectada" : "Não encontrada"}
           </span>
         </div>
 
@@ -105,7 +116,7 @@ export const DeviceCheck: React.FC<DeviceCheckProps> = ({
             <AlertTriangle className="w-4 h-4 text-yellow-500" />
           )}
           <span className="text-xs text-gray-500">
-            {deviceStatus.hasMicrophone ? 'Detectado' : 'Não encontrado'}
+            {deviceStatus.hasMicrophone ? "Detectado" : "Não encontrado"}
           </span>
         </div>
 
@@ -119,7 +130,7 @@ export const DeviceCheck: React.FC<DeviceCheckProps> = ({
             <AlertTriangle className="w-4 h-4 text-red-500" />
           )}
           <span className="text-xs text-gray-500">
-            {deviceStatus.permissionGranted ? 'Concedidas' : 'Pendentes'}
+            {deviceStatus.permissionGranted ? "Concedidas" : "Pendentes"}
           </span>
         </div>
       </div>
@@ -163,13 +174,15 @@ export const DeviceCheck: React.FC<DeviceCheckProps> = ({
               Verificando...
             </div>
           ) : (
-            'Verificar Novamente'
+            "Verificar Novamente"
           )}
         </Button>
       </div>
 
       {/* Dicas */}
-      {(!deviceStatus.hasCamera || !deviceStatus.hasMicrophone || !deviceStatus.permissionGranted) && (
+      {(!deviceStatus.hasCamera ||
+        !deviceStatus.hasMicrophone ||
+        !deviceStatus.permissionGranted) && (
         <div className="mt-3 pt-3 border-t border-gray-200 text-xs text-gray-600 space-y-1">
           {!deviceStatus.hasCamera && (
             <p>• Verifique se sua câmera está conectada</p>

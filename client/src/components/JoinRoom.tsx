@@ -1,12 +1,30 @@
-import React, { useState } from 'react';
-import { Video, Users, Plus, ArrowRight, AlertCircle, X, Shuffle } from 'lucide-react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { DeviceCheck } from './DeviceCheck';
-import { AudioDeviceModal } from './AudioDeviceModal';
-import { DeviceTestModal } from './DeviceTestModal';
-import { generateMeetingCode, formatMeetingCode, validateMeetingCode } from '../lib/meetingCodeGenerator';
+import React, { useState } from "react";
+import {
+  Video,
+  Users,
+  Plus,
+  ArrowRight,
+  AlertCircle,
+  X,
+  Shuffle,
+} from "lucide-react";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { DeviceCheck } from "./DeviceCheck";
+import { AudioDeviceModal } from "./AudioDeviceModal";
+import { DeviceTestModal } from "./DeviceTestModal";
+import {
+  generateMeetingCode,
+  formatMeetingCode,
+  validateMeetingCode,
+} from "../lib/meetingCodeGenerator";
 
 interface JoinRoomProps {
   onJoinRoom: (roomId: string) => void;
@@ -19,10 +37,10 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
   onJoinRoom,
   isConnecting,
   error,
-  onClearError
+  onClearError,
 }) => {
-  const [roomId, setRoomId] = useState('');
-  const [mode, setMode] = useState<'join' | 'create'>('join');
+  const [roomId, setRoomId] = useState("");
+  const [mode, setMode] = useState<"join" | "create">("join");
   const [showAudioModal, setShowAudioModal] = useState(false);
   const [showTestModal, setShowTestModal] = useState(false);
 
@@ -50,9 +68,9 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
 
   const generateRoomId = () => {
     // Sempre usa formato Google Meet
-    const newCode = generateMeetingCode('google-meet');
+    const newCode = generateMeetingCode("google-meet");
     setRoomId(newCode);
-    setMode('create');
+    setMode("create");
   };
 
   const isValidCode = validateMeetingCode(roomId);
@@ -66,7 +84,9 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
             <Video className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Let's Talk</h1>
-          <p className="text-gray-600">Conecte-se facilmente com videochamadas de alta qualidade</p>
+          <p className="text-gray-600">
+            Conecte-se facilmente com videochamadas de alta qualidade
+          </p>
         </div>
 
         {/* Error Display */}
@@ -96,32 +116,31 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
         <Card className="shadow-xl border-0">
           <CardHeader className="text-center">
             <CardTitle className="text-xl text-gray-900">
-              {mode === 'join' ? 'Entrar em uma chamada' : 'Criar nova chamada'}
+              {mode === "join" ? "Entrar em uma chamada" : "Criar nova chamada"}
             </CardTitle>
             <CardDescription>
-              {mode === 'join' 
-                ? 'Digite o código da sala para participar' 
-                : 'Compartilhe este código para outros participarem'
-              }
+              {mode === "join"
+                ? "Digite o código da sala para participar"
+                : "Compartilhe este código para outros participarem"}
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent className="space-y-6">
             {/* Modo de entrada */}
             <div className="flex gap-2">
               <Button
-                variant={mode === 'join' ? 'default' : 'outline'}
+                variant={mode === "join" ? "default" : "outline"}
                 className="flex-1"
-                onClick={() => setMode('join')}
+                onClick={() => setMode("join")}
                 disabled={isConnecting}
               >
                 <Users className="w-4 h-4 mr-2" />
                 Entrar
               </Button>
               <Button
-                variant={mode === 'create' ? 'default' : 'outline'}
+                variant={mode === "create" ? "default" : "outline"}
                 className="flex-1"
-                onClick={() => setMode('create')}
+                onClick={() => setMode("create")}
                 disabled={isConnecting}
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -138,7 +157,10 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
             {/* Formulário */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <label htmlFor="roomId" className="text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="roomId"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Código da reunião
                 </label>
                 <div className="space-y-2">
@@ -147,29 +169,32 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
                       <Input
                         id="roomId"
                         type="text"
-                        placeholder={mode === 'join'
-                          ? "Digite o código da reunião"
-                          : "Gere um código (ex: abc-defg-hij)"
+                        placeholder={
+                          mode === "join"
+                            ? "Digite o código da reunião"
+                            : "Gere um código (ex: abc-defg-hij)"
                         }
                         value={roomId}
                         onChange={handleRoomIdChange}
                         disabled={isConnecting}
                         className={`font-mono ${
                           roomId.length > 0 && !isValidCode
-                            ? 'border-yellow-300 focus:ring-yellow-500'
+                            ? "border-yellow-300 focus:ring-yellow-500"
                             : roomId.length > 0 && isValidCode
-                            ? 'border-green-300 focus:ring-green-500'
-                            : ''
+                              ? "border-green-300 focus:ring-green-500"
+                              : ""
                         }`}
                       />
                       {roomId.length > 0 && (
-                        <div className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-2 h-2 rounded-full ${
-                          isValidCode ? 'bg-green-500' : 'bg-yellow-500'
-                        }`} />
+                        <div
+                          className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-2 h-2 rounded-full ${
+                            isValidCode ? "bg-green-500" : "bg-yellow-500"
+                          }`}
+                        />
                       )}
                     </div>
 
-                    {mode === 'create' && (
+                    {mode === "create" && (
                       <Button
                         type="button"
                         variant="outline"
@@ -183,15 +208,16 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
                     )}
                   </div>
 
-                  {mode === 'join' && roomId.length > 0 && !isValidCode && (
+                  {mode === "join" && roomId.length > 0 && !isValidCode && (
                     <p className="text-xs text-yellow-600">
                       Formato incomum, mas tentaremos conectar
                     </p>
                   )}
 
-                  {mode === 'create' && !roomId && (
+                  {mode === "create" && !roomId && (
                     <p className="text-xs text-gray-500">
-                      Clique no ��cone para gerar um código de reunião                     </p>
+                      Clique no ��cone para gerar um código de reunião{" "}
+                    </p>
                   )}
                 </div>
               </div>
@@ -208,7 +234,7 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
                   </div>
                 ) : (
                   <div className="flex items-center">
-                    {mode === 'join' ? 'Entrar na chamada' : 'Iniciar chamada'}
+                    {mode === "join" ? "Entrar na chamada" : "Iniciar chamada"}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </div>
                 )}
@@ -217,7 +243,9 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
 
             {/* Dicas */}
             <div className="text-xs text-gray-500 text-center space-y-1">
-              <p>• Certifique-se de que sua câmera e microfone estão funcionando</p>
+              <p>
+                • Certifique-se de que sua câmera e microfone estão funcionando
+              </p>
               <p>• O código da sala é sensível a maiúsculas e minúsculas</p>
             </div>
           </CardContent>
@@ -234,7 +262,7 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
         isOpen={showAudioModal}
         onClose={() => setShowAudioModal(false)}
         onDeviceChange={(input, output) => {
-          console.log('Dispositivos selecionados:', { input, output });
+          console.log("Dispositivos selecionados:", { input, output });
           // Aqui você pode salvar as preferências do usuário
         }}
       />

@@ -1,22 +1,29 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { io, Socket } from 'socket.io-client';
-import { CallState, MediaControls } from '../types/webrtc';
+import { useState, useEffect, useCallback, useRef } from "react";
+import { io, Socket } from "socket.io-client";
+import { CallState, MediaControls } from "../types/webrtc";
 
 interface WebRTCOptions {
-  onNotification?: (type: 'success' | 'error' | 'warning' | 'info', title: string, message?: string) => void;
+  onNotification?: (
+    type: "success" | "error" | "warning" | "info",
+    title: string,
+    message?: string,
+  ) => void;
 }
 
 const ICE_SERVERS = {
   iceServers: [
-    { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' }
-  ]
+    { urls: "stun:stun.l.google.com:19302" },
+    { urls: "stun:stun1.l.google.com:19302" },
+  ],
 };
 
-export const useWebRTC = (options: WebRTCOptions = {}): CallState & MediaControls & {
-  joinRoom: (roomId: string) => Promise<void>;
-  socket: Socket | null;
-} => {
+export const useWebRTC = (
+  options: WebRTCOptions = {},
+): CallState &
+  MediaControls & {
+    joinRoom: (roomId: string) => Promise<void>;
+    socket: Socket | null;
+  } => {
   const { onNotification } = options;
   const [callState, setCallState] = useState<CallState>({
     isInCall: false,
@@ -26,7 +33,7 @@ export const useWebRTC = (options: WebRTCOptions = {}): CallState & MediaControl
     isAudioEnabled: true,
     isVideoEnabled: true,
     isScreenSharing: false,
-    connectionState: 'disconnected'
+    connectionState: "disconnected",
   });
 
   const socketRef = useRef<Socket | null>(null);
@@ -35,58 +42,61 @@ export const useWebRTC = (options: WebRTCOptions = {}): CallState & MediaControl
 
   useEffect(() => {
     // Conectar ao servidor Socket.IO
-    const serverUrl = import.meta.env.VITE_SERVER_URL ||
-                     (window.location.hostname === 'localhost' ? 'http://localhost:3000' : window.location.origin);
+    const serverUrl =
+      import.meta.env.VITE_SERVER_URL ||
+      (window.location.hostname === "localhost"
+        ? "http://localhost:3000"
+        : window.location.origin);
 
-    console.log('Conectando ao servidor WebRTC:', serverUrl);
+    console.log("Conectando ao servidor WebRTC:", serverUrl);
     socketRef.current = io(serverUrl);
     const socket = socketRef.current;
 
-    socket.on('connect', () => {
-      setCallState(prev => ({ ...prev, connectionState: 'connected' }));
+    socket.on("connect", () => {
+      setCallState((prev) => ({ ...prev, connectionState: "connected" }));
     });
 
-    socket.on('disconnect', () => {
-      setCallState(prev => ({ ...prev, connectionState: 'disconnected' }));
+    socket.on("disconnect", () => {
+      setCallState((prev) => ({ ...prev, connectionState: "disconnected" }));
     });
 
-    socket.on('user-joined', async (userId: string) => {
-      console.log('Usuário entrou:', userId);
+    socket.on("user-joined", async (userId: string) => {
+      console.log("Usuário entrou:", userId);
       await createOffer(userId);
     });
 
-    socket.on('user-left', (userId: string) => {
-      console.log('Usuário saiu:', userId);
+    socket.on("user-left", (userId: string) => {
+      console.log("Usuário saiu:", userId);
       const peerConnection = peerConnectionsRef.current.get(userId);
       if (peerConnection) {
         peerConnection.close();
         peerConnectionsRef.current.delete(userId);
       }
 
-      setCallState(prev => {
+      setCallState((prev) => {
         const newRemoteStreams = new Map(prev.remoteStreams);
         newRemoteStreams.delete(userId);
         return { ...prev, remoteStreams: newRemoteStreams };
       });
     });
 
-    socket.on('offer', async (data) => {
+    socket.on("offer", async (data) => {
       await handleOffer(data.offer, data.sender);
     });
 
-    socket.on('answer', async (data) => {
+    socket.on("answer", async (data) => {
       await handleAnswer(data.answer, data.sender);
     });
 
-    socket.on('ice-candidate', async (data) => {
+    socket.on("ice-candidate", async (data) => {
       await handleIceCandidate(data.candidate, data.sender);
     });
 
     return () => {
       socket.disconnect();
-      peerConnectionsRef.current.forEach(pc => pc.close());
+      peerConnectionsRef.current.forEach((pc) => pc.close());
       if (localStreamRef.current) {
-        localStreamRef.current.getTracks().forEach(track => track.stop());
+        localStreamRef.current.getTracks().forEach((track) => track.stop());
       }
     };
   }, []);
@@ -96,16 +106,16 @@ export const useWebRTC = (options: WebRTCOptions = {}): CallState & MediaControl
 
     // Adicionar stream local se disponível
     if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach(track => {
+      localStreamRef.current.getTracks().forEach((track) => {
         peerConnection.addTrack(track, localStreamRef.current!);
       });
     }
 
     // Lidar com stream remoto
     peerConnection.ontrack = (event) => {
-      console.log('Stream remoto recebido de:', userId);
+      console.log("Stream remoto recebido de:", userId);
       const [remoteStream] = event.streams;
-      setCallState(prev => {
+      setCallState((prev) => {
         const newRemoteStreams = new Map(prev.remoteStreams);
         newRemoteStreams.set(userId, remoteStream);
         return { ...prev, remoteStreams: newRemoteStreams };
@@ -115,9 +125,9 @@ export const useWebRTC = (options: WebRTCOptions = {}): CallState & MediaControl
     // Lidar com candidatos ICE
     peerConnection.onicecandidate = (event) => {
       if (event.candidate && socketRef.current) {
-        socketRef.current.emit('ice-candidate', {
+        socketRef.current.emit("ice-candidate", {
           candidate: event.candidate,
-          target: userId
+          target: userId,
         });
       }
     };
@@ -131,71 +141,82 @@ export const useWebRTC = (options: WebRTCOptions = {}): CallState & MediaControl
     try {
       const offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(offer);
-      
+
       if (socketRef.current) {
-        socketRef.current.emit('offer', {
+        socketRef.current.emit("offer", {
           offer,
-          target: userId
+          target: userId,
         });
       }
     } catch (error) {
-      console.error('Erro ao criar oferta:', error);
+      console.error("Erro ao criar oferta:", error);
     }
   };
 
-  const handleOffer = async (offer: RTCSessionDescriptionInit, senderId: string) => {
+  const handleOffer = async (
+    offer: RTCSessionDescriptionInit,
+    senderId: string,
+  ) => {
     const peerConnection = createPeerConnection(senderId);
     try {
       await peerConnection.setRemoteDescription(offer);
       const answer = await peerConnection.createAnswer();
       await peerConnection.setLocalDescription(answer);
-      
+
       if (socketRef.current) {
-        socketRef.current.emit('answer', {
+        socketRef.current.emit("answer", {
           answer,
-          target: senderId
+          target: senderId,
         });
       }
     } catch (error) {
-      console.error('Erro ao lidar com oferta:', error);
+      console.error("Erro ao lidar com oferta:", error);
     }
   };
 
-  const handleAnswer = async (answer: RTCSessionDescriptionInit, senderId: string) => {
+  const handleAnswer = async (
+    answer: RTCSessionDescriptionInit,
+    senderId: string,
+  ) => {
     const peerConnection = peerConnectionsRef.current.get(senderId);
     if (peerConnection) {
       try {
         await peerConnection.setRemoteDescription(answer);
       } catch (error) {
-        console.error('Erro ao lidar com resposta:', error);
+        console.error("Erro ao lidar com resposta:", error);
       }
     }
   };
 
-  const handleIceCandidate = async (candidate: RTCIceCandidate, senderId: string) => {
+  const handleIceCandidate = async (
+    candidate: RTCIceCandidate,
+    senderId: string,
+  ) => {
     const peerConnection = peerConnectionsRef.current.get(senderId);
     if (peerConnection) {
       try {
         await peerConnection.addIceCandidate(candidate);
       } catch (error) {
-        console.error('Erro ao adicionar candidato ICE:', error);
+        console.error("Erro ao adicionar candidato ICE:", error);
       }
     }
   };
 
   const joinRoom = useCallback(async (roomId: string) => {
     try {
-      setCallState(prev => ({ ...prev, connectionState: 'connecting' }));
+      setCallState((prev) => ({ ...prev, connectionState: "connecting" }));
 
       // Verificar disponibilidade de dispositivos
       const devices = await navigator.mediaDevices.enumerateDevices();
-      const hasVideo = devices.some(device => device.kind === 'videoinput');
-      const hasAudio = devices.some(device => device.kind === 'audioinput');
+      const hasVideo = devices.some((device) => device.kind === "videoinput");
+      const hasAudio = devices.some((device) => device.kind === "audioinput");
 
-      console.log('Dispositivos disponíveis:', { hasVideo, hasAudio });
+      console.log("Dispositivos disponíveis:", { hasVideo, hasAudio });
 
       if (!hasVideo && !hasAudio) {
-        throw new Error('Nenhum dispositivo de mídia encontrado. Verifique se sua câmera e microfone estão conectados.');
+        throw new Error(
+          "Nenhum dispositivo de mídia encontrado. Verifique se sua câmera e microfone estão conectados.",
+        );
       }
 
       let stream: MediaStream | null = null;
@@ -203,23 +224,30 @@ export const useWebRTC = (options: WebRTCOptions = {}): CallState & MediaControl
       // Tentar obter vídeo e ��udio primeiro
       try {
         stream = await navigator.mediaDevices.getUserMedia({
-          video: hasVideo ? {
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
-            frameRate: { ideal: 30 }
-          } : false,
-          audio: hasAudio ? {
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true
-          } : false
+          video: hasVideo
+            ? {
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+                frameRate: { ideal: 30 },
+              }
+            : false,
+          audio: hasAudio
+            ? {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true,
+              }
+            : false,
         });
-        console.log('Stream obtido com sucesso:', {
+        console.log("Stream obtido com sucesso:", {
           video: stream.getVideoTracks().length > 0,
-          audio: stream.getAudioTracks().length > 0
+          audio: stream.getAudioTracks().length > 0,
         });
       } catch (videoError) {
-        console.warn('Falha ao obter vídeo e áudio, tentando apenas áudio:', videoError);
+        console.warn(
+          "Falha ao obter vídeo e áudio, tentando apenas áudio:",
+          videoError,
+        );
 
         // Fallback: tentar apenas áudio
         if (hasAudio) {
@@ -229,54 +257,72 @@ export const useWebRTC = (options: WebRTCOptions = {}): CallState & MediaControl
               audio: {
                 echoCancellation: true,
                 noiseSuppression: true,
-                autoGainControl: true
-              }
+                autoGainControl: true,
+              },
             });
-            console.log('Stream de áudio obtido com sucesso');
+            console.log("Stream de áudio obtido com sucesso");
           } catch (audioError) {
-            console.error('Falha ao obter áudio:', audioError);
-            throw new Error('Não foi possível acessar o microfone. Verifique as permissões do navegador.');
+            console.error("Falha ao obter áudio:", audioError);
+            throw new Error(
+              "Não foi possível acessar o microfone. Verifique as permissões do navegador.",
+            );
           }
         } else {
-          throw new Error('Nenhum dispositivo de áudio disponível.');
+          throw new Error("Nenhum dispositivo de áudio disponível.");
         }
       }
 
       if (!stream) {
-        throw new Error('Não foi possível obter stream de mídia.');
+        throw new Error("Não foi possível obter stream de mídia.");
       }
 
       localStreamRef.current = stream;
-      setCallState(prev => ({
+      setCallState((prev) => ({
         ...prev,
         localStream: stream,
         isInCall: true,
         roomId,
-        connectionState: 'connected',
+        connectionState: "connected",
         isVideoEnabled: stream.getVideoTracks().length > 0,
-        isAudioEnabled: stream.getAudioTracks().length > 0
+        isAudioEnabled: stream.getAudioTracks().length > 0,
       }));
 
       // Entrar na sala via Socket.IO
       if (socketRef.current) {
-        socketRef.current.emit('join-room', roomId);
+        socketRef.current.emit("join-room", roomId);
       }
     } catch (error) {
-      console.error('Erro ao entrar na sala:', error);
-      setCallState(prev => ({ ...prev, connectionState: 'failed' }));
+      console.error("Erro ao entrar na sala:", error);
+      setCallState((prev) => ({ ...prev, connectionState: "failed" }));
 
       // Fornecer mensagens de erro mais específicas
       if (error instanceof Error) {
-        if (error.name === 'NotFoundError' || error.message.includes('Requested device not found')) {
-          throw new Error('Dispositivo não encontrado. Verifique se sua câmera e microfone estão conectados e funcionando.');
-        } else if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-          throw new Error('Permissão negada. Clique no ícone de câmera na barra de endereços e permita o acesso à câmera e microfone.');
-        } else if (error.name === 'NotReadableError') {
-          throw new Error('Dispositivo em uso. Feche outros aplicativos que possam estar usando sua câmera ou microfone.');
-        } else if (error.name === 'OverconstrainedError') {
-          throw new Error('Configurações de mídia não suportadas pelo dispositivo.');
-        } else if (error.name === 'SecurityError') {
-          throw new Error('Erro de segurança. Use HTTPS para acessar a câmera e microfone.');
+        if (
+          error.name === "NotFoundError" ||
+          error.message.includes("Requested device not found")
+        ) {
+          throw new Error(
+            "Dispositivo não encontrado. Verifique se sua câmera e microfone estão conectados e funcionando.",
+          );
+        } else if (
+          error.name === "NotAllowedError" ||
+          error.name === "PermissionDeniedError"
+        ) {
+          throw new Error(
+            "Permissão negada. Clique no ícone de câmera na barra de endereços e permita o acesso à câmera e microfone.",
+          );
+        } else if (error.name === "NotReadableError") {
+          throw new Error(
+            "Dispositivo em uso. Feche outros aplicativos que possam estar usando sua câmera ou microfone.",
+          );
+        } else if (error.name === "OverconstrainedError") {
+          throw new Error(
+            "Configurações de mídia não suportadas pelo dispositivo.",
+          );
+        } else if (error.name === "SecurityError") {
+          throw new Error(
+            "Erro de segurança. Use HTTPS para acessar a câmera e microfone.",
+          );
         }
       }
 
@@ -289,7 +335,10 @@ export const useWebRTC = (options: WebRTCOptions = {}): CallState & MediaControl
       const audioTrack = localStreamRef.current.getAudioTracks()[0];
       if (audioTrack) {
         audioTrack.enabled = !audioTrack.enabled;
-        setCallState(prev => ({ ...prev, isAudioEnabled: audioTrack.enabled }));
+        setCallState((prev) => ({
+          ...prev,
+          isAudioEnabled: audioTrack.enabled,
+        }));
       }
     }
   }, []);
@@ -299,7 +348,10 @@ export const useWebRTC = (options: WebRTCOptions = {}): CallState & MediaControl
       const videoTrack = localStreamRef.current.getVideoTracks()[0];
       if (videoTrack) {
         videoTrack.enabled = !videoTrack.enabled;
-        setCallState(prev => ({ ...prev, isVideoEnabled: videoTrack.enabled }));
+        setCallState((prev) => ({
+          ...prev,
+          isVideoEnabled: videoTrack.enabled,
+        }));
       }
     }
   }, []);
@@ -307,12 +359,12 @@ export const useWebRTC = (options: WebRTCOptions = {}): CallState & MediaControl
   const checkScreenShareSupport = useCallback(() => {
     // Verificar se a API de compartilhamento de tela está disponível
     if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
-      return { supported: false, reason: 'API não suportada pelo navegador' };
+      return { supported: false, reason: "API não suportada pelo navegador" };
     }
 
     // Verificar se estamos em contexto seguro (HTTPS ou localhost)
-    if (!window.isSecureContext && window.location.hostname !== 'localhost') {
-      return { supported: false, reason: 'Requer HTTPS para funcionar' };
+    if (!window.isSecureContext && window.location.hostname !== "localhost") {
+      return { supported: false, reason: "Requer HTTPS para funcionar" };
     }
 
     return { supported: true, reason: null };
@@ -324,7 +376,9 @@ export const useWebRTC = (options: WebRTCOptions = {}): CallState & MediaControl
         // Verificar suporte antes de tentar
         const support = checkScreenShareSupport();
         if (!support.supported) {
-          throw new Error(`Compartilhamento de tela não disponível: ${support.reason}`);
+          throw new Error(
+            `Compartilhamento de tela não disponível: ${support.reason}`,
+          );
         }
 
         let screenStream: MediaStream;
@@ -333,47 +387,52 @@ export const useWebRTC = (options: WebRTCOptions = {}): CallState & MediaControl
           // Tentar obter compartilhamento de tela
           screenStream = await navigator.mediaDevices.getDisplayMedia({
             video: {
-              mediaSource: 'screen',
+              mediaSource: "screen",
               width: { ideal: 1920 },
               height: { ideal: 1080 },
-              frameRate: { ideal: 30 }
+              frameRate: { ideal: 30 },
             },
             audio: {
               echoCancellation: true,
               noiseSuppression: true,
-              autoGainControl: true
-            }
+              autoGainControl: true,
+            },
           });
         } catch (displayError) {
-          console.warn('Falha ao obter áudio da tela, tentando apenas vídeo:', displayError);
+          console.warn(
+            "Falha ao obter áudio da tela, tentando apenas vídeo:",
+            displayError,
+          );
 
           // Fallback: tentar apenas vídeo
           screenStream = await navigator.mediaDevices.getDisplayMedia({
             video: {
-              mediaSource: 'screen',
+              mediaSource: "screen",
               width: { ideal: 1920 },
               height: { ideal: 1080 },
-              frameRate: { ideal: 30 }
+              frameRate: { ideal: 30 },
             },
-            audio: false
+            audio: false,
           });
         }
 
         // Verificar se conseguimos o stream
         if (!screenStream || screenStream.getVideoTracks().length === 0) {
-          throw new Error('Não foi possível obter stream de compartilhamento de tela');
+          throw new Error(
+            "Não foi possível obter stream de compartilhamento de tela",
+          );
         }
 
         const videoTrack = screenStream.getVideoTracks()[0];
 
         // Substituir track de vídeo em todas as conexões peer
-        peerConnectionsRef.current.forEach(peerConnection => {
-          const sender = peerConnection.getSenders().find(s =>
-            s.track && s.track.kind === 'video'
-          );
+        peerConnectionsRef.current.forEach((peerConnection) => {
+          const sender = peerConnection
+            .getSenders()
+            .find((s) => s.track && s.track.kind === "video");
           if (sender) {
-            sender.replaceTrack(videoTrack).catch(err => {
-              console.warn('Erro ao substituir track de vídeo:', err);
+            sender.replaceTrack(videoTrack).catch((err) => {
+              console.warn("Erro ao substituir track de vídeo:", err);
             });
           }
         });
@@ -388,34 +447,38 @@ export const useWebRTC = (options: WebRTCOptions = {}): CallState & MediaControl
           localStreamRef.current.addTrack(videoTrack);
         }
 
-        setCallState(prev => ({ ...prev, isScreenSharing: true }));
+        setCallState((prev) => ({ ...prev, isScreenSharing: true }));
 
         // Notificar sucesso
         if (onNotification) {
-          onNotification('success', 'Compartilhamento Iniciado', 'Sua tela está sendo compartilhada com os participantes');
+          onNotification(
+            "success",
+            "Compartilhamento Iniciado",
+            "Sua tela está sendo compartilhada com os participantes",
+          );
         }
 
         // Parar compartilhamento quando o usuário para ou a tela é fechada
         videoTrack.onended = async () => {
-          console.log('Compartilhamento de tela finalizado pelo usuário');
+          console.log("Compartilhamento de tela finalizado pelo usuário");
 
           try {
             // Voltar para câmera original
             const originalStream = await navigator.mediaDevices.getUserMedia({
               video: true,
-              audio: false
+              audio: false,
             });
 
             const newVideoTrack = originalStream.getVideoTracks()[0];
 
             // Substituir de volta para câmera
-            peerConnectionsRef.current.forEach(peerConnection => {
-              const sender = peerConnection.getSenders().find(s =>
-                s.track && s.track.kind === 'video'
-              );
+            peerConnectionsRef.current.forEach((peerConnection) => {
+              const sender = peerConnection
+                .getSenders()
+                .find((s) => s.track && s.track.kind === "video");
               if (sender) {
-                sender.replaceTrack(newVideoTrack).catch(err => {
-                  console.warn('Erro ao voltar para câmera:', err);
+                sender.replaceTrack(newVideoTrack).catch((err) => {
+                  console.warn("Erro ao voltar para câmera:", err);
                 });
               }
             });
@@ -429,14 +492,21 @@ export const useWebRTC = (options: WebRTCOptions = {}): CallState & MediaControl
               localStreamRef.current.addTrack(newVideoTrack);
             }
           } catch (error) {
-            console.warn('Erro ao voltar para câmera após compartilhamento:', error);
+            console.warn(
+              "Erro ao voltar para câmera após compartilhamento:",
+              error,
+            );
           }
 
-          setCallState(prev => ({ ...prev, isScreenSharing: false }));
+          setCallState((prev) => ({ ...prev, isScreenSharing: false }));
 
           // Notificar fim do compartilhamento
           if (onNotification) {
-            onNotification('info', 'Compartilhamento Finalizado', 'Compartilhamento de tela foi interrompido');
+            onNotification(
+              "info",
+              "Compartilhamento Finalizado",
+              "Compartilhamento de tela foi interrompido",
+            );
           }
         };
       } else {
@@ -449,24 +519,31 @@ export const useWebRTC = (options: WebRTCOptions = {}): CallState & MediaControl
         }
       }
     } catch (error) {
-      console.error('Erro ao compartilhar tela:', error);
+      console.error("Erro ao compartilhar tela:", error);
 
       // Mensagens de erro específicas
-      let errorMessage = 'Erro desconhecido ao compartilhar tela';
+      let errorMessage = "Erro desconhecido ao compartilhar tela";
 
       if (error instanceof Error) {
-        if (error.name === 'NotAllowedError') {
-          errorMessage = 'Permissão negada para compartilhamento de tela. Clique em "Permitir" quando solicitado.';
-        } else if (error.name === 'NotFoundError') {
-          errorMessage = 'Nenhuma tela disponível para compartilhamento.';
-        } else if (error.name === 'NotReadableError') {
-          errorMessage = 'Não foi possível acessar a tela. Verifique se não há outros aplicativos usando o recurso.';
-        } else if (error.name === 'OverconstrainedError') {
-          errorMessage = 'Configurações de compartilhamento não suportadas pelo sistema.';
-        } else if (error.name === 'SecurityError' || error.message.includes('permissions policy')) {
-          errorMessage = 'Compartilhamento de tela bloqueado por política de segurança. Recarregue a página ou use HTTPS.';
-        } else if (error.name === 'AbortError') {
-          errorMessage = 'Compartilhamento de tela cancelado pelo usuário.';
+        if (error.name === "NotAllowedError") {
+          errorMessage =
+            'Permissão negada para compartilhamento de tela. Clique em "Permitir" quando solicitado.';
+        } else if (error.name === "NotFoundError") {
+          errorMessage = "Nenhuma tela disponível para compartilhamento.";
+        } else if (error.name === "NotReadableError") {
+          errorMessage =
+            "Não foi possível acessar a tela. Verifique se não há outros aplicativos usando o recurso.";
+        } else if (error.name === "OverconstrainedError") {
+          errorMessage =
+            "Configurações de compartilhamento não suportadas pelo sistema.";
+        } else if (
+          error.name === "SecurityError" ||
+          error.message.includes("permissions policy")
+        ) {
+          errorMessage =
+            "Compartilhamento de tela bloqueado por política de segurança. Recarregue a página ou use HTTPS.";
+        } else if (error.name === "AbortError") {
+          errorMessage = "Compartilhamento de tela cancelado pelo usuário.";
         } else {
           errorMessage = error.message;
         }
@@ -474,24 +551,28 @@ export const useWebRTC = (options: WebRTCOptions = {}): CallState & MediaControl
 
       // Mostrar erro para o usuário via notificação
       if (onNotification) {
-        onNotification('error', 'Erro no Compartilhamento de Tela', errorMessage);
+        onNotification(
+          "error",
+          "Erro no Compartilhamento de Tela",
+          errorMessage,
+        );
       } else {
-        console.error('Erro no compartilhamento de tela:', errorMessage);
+        console.error("Erro no compartilhamento de tela:", errorMessage);
       }
 
-      setCallState(prev => ({ ...prev, isScreenSharing: false }));
+      setCallState((prev) => ({ ...prev, isScreenSharing: false }));
     }
   }, [callState.isScreenSharing, checkScreenShareSupport]);
 
   const endCall = useCallback(() => {
     // Parar todas as tracks
     if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach(track => track.stop());
+      localStreamRef.current.getTracks().forEach((track) => track.stop());
       localStreamRef.current = null;
     }
 
     // Fechar todas as conexões peer
-    peerConnectionsRef.current.forEach(peerConnection => {
+    peerConnectionsRef.current.forEach((peerConnection) => {
       peerConnection.close();
     });
     peerConnectionsRef.current.clear();
@@ -505,7 +586,7 @@ export const useWebRTC = (options: WebRTCOptions = {}): CallState & MediaControl
       isAudioEnabled: true,
       isVideoEnabled: true,
       isScreenSharing: false,
-      connectionState: 'connected'
+      connectionState: "connected",
     });
   }, []);
 
@@ -516,6 +597,6 @@ export const useWebRTC = (options: WebRTCOptions = {}): CallState & MediaControl
     toggleVideo,
     toggleScreenShare,
     endCall,
-    socket: socketRef.current
+    socket: socketRef.current,
   };
 };

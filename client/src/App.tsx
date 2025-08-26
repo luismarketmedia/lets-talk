@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { useWebRTC } from './hooks/useWebRTC';
-import { JoinRoom } from './components/JoinRoom';
-import { CallInterface } from './components/CallInterface';
-import { ToastProvider, useToast } from './components/ui/toast';
+import React, { useState } from "react";
+import { useWebRTC } from "./hooks/useWebRTC";
+import { JoinRoom } from "./components/JoinRoom";
+import { CallInterface } from "./components/CallInterface";
+import { ToastProvider, useToast } from "./components/ui/toast";
 
 function App() {
   return (
@@ -29,11 +29,11 @@ function AppContent() {
     toggleAudio,
     toggleVideo,
     toggleScreenShare,
-    endCall
+    endCall,
   } = useWebRTC({
     onNotification: (type, title, message) => {
       addToast({ type, title, message });
-    }
+    },
   });
 
   const handleJoinRoom = async (roomId: string) => {
@@ -41,10 +41,11 @@ function AppContent() {
       setError(null);
       await joinRoom(roomId);
     } catch (error) {
-      console.error('Erro ao entrar na sala:', error);
-      const errorMessage = error instanceof Error
-        ? error.message
-        : 'Erro desconhecido ao acessar câmera/microfone. Verifique as permissões do navegador.';
+      console.error("Erro ao entrar na sala:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Erro desconhecido ao acessar câmera/microfone. Verifique as permissões do navegador.";
       setError(errorMessage);
     }
   };
@@ -53,7 +54,7 @@ function AppContent() {
     return (
       <JoinRoom
         onJoinRoom={handleJoinRoom}
-        isConnecting={connectionState === 'connecting'}
+        isConnecting={connectionState === "connecting"}
         error={error}
         onClearError={() => setError(null)}
       />
@@ -62,7 +63,7 @@ function AppContent() {
 
   return (
     <CallInterface
-      roomId={roomId || ''}
+      roomId={roomId || ""}
       localStream={localStream}
       remoteStreams={remoteStreams}
       isAudioEnabled={isAudioEnabled}

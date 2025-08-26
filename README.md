@@ -16,11 +16,13 @@ Uma aplicação moderna de videochamada usando WebRTC, Node.js, React com Vite e
 ## 🛠 Tecnologias
 
 ### Backend
+
 - Node.js + Express
 - Socket.IO para sinalização
 - WebRTC para comunicação P2P
 
 ### Frontend (Cliente)
+
 - React 18 + TypeScript
 - Vite (build tool)
 - Tailwind CSS para estilização
@@ -58,12 +60,14 @@ webrtc-app/
 ## 🚀 Como Executar
 
 ### Pré-requisitos
+
 - Node.js (versão 18 ou superior)
 - npm
 
 ### Instalação
 
 1. **Instalar dependências do servidor:**
+
    ```bash
    npm install
    ```
@@ -76,15 +80,19 @@ webrtc-app/
 ### Executar em Desenvolvimento
 
 1. **Iniciar o servidor WebRTC:**
+
    ```bash
    npm start
    ```
+
    O servidor roda na porta 3000.
 
 2. **Iniciar o cliente React (em outro terminal):**
+
    ```bash
    npm run client
    ```
+
    O cliente roda na porta 5173.
 
 3. **Ou iniciar ambos simultaneamente:**
@@ -100,6 +108,7 @@ webrtc-app/
 ## 📱 Como Usar
 
 ### Criar uma Chamada
+
 1. Acesse o cliente moderno
 2. Clique em "Criar"
 3. Escolha o formato do código de reunião (Google Meet, Zoom, Teams ou Simples)
@@ -109,6 +118,7 @@ webrtc-app/
 7. Compartilhe o código da reunião com outros participantes
 
 ### Entrar em uma Chamada
+
 1. Acesse o cliente moderno
 2. Mantenha "Entrar" selecionado
 3. Digite o código da reunião recebido
@@ -120,38 +130,45 @@ webrtc-app/
 O Let's Talk suporta diferentes formatos de código de reunião, similares às principais plataformas:
 
 ### 🎥 **Google Meet** (Padrão)
+
 - **Formato**: `abc-defg-hij`
 - **Exemplo**: `q3x-8mfk-wv2`
 - **Características**: Mistura letras e números, fácil de pronunciar
 
 ### 📞 **Zoom**
+
 - **Formato**: `123-456-789`
 - **Exemplo**: `847-329-156`
 - **Características**: Apenas números, familiar para usuários Zoom
 
 ### ��� **Microsoft Teams**
+
 - **Formato**: `123 456 789`
 - **Exemplo**: `294 831 567`
 - **Características**: Números separados por espaços
 
 ### ✨ **Simples**
+
 - **Formato**: `ABCD-1234`
 - **Exemplo**: `TALK-8529`
 - **Características**: 4 letras + 4 números, mais curto e memorável
 
 ### 🔧 **Características Técnicas**
+
 - ✅ **Auto-formatação**: Códigos são formatados automaticamente durante digitação
 - ✅ **Validação**: Indicador visual de códigos válidos
 - ✅ **Flexibilidade**: Aceita códigos em qualquer formato
 - ✅ **Geração automática**: Cada formato gera códigos únicos
 
 ### Controles Durante a Chamada
+
 - **🎤 Microfone**: Ativar/desativar áudio
 - **📹 Câmera**: Ativar/desativar vídeo
 - **🖥️ Compartilhar Tela**: Compartilhar sua tela (com detecção automática de suporte)
 - **📞 Encerrar**: Sair da chamada
 
 ### 🖥️ Compartilhamento de Tela
+
 O Let's Talk inclui compartilhamento de tela avançado com:
 
 - ✅ **Detecção automática**: Verifica se o navegador e ambiente suportam compartilhamento
@@ -162,6 +179,7 @@ O Let's Talk inclui compartilhamento de tela avançado com:
 - ✅ **Políticas de segurança**: Configurado para funcionar em diferentes ambientes
 
 #### Requisitos para Compartilhamento:
+
 - 🔒 **HTTPS** ou localhost (requisito de segurança)
 - 🌐 **Navegador moderno** (Chrome, Firefox, Safari, Edge)
 - 📋 **Permissões** concedidas pelo usuário
@@ -170,23 +188,28 @@ O Let's Talk inclui compartilhamento de tela avançado com:
 ## 🎨 Personalização
 
 ### Cores do Tema
+
 As cores foram extraídas do logo "Let's Talk":
+
 - **Azul Principal**: `#0fa3e0`
 - **Azul Médio**: `#0b82c4`
 - **Azul Escuro**: `#0a5c8a`
 - **Branco**: `#ffffff`
 
 ### Modificar Cores
+
 Edite o arquivo `client/tailwind.config.js` na seção `colors.primary`.
 
 ## 🌐 Produção
 
 ### Build do Cliente
+
 ```bash
 npm run build:client
 ```
 
 ### Considerações para Produção
+
 - Configure HTTPS (obrigatório para WebRTC)
 - Use servidores TURN próprios para melhor conectividade
 - Configure CORS específicos por segurança
@@ -195,9 +218,11 @@ npm run build:client
 ## 🔧 Configurações
 
 ### ICE Servers
+
 Por padrão usa servidores STUN públicos do Google. Para produção, configure TURN servers no arquivo `client/src/hooks/useWebRTC.ts`.
 
 ### Porta do Servidor
+
 ```bash
 PORT=8080 npm start
 ```

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 interface ScreenShareSupport {
   isSupported: boolean;
@@ -9,8 +9,8 @@ interface ScreenShareSupport {
 export const useScreenShareSupport = (): ScreenShareSupport => {
   const [support, setSupport] = useState<ScreenShareSupport>({
     isSupported: false,
-    reason: 'Verificando...',
-    canAttempt: false
+    reason: "Verificando...",
+    canAttempt: false,
   });
 
   useEffect(() => {
@@ -19,31 +19,34 @@ export const useScreenShareSupport = (): ScreenShareSupport => {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
         setSupport({
           isSupported: false,
-          reason: 'Navegador não suporta compartilhamento de tela',
-          canAttempt: false
+          reason: "Navegador não suporta compartilhamento de tela",
+          canAttempt: false,
         });
         return;
       }
 
       // Verificar contexto seguro
-      if (!window.isSecureContext && window.location.hostname !== 'localhost') {
+      if (!window.isSecureContext && window.location.hostname !== "localhost") {
         setSupport({
           isSupported: false,
-          reason: 'Requer HTTPS para funcionar',
-          canAttempt: false
+          reason: "Requer HTTPS para funcionar",
+          canAttempt: false,
         });
         return;
       }
 
       // Verificar políticas de permissão
-      if ('permissions' in navigator) {
-        navigator.permissions.query({ name: 'display-capture' as PermissionName })
-          .then(result => {
-            const isAvailable = result.state !== 'denied';
+      if ("permissions" in navigator) {
+        navigator.permissions
+          .query({ name: "display-capture" as PermissionName })
+          .then((result) => {
+            const isAvailable = result.state !== "denied";
             setSupport({
               isSupported: isAvailable,
-              reason: isAvailable ? undefined : 'Bloqueado por política de permissões',
-              canAttempt: isAvailable
+              reason: isAvailable
+                ? undefined
+                : "Bloqueado por política de permissões",
+              canAttempt: isAvailable,
             });
           })
           .catch(() => {
@@ -51,7 +54,7 @@ export const useScreenShareSupport = (): ScreenShareSupport => {
             setSupport({
               isSupported: true,
               reason: undefined,
-              canAttempt: true
+              canAttempt: true,
             });
           });
       } else {
@@ -59,7 +62,7 @@ export const useScreenShareSupport = (): ScreenShareSupport => {
         setSupport({
           isSupported: true,
           reason: undefined,
-          canAttempt: true
+          canAttempt: true,
         });
       }
     };

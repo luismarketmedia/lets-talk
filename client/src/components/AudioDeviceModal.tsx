@@ -1,7 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { X, Mic, Volume2, Play, Square, TestTube, Settings } from 'lucide-react';
-import { Button } from './ui/button';
-import { cn } from '../lib/utils';
+import React, { useState, useEffect } from "react";
+import {
+  X,
+  Mic,
+  Volume2,
+  Play,
+  Square,
+  TestTube,
+  Settings,
+} from "lucide-react";
+import { Button } from "./ui/button";
+import { cn } from "../lib/utils";
 
 interface AudioDevice {
   deviceId: string;
@@ -21,8 +29,8 @@ export const AudioDeviceModal: React.FC<AudioDeviceModalProps> = ({
   isOpen,
   onClose,
   onDeviceChange,
-  currentInputDevice = '',
-  currentOutputDevice = ''
+  currentInputDevice = "",
+  currentOutputDevice = "",
 }) => {
   const [inputDevices, setInputDevices] = useState<AudioDevice[]>([]);
   const [outputDevices, setOutputDevices] = useState<AudioDevice[]>([]);
@@ -42,27 +50,27 @@ export const AudioDeviceModal: React.FC<AudioDeviceModalProps> = ({
   const loadDevices = async () => {
     try {
       setIsLoading(true);
-      
+
       // Solicitar permissões primeiro
       await navigator.mediaDevices.getUserMedia({ audio: true });
-      
+
       // Obter lista de dispositivos
       const devices = await navigator.mediaDevices.enumerateDevices();
-      
+
       const audioInputs = devices
-        .filter(device => device.kind === 'audioinput')
-        .map(device => ({
+        .filter((device) => device.kind === "audioinput")
+        .map((device) => ({
           deviceId: device.deviceId,
           label: device.label || `Microfone ${device.deviceId.slice(-4)}`,
-          kind: device.kind
+          kind: device.kind,
         }));
 
       const audioOutputs = devices
-        .filter(device => device.kind === 'audiooutput')
-        .map(device => ({
+        .filter((device) => device.kind === "audiooutput")
+        .map((device) => ({
           deviceId: device.deviceId,
           label: device.label || `Alto-falante ${device.deviceId.slice(-4)}`,
-          kind: device.kind
+          kind: device.kind,
         }));
 
       setInputDevices(audioInputs);
@@ -75,9 +83,8 @@ export const AudioDeviceModal: React.FC<AudioDeviceModalProps> = ({
       if (!selectedOutput && audioOutputs.length > 0) {
         setSelectedOutput(audioOutputs[0].deviceId);
       }
-
     } catch (error) {
-      console.error('Erro ao carregar dispositivos:', error);
+      console.error("Erro ao carregar dispositivos:", error);
     } finally {
       setIsLoading(false);
     }
@@ -86,26 +93,27 @@ export const AudioDeviceModal: React.FC<AudioDeviceModalProps> = ({
   const testInputDevice = async (deviceId: string) => {
     try {
       setIsTestingInput(true);
-      
+
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { deviceId: { exact: deviceId } }
+        audio: { deviceId: { exact: deviceId } },
       });
 
       const audioContext = new AudioContext();
       const analyser = audioContext.createAnalyser();
       const microphone = audioContext.createMediaStreamSource(stream);
-      
+
       microphone.connect(analyser);
       analyser.fftSize = 256;
-      
+
       const bufferLength = analyser.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
 
       const updateLevel = () => {
         analyser.getByteFrequencyData(dataArray);
-        const average = dataArray.reduce((sum, value) => sum + value, 0) / bufferLength;
+        const average =
+          dataArray.reduce((sum, value) => sum + value, 0) / bufferLength;
         setInputLevel(average);
-        
+
         if (isTestingInput) {
           requestAnimationFrame(updateLevel);
         }
@@ -117,12 +125,11 @@ export const AudioDeviceModal: React.FC<AudioDeviceModalProps> = ({
       setTimeout(() => {
         setIsTestingInput(false);
         setInputLevel(0);
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach((track) => track.stop());
         audioContext.close();
       }, 5000);
-
     } catch (error) {
-      console.error('Erro ao testar dispositivo de entrada:', error);
+      console.error("Erro ao testar dispositivo de entrada:", error);
       setIsTestingInput(false);
     }
   };
@@ -150,9 +157,8 @@ export const AudioDeviceModal: React.FC<AudioDeviceModalProps> = ({
         audioContext.close();
         setIsTestingOutput(false);
       }, 2000);
-
     } catch (error) {
-      console.error('Erro ao testar dispositivo de saída:', error);
+      console.error("Erro ao testar dispositivo de saída:", error);
       setIsTestingOutput(false);
     }
   };
@@ -167,11 +173,11 @@ export const AudioDeviceModal: React.FC<AudioDeviceModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
-      
+
       {/* Modal */}
       <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-hidden">
         {/* Header */}
@@ -214,7 +220,7 @@ export const AudioDeviceModal: React.FC<AudioDeviceModalProps> = ({
                   <Mic className="w-4 h-4 text-gray-600" />
                   <h3 className="font-medium text-gray-900">Microfone</h3>
                 </div>
-                
+
                 <div className="space-y-2">
                   {inputDevices.map((device) => (
                     <div
@@ -223,7 +229,7 @@ export const AudioDeviceModal: React.FC<AudioDeviceModalProps> = ({
                         "p-3 rounded-lg border transition-all cursor-pointer",
                         selectedInput === device.deviceId
                           ? "border-primary-500 bg-primary-50"
-                          : "border-gray-200 hover:border-gray-300"
+                          : "border-gray-200 hover:border-gray-300",
                       )}
                       onClick={() => setSelectedInput(device.deviceId)}
                     >
@@ -236,20 +242,22 @@ export const AudioDeviceModal: React.FC<AudioDeviceModalProps> = ({
                             ID: {device.deviceId.slice(-8)}
                           </p>
                         </div>
-                        
+
                         <div className="flex items-center space-x-2">
                           {/* Indicador de nível */}
                           {selectedInput === device.deviceId && (
                             <div className="flex items-center space-x-1">
                               <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                <div 
+                                <div
                                   className="h-full bg-gradient-to-r from-green-500 to-red-500 transition-all duration-100"
-                                  style={{ width: `${Math.min(inputLevel * 2, 100)}%` }}
+                                  style={{
+                                    width: `${Math.min(inputLevel * 2, 100)}%`,
+                                  }}
                                 />
                               </div>
                             </div>
                           )}
-                          
+
                           <Button
                             variant="outline"
                             size="sm"
@@ -260,7 +268,8 @@ export const AudioDeviceModal: React.FC<AudioDeviceModalProps> = ({
                             disabled={isTestingInput}
                             className="px-2"
                           >
-                            {isTestingInput && selectedInput === device.deviceId ? (
+                            {isTestingInput &&
+                            selectedInput === device.deviceId ? (
                               <Square className="w-3 h-3" />
                             ) : (
                               <TestTube className="w-3 h-3" />
@@ -279,7 +288,7 @@ export const AudioDeviceModal: React.FC<AudioDeviceModalProps> = ({
                   <Volume2 className="w-4 h-4 text-gray-600" />
                   <h3 className="font-medium text-gray-900">Alto-falantes</h3>
                 </div>
-                
+
                 <div className="space-y-2">
                   {outputDevices.map((device) => (
                     <div
@@ -288,7 +297,7 @@ export const AudioDeviceModal: React.FC<AudioDeviceModalProps> = ({
                         "p-3 rounded-lg border transition-all cursor-pointer",
                         selectedOutput === device.deviceId
                           ? "border-primary-500 bg-primary-50"
-                          : "border-gray-200 hover:border-gray-300"
+                          : "border-gray-200 hover:border-gray-300",
                       )}
                       onClick={() => setSelectedOutput(device.deviceId)}
                     >
@@ -301,7 +310,7 @@ export const AudioDeviceModal: React.FC<AudioDeviceModalProps> = ({
                             ID: {device.deviceId.slice(-8)}
                           </p>
                         </div>
-                        
+
                         <Button
                           variant="outline"
                           size="sm"
@@ -312,7 +321,8 @@ export const AudioDeviceModal: React.FC<AudioDeviceModalProps> = ({
                           disabled={isTestingOutput}
                           className="px-2"
                         >
-                          {isTestingOutput && selectedOutput === device.deviceId ? (
+                          {isTestingOutput &&
+                          selectedOutput === device.deviceId ? (
                             <Square className="w-3 h-3" />
                           ) : (
                             <Play className="w-3 h-3" />
@@ -330,8 +340,12 @@ export const AudioDeviceModal: React.FC<AudioDeviceModalProps> = ({
                   Como testar:
                 </h4>
                 <ul className="text-xs text-blue-800 space-y-1">
-                  <li>• <strong>Microfone</strong>: Fale para ver o nível de áudio</li>
-                  <li>• <strong>Alto-falantes</strong>: Toque um som de teste</li>
+                  <li>
+                    • <strong>Microfone</strong>: Fale para ver o nível de áudio
+                  </li>
+                  <li>
+                    • <strong>Alto-falantes</strong>: Toque um som de teste
+                  </li>
                   <li>• Selecione os dispositivos desejados e salve</li>
                 </ul>
               </div>
