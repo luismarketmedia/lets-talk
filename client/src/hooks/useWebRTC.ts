@@ -433,6 +433,11 @@ export const useWebRTC = (options: WebRTCOptions = {}): CallState & MediaControl
           }
 
           setCallState(prev => ({ ...prev, isScreenSharing: false }));
+
+          // Notificar fim do compartilhamento
+          if (onNotification) {
+            onNotification('info', 'Compartilhamento Finalizado', 'Compartilhamento de tela foi interrompido');
+          }
         };
       } else {
         // Parar compartilhamento manualmente
