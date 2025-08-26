@@ -32,12 +32,14 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
   isAudioEnabled,
   isVideoEnabled,
   isScreenSharing,
+  isTemporarilyMuted = false,
   onToggleAudio,
   onToggleVideo,
   onToggleScreenShare,
   onEndCall,
   onOpenAudioSettings,
   onOpenDeviceTest,
+  onOpenAdvancedControls,
 }) => {
   const screenShareSupport = useScreenShareSupport();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
