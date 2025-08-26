@@ -44,6 +44,20 @@ export const VideoTile: React.FC<VideoTileProps> = ({
     }
   }, [stream]);
 
+  const getQualityIcon = (quality: string) => {
+    switch (quality) {
+      case 'excellent':
+      case 'good':
+        return <Wifi className="w-3 h-3 text-green-400" />;
+      case 'fair':
+        return <Wifi className="w-3 h-3 text-yellow-400" />;
+      case 'poor':
+        return <Wifi className="w-3 h-3 text-red-400" />;
+      default:
+        return <WifiOff className="w-3 h-3 text-gray-400" />;
+    }
+  };
+
   return (
     <div
       className={cn(
