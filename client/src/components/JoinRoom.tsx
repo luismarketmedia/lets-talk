@@ -106,6 +106,9 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
               </Button>
             </div>
 
+            {/* Verificação de Dispositivos */}
+            <DeviceCheck />
+
             {/* Formulário */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
