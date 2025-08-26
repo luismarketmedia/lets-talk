@@ -28,7 +28,8 @@ const rooms = new Map();
 const pendingRequests = new Map();
 
 io.on("connection", (socket) => {
-  console.log("Usuário conectado:", socket.id);
+  console.log(`✅ [SOCKET] Usuário conectado: ${socket.id} de ${socket.handshake.address}`);
+  console.log(`📊 [STATS] Total de conexões ativas: ${io.engine.clientsCount}`);
 
   // Solicitar entrada em uma sala (novo sistema de aprovação)
   socket.on("request-join-room", (data) => {
