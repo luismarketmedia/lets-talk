@@ -44,23 +44,32 @@ export const useWebRTC = (
   const [isHost, setIsHost] = useState(false);
 
   useEffect(() => {
-    // Conectar ao servidor Socket.IO
-    const serverUrl =
-      import.meta.env.VITE_SERVER_URL ||
-      (window.location.hostname === "localhost"
-        ? "http://localhost:3000"
-        : window.location.origin);
+    // Conectar ao servidor Socket.IO via proxy do Vite
+    const serverUrl = window.location.origin; // Usar a mesma origem (proxy do Vite)
 
-    console.log("Conectando ao servidor WebRTC:", serverUrl);
-    socketRef.current = io(serverUrl);
+    console.log("Conectando ao servidor WebRTC via proxy:", serverUrl);
+    socketRef.current = io(serverUrl, {
+      transports: ["websocket", "polling"],
+      timeout: 10000,
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+    });
     const socket = socketRef.current;
 
     socket.on("connect", () => {
+      console.log("✅ Socket conectado com sucesso:", socket.id);
       setCallState((prev) => ({ ...prev, connectionState: "connected" }));
     });
 
-    socket.on("disconnect", () => {
+    socket.on("disconnect", (reason) => {
+      console.log("❌ Socket desconectado:", reason);
       setCallState((prev) => ({ ...prev, connectionState: "disconnected" }));
+    });
+
+    socket.on("connect_error", (error) => {
+      console.error("🚫 Erro de conexão socket:", error);
+      setCallState((prev) => ({ ...prev, connectionState: "failed" }));
     });
 
     socket.on("user-joined", async (userId: string) => {
