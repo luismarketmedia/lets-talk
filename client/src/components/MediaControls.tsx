@@ -46,7 +46,7 @@ interface MediaControlsProps {
   // Collaborative tools props
   localStream?: MediaStream | null;
   remoteStreams?: Map<string, MediaStream>;
-  isScreenSharing?: boolean;
+  isScreenSharingForTools?: boolean;
 }
 
 export const MediaControls: React.FC<MediaControlsProps> = ({
