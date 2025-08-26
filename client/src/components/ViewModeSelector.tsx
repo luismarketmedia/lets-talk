@@ -33,14 +33,14 @@ export const ViewModeSelector: React.FC<ViewModeSelectorProps> = ({
       name: "Palestrante",
       icon: Volume2,
       description: "Destacar quem está falando",
-      disabled: participantCount < 2,
+      disabled: false,
     },
     {
       id: "spotlight" as ViewMode,
       name: "Foco",
       icon: Focus,
       description: "Focar em um participante específico",
-      disabled: participantCount < 2,
+      disabled: false,
     },
   ];
 
