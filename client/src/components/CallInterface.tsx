@@ -56,6 +56,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   >("clipboard");
   const [showAudioModal, setShowAudioModal] = useState(false);
   const [showTestModal, setShowTestModal] = useState(false);
+  const [showAdvancedControls, setShowAdvancedControls] = useState(false);
   const [isInIframe, setIsInIframe] = useState(false);
   const [showClipboardWarning, setShowClipboardWarning] = useState(false);
   const remoteStreamArray = Array.from(remoteStreams.entries());
