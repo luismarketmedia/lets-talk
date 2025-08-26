@@ -790,6 +790,20 @@ export const useWebRTC = (
 
         setCallState((prev) => ({ ...prev, isScreenSharing: true }));
 
+        // Notify server and other participants
+        if (socketRef.current && callState.roomId) {
+          socketRef.current.emit("screen-share-started", {
+            roomId: callState.roomId
+          });
+
+          socketRef.current.emit("participant-state-change", {
+            roomId: callState.roomId,
+            isAudioEnabled: callState.isAudioEnabled,
+            isVideoEnabled: callState.isVideoEnabled,
+            isScreenSharing: true,
+          });
+        }
+
         // Notificar sucesso
         if (onNotification) {
           onNotification(
@@ -840,6 +854,20 @@ export const useWebRTC = (
           }
 
           setCallState((prev) => ({ ...prev, isScreenSharing: false }));
+
+          // Notify server and other participants
+          if (socketRef.current && callState.roomId) {
+            socketRef.current.emit("screen-share-stopped", {
+              roomId: callState.roomId
+            });
+
+            socketRef.current.emit("participant-state-change", {
+              roomId: callState.roomId,
+              isAudioEnabled: callState.isAudioEnabled,
+              isVideoEnabled: callState.isVideoEnabled,
+              isScreenSharing: false,
+            });
+          }
 
           // Notificar fim do compartilhamento
           if (onNotification) {
@@ -959,5 +987,6 @@ export const useWebRTC = (
     peerConnections: peerConnectionsRef.current,
     participantStates,
     participantNames,
+    screenSharingParticipant,
   };
 };
