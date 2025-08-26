@@ -100,6 +100,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
         document.body.removeChild(textArea);
 
         if (successful) {
+          setCopyMethod('fallback');
           setCopied(true);
           setTimeout(() => setCopied(false), 2000);
         } else {
