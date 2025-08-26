@@ -21,19 +21,44 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
 }) => {
   const [roomId, setRoomId] = useState('');
   const [mode, setMode] = useState<'join' | 'create'>('join');
+  const [codeFormat, setCodeFormat] = useState<MeetingCodeFormat>('google-meet');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (roomId.trim()) {
-      onJoinRoom(roomId.trim());
+    const cleanRoomId = roomId.trim();
+
+    if (cleanRoomId && validateMeetingCode(cleanRoomId)) {
+      onJoinRoom(cleanRoomId);
+    } else if (cleanRoomId) {
+      // Se o código não está no formato correto, tenta mesmo assim
+      onJoinRoom(cleanRoomId);
+    }
+  };
+
+  const handleRoomIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Auto-formatação durante digitação para códigos válidos
+    if (value.length > 6) {
+      setRoomId(formatMeetingCode(value));
+    } else {
+      setRoomId(value);
     }
   };
 
   const generateRoomId = () => {
-    const randomId = Math.random().toString(36).substring(2, 8).toUpperCase();
-    setRoomId(`SALA-${randomId}`);
+    const newCode = generateMeetingCode(codeFormat);
+    setRoomId(newCode);
     setMode('create');
   };
+
+  const codeFormatOptions = [
+    { value: 'google-meet' as MeetingCodeFormat, label: 'Google Meet', example: 'abc-defg-hij' },
+    { value: 'zoom' as MeetingCodeFormat, label: 'Zoom', example: '123-456-789' },
+    { value: 'teams' as MeetingCodeFormat, label: 'Teams', example: '123 456 789' },
+    { value: 'simple' as MeetingCodeFormat, label: 'Simples', example: 'ABCD-1234' }
+  ];
+
+  const isValidCode = validateMeetingCode(roomId);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-blue-100 flex items-center justify-center p-4">
