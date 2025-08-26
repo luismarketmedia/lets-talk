@@ -17,6 +17,9 @@ interface CallInterfaceProps {
   isAudioEnabled: boolean;
   isVideoEnabled: boolean;
   isScreenSharing: boolean;
+  socket: Socket | null;
+  isHost: boolean;
+  userName?: string;
   onToggleAudio: () => void;
   onToggleVideo: () => void;
   onToggleScreenShare: () => void;
