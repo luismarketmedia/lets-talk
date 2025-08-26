@@ -21,6 +21,7 @@ interface CallInterfaceProps {
   isHost: boolean;
   userName?: string;
   peerConnections: Map<string, RTCPeerConnection>;
+  participantStates: Map<string, { isAudioEnabled: boolean; isVideoEnabled: boolean }>;
   onToggleAudio: () => void;
   onToggleVideo: () => void;
   onToggleScreenShare: () => void;
