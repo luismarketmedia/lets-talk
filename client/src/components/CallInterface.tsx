@@ -21,7 +21,10 @@ interface CallInterfaceProps {
   isHost: boolean;
   userName?: string;
   peerConnections: Map<string, RTCPeerConnection>;
-  participantStates: Map<string, { isAudioEnabled: boolean; isVideoEnabled: boolean }>;
+  participantStates: Map<
+    string,
+    { isAudioEnabled: boolean; isVideoEnabled: boolean }
+  >;
   onToggleAudio: () => void;
   onToggleVideo: () => void;
   onToggleScreenShare: () => void;
@@ -62,7 +65,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
     setIsInIframe(inIframe);
 
     // Detectar se clipboard API está disponível
-    const hasClipboard = (navigator.clipboard && window.isSecureContext);
+    const hasClipboard = navigator.clipboard && window.isSecureContext;
 
     // Mostrar aviso se estamos em iframe e pode ter restrições
     if (inIframe && !hasClipboard) {
@@ -320,8 +323,14 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                     key={userId}
                     stream={stream}
                     isLocal={false}
-                    isMuted={participantState ? !participantState.isAudioEnabled : false}
-                    isVideoEnabled={participantState ? participantState.isVideoEnabled : true}
+                    isMuted={
+                      participantState
+                        ? !participantState.isAudioEnabled
+                        : false
+                    }
+                    isVideoEnabled={
+                      participantState ? participantState.isVideoEnabled : true
+                    }
                     participantName={`Participante ${index + 1}`}
                     className={getVideoHeight()}
                     peerConnection={peerConnections.get(userId) || null}

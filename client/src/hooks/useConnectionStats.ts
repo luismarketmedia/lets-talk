@@ -8,7 +8,7 @@ export interface ConnectionStats {
   jitter: number; // milliseconds
   resolution: string;
   bandwidth: number; // kbps
-  quality: 'excellent' | 'good' | 'fair' | 'poor' | 'disconnected';
+  quality: "excellent" | "good" | "fair" | "poor" | "disconnected";
 }
 
 interface UseConnectionStatsOptions {
@@ -18,14 +18,14 @@ interface UseConnectionStatsOptions {
 }
 
 const defaultStats: ConnectionStats = {
-  connectionState: 'new',
+  connectionState: "new",
   bitrate: 0,
   packetLoss: 0,
   rtt: 0,
   jitter: 0,
-  resolution: '',
+  resolution: "",
   bandwidth: 0,
-  quality: 'disconnected',
+  quality: "disconnected",
 };
 
 export const useConnectionStats = ({
@@ -37,12 +37,16 @@ export const useConnectionStats = ({
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const previousStatsRef = useRef<any>(null);
 
-  const calculateQuality = (rtt: number, packetLoss: number, bitrate: number): ConnectionStats['quality'] => {
-    if (bitrate === 0) return 'disconnected';
-    if (rtt < 100 && packetLoss < 1 && bitrate > 500) return 'excellent';
-    if (rtt < 200 && packetLoss < 3 && bitrate > 200) return 'good';
-    if (rtt < 500 && packetLoss < 5 && bitrate > 100) return 'fair';
-    return 'poor';
+  const calculateQuality = (
+    rtt: number,
+    packetLoss: number,
+    bitrate: number,
+  ): ConnectionStats["quality"] => {
+    if (bitrate === 0) return "disconnected";
+    if (rtt < 100 && packetLoss < 1 && bitrate > 500) return "excellent";
+    if (rtt < 200 && packetLoss < 3 && bitrate > 200) return "good";
+    if (rtt < 500 && packetLoss < 5 && bitrate > 100) return "fair";
+    return "poor";
   };
 
   const getConnectionStats = async () => {
@@ -56,11 +60,17 @@ export const useConnectionStats = ({
 
       // Find relevant stats
       statsReport.forEach((report: any) => {
-        if (report.type === 'inbound-rtp' && report.mediaType === 'video') {
+        if (report.type === "inbound-rtp" && report.mediaType === "video") {
           inboundRtp = report;
-        } else if (report.type === 'outbound-rtp' && report.mediaType === 'video') {
+        } else if (
+          report.type === "outbound-rtp" &&
+          report.mediaType === "video"
+        ) {
           outboundRtp = report;
-        } else if (report.type === 'candidate-pair' && report.state === 'succeeded') {
+        } else if (
+          report.type === "candidate-pair" &&
+          report.state === "succeeded"
+        ) {
           candidatePair = report;
         }
       });
@@ -74,36 +84,44 @@ export const useConnectionStats = ({
         packetLoss: 0,
         rtt: 0,
         jitter: 0,
-        resolution: '',
+        resolution: "",
         bandwidth: 0,
-        quality: 'disconnected',
+        quality: "disconnected",
       };
 
       // Calculate bitrate from inbound RTP
       if (inboundRtp && previousStats?.inboundRtp) {
         const timeDiff = (currentTime - previousStats.timestamp) / 1000;
-        const bytesDiff = inboundRtp.bytesReceived - previousStats.inboundRtp.bytesReceived;
+        const bytesDiff =
+          inboundRtp.bytesReceived - previousStats.inboundRtp.bytesReceived;
         newStats.bitrate = Math.round((bytesDiff * 8) / (timeDiff * 1000)); // Convert to kbps
       }
 
       // Calculate outbound bitrate
       if (outboundRtp && previousStats?.outboundRtp) {
         const timeDiff = (currentTime - previousStats.timestamp) / 1000;
-        const bytesDiff = outboundRtp.bytesSent - previousStats.outboundRtp.bytesSent;
+        const bytesDiff =
+          outboundRtp.bytesSent - previousStats.outboundRtp.bytesSent;
         newStats.bandwidth = Math.round((bytesDiff * 8) / (timeDiff * 1000)); // Convert to kbps
       }
 
       // Get packet loss
       if (inboundRtp) {
-        newStats.packetLoss = inboundRtp.packetsLost > 0 
-          ? Math.round((inboundRtp.packetsLost / (inboundRtp.packetsReceived + inboundRtp.packetsLost)) * 100)
-          : 0;
+        newStats.packetLoss =
+          inboundRtp.packetsLost > 0
+            ? Math.round(
+                (inboundRtp.packetsLost /
+                  (inboundRtp.packetsReceived + inboundRtp.packetsLost)) *
+                  100,
+              )
+            : 0;
         newStats.jitter = Math.round((inboundRtp.jitter || 0) * 1000); // Convert to ms
       }
 
       // Get RTT from candidate pair
       if (candidatePair) {
-        newStats.rtt = Math.round(candidatePair.currentRoundTripTime * 1000) || 0; // Convert to ms
+        newStats.rtt =
+          Math.round(candidatePair.currentRoundTripTime * 1000) || 0; // Convert to ms
       }
 
       // Get video resolution
@@ -112,7 +130,11 @@ export const useConnectionStats = ({
       }
 
       // Calculate overall quality
-      newStats.quality = calculateQuality(newStats.rtt, newStats.packetLoss, newStats.bitrate);
+      newStats.quality = calculateQuality(
+        newStats.rtt,
+        newStats.packetLoss,
+        newStats.bitrate,
+      );
 
       setStats(newStats);
 
@@ -124,8 +146,8 @@ export const useConnectionStats = ({
         candidatePair,
       };
     } catch (error) {
-      console.warn('Failed to get connection stats:', error);
-      setStats(prev => ({ ...prev, quality: 'disconnected' }));
+      console.warn("Failed to get connection stats:", error);
+      setStats((prev) => ({ ...prev, quality: "disconnected" }));
     }
   };
 
@@ -141,20 +163,29 @@ export const useConnectionStats = ({
 
     // Listen for connection state changes
     const handleConnectionStateChange = () => {
-      setStats(prev => ({
+      setStats((prev) => ({
         ...prev,
         connectionState: peerConnection.connectionState,
-        quality: peerConnection.connectionState === 'connected' ? prev.quality : 'disconnected',
+        quality:
+          peerConnection.connectionState === "connected"
+            ? prev.quality
+            : "disconnected",
       }));
     };
 
-    peerConnection.addEventListener('connectionstatechange', handleConnectionStateChange);
+    peerConnection.addEventListener(
+      "connectionstatechange",
+      handleConnectionStateChange,
+    );
 
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
-      peerConnection.removeEventListener('connectionstatechange', handleConnectionStateChange);
+      peerConnection.removeEventListener(
+        "connectionstatechange",
+        handleConnectionStateChange,
+      );
     };
   }, [peerConnection, enabled, interval]);
 

@@ -20,7 +20,7 @@ export const useAudioLevel = ({
 }: UseAudioLevelOptions): AudioLevelResult => {
   const [audioLevel, setAudioLevel] = useState(0);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  
+
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationFrameRef = useRef<number | null>(null);
@@ -40,7 +40,8 @@ export const useAudioLevel = ({
 
     try {
       // Create audio context and analyser
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const audioContext = new (window.AudioContext ||
+        (window as any).webkitAudioContext)();
       const analyser = audioContext.createAnalyser();
       const source = audioContext.createMediaStreamSource(stream);
 
@@ -60,16 +61,17 @@ export const useAudioLevel = ({
         }
 
         analyser.getByteFrequencyData(dataArray);
-        
+
         // Calculate RMS (Root Mean Square) for better volume detection
         let sum = 0;
         for (let i = 0; i < bufferLength; i++) {
           sum += dataArray[i] * dataArray[i];
         }
         const rms = Math.sqrt(sum / bufferLength);
-        
+
         // Smooth the audio level to reduce jitter
-        const smoothedLevel = lastLevelRef.current * smoothing + rms * (1 - smoothing);
+        const smoothedLevel =
+          lastLevelRef.current * smoothing + rms * (1 - smoothing);
         lastLevelRef.current = smoothedLevel;
 
         const normalizedLevel = Math.min(100, smoothedLevel);
@@ -94,7 +96,7 @@ export const useAudioLevel = ({
       animationFrameRef.current = null;
     }
 
-    if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+    if (audioContextRef.current && audioContextRef.current.state !== "closed") {
       audioContextRef.current.close();
       audioContextRef.current = null;
     }

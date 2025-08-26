@@ -43,28 +43,32 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
+      if (
+        settingsRef.current &&
+        !settingsRef.current.contains(event.target as Node)
+      ) {
         setIsSettingsOpen(false);
       }
     };
 
     if (isSettingsOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [isSettingsOpen]);
 
   // Close dropdown on Escape key
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         setIsSettingsOpen(false);
       }
     };
 
     if (isSettingsOpen) {
-      document.addEventListener('keydown', handleEscape);
-      return () => document.removeEventListener('keydown', handleEscape);
+      document.addEventListener("keydown", handleEscape);
+      return () => document.removeEventListener("keydown", handleEscape);
     }
   }, [isSettingsOpen]);
   return (
@@ -153,7 +157,7 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
                   "w-12 h-12 rounded-full transition-all duration-200",
                   isSettingsOpen
                     ? "bg-gray-200 text-gray-800"
-                    : "hover:bg-gray-100 text-gray-600"
+                    : "hover:bg-gray-100 text-gray-600",
                 )}
                 title="Configurações de áudio e dispositivos"
                 aria-expanded={isSettingsOpen}

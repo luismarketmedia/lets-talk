@@ -110,7 +110,11 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
         {/* Logo/Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 mb-4">
-              <img src="/logo.png" className="w-full h-full object-cover"  alt="Logo"/>
+            <img
+              src="/logo.png"
+              className="w-full h-full object-cover"
+              alt="Logo"
+            />
           </div>
           <p className="text-gray-600">
             Conecte-se facilmente com videochamadas de alta qualidade

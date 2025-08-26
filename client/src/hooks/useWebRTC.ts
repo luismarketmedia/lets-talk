@@ -42,11 +42,15 @@ export const useWebRTC = (
   const peerConnectionsRef = useRef<Map<string, RTCPeerConnection>>(new Map());
   const localStreamRef = useRef<MediaStream | null>(null);
   const [isHost, setIsHost] = useState(false);
-  const [participantStates, setParticipantStates] = useState<Map<string, { isAudioEnabled: boolean; isVideoEnabled: boolean }>>(new Map());
+  const [participantStates, setParticipantStates] = useState<
+    Map<string, { isAudioEnabled: boolean; isVideoEnabled: boolean }>
+  >(new Map());
 
   useEffect(() => {
     // Conectar ao servidor Socket.IO via proxy do Vite
-    const serverUrl = import.meta.env.DEV ? "http://localhost:3000" : window.location.origin;
+    const serverUrl = import.meta.env.DEV
+      ? "http://localhost:3000"
+      : window.location.origin;
 
     console.log("Conectando ao servidor WebRTC:", serverUrl);
     socketRef.current = io(serverUrl, {
@@ -93,7 +97,7 @@ export const useWebRTC = (
       });
 
       // Clean up participant state
-      setParticipantStates(prev => {
+      setParticipantStates((prev) => {
         const newStates = new Map(prev);
         newStates.delete(userId);
         return newStates;
@@ -117,7 +121,7 @@ export const useWebRTC = (
       console.log("Participant state changed:", data);
       const { participantId, isAudioEnabled, isVideoEnabled } = data;
 
-      setParticipantStates(prev => {
+      setParticipantStates((prev) => {
         const newStates = new Map(prev);
         newStates.set(participantId, { isAudioEnabled, isVideoEnabled });
         return newStates;

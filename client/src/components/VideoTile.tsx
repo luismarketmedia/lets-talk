@@ -46,12 +46,12 @@ export const VideoTile: React.FC<VideoTileProps> = ({
 
   const getQualityIcon = (quality: string) => {
     switch (quality) {
-      case 'excellent':
-      case 'good':
+      case "excellent":
+      case "good":
         return <Wifi className="w-3 h-3 text-green-400" />;
-      case 'fair':
+      case "fair":
         return <Wifi className="w-3 h-3 text-yellow-400" />;
-      case 'poor':
+      case "poor":
         return <Wifi className="w-3 h-3 text-red-400" />;
       default:
         return <WifiOff className="w-3 h-3 text-gray-400" />;
@@ -101,11 +101,13 @@ export const VideoTile: React.FC<VideoTileProps> = ({
             {!isLocal && peerConnection && (
               <div
                 className="flex items-center space-x-1 px-1.5 py-0.5 bg-black/40 rounded text-xs"
-                title={`RTT: ${connectionStats.rtt}ms | Packet Loss: ${connectionStats.packetLoss}%${connectionStats.bitrate > 0 ? ` | ${connectionStats.bitrate}kbps` : ''}`}
+                title={`RTT: ${connectionStats.rtt}ms | Packet Loss: ${connectionStats.packetLoss}%${connectionStats.bitrate > 0 ? ` | ${connectionStats.bitrate}kbps` : ""}`}
               >
                 {getQualityIcon(connectionStats.quality)}
                 {connectionStats.rtt > 0 && (
-                  <span className="text-white text-xs">{connectionStats.rtt}ms</span>
+                  <span className="text-white text-xs">
+                    {connectionStats.rtt}ms
+                  </span>
                 )}
               </div>
             )}
@@ -121,7 +123,7 @@ export const VideoTile: React.FC<VideoTileProps> = ({
                   "w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200",
                   isSpeaking
                     ? "bg-green-400 animate-pulse shadow-green-400/50 shadow-md"
-                    : "bg-green-500"
+                    : "bg-green-500",
                 )}
               >
                 <Mic className="w-3 h-3 text-white" />
@@ -131,9 +133,18 @@ export const VideoTile: React.FC<VideoTileProps> = ({
             {/* Audio level indicator (only show when speaking and not muted) */}
             {!isMuted && isSpeaking && (
               <div className="flex items-center space-x-0.5">
-                <div className="w-0.5 h-2 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-0.5 h-3 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-0.5 h-2 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                <div
+                  className="w-0.5 h-2 bg-green-400 rounded-full animate-bounce"
+                  style={{ animationDelay: "0ms" }}
+                ></div>
+                <div
+                  className="w-0.5 h-3 bg-green-400 rounded-full animate-bounce"
+                  style={{ animationDelay: "150ms" }}
+                ></div>
+                <div
+                  className="w-0.5 h-2 bg-green-400 rounded-full animate-bounce"
+                  style={{ animationDelay: "300ms" }}
+                ></div>
               </div>
             )}
           </div>
