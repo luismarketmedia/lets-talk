@@ -552,13 +552,24 @@ export const useWebRTC = (
       const audioTrack = localStreamRef.current.getAudioTracks()[0];
       if (audioTrack) {
         audioTrack.enabled = !audioTrack.enabled;
+        const newState = audioTrack.enabled;
+
         setCallState((prev) => ({
           ...prev,
-          isAudioEnabled: audioTrack.enabled,
+          isAudioEnabled: newState,
         }));
+
+        // Emit state change to other participants
+        if (socketRef.current && callState.roomId) {
+          socketRef.current.emit("participant-state-change", {
+            roomId: callState.roomId,
+            isAudioEnabled: newState,
+            isVideoEnabled: callState.isVideoEnabled,
+          });
+        }
       }
     }
-  }, []);
+  }, [callState.roomId, callState.isVideoEnabled]);
 
   const toggleVideo = useCallback(() => {
     if (localStreamRef.current) {
