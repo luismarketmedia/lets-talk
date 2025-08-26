@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useWebRTC } from './hooks/useWebRTC';
 import { JoinRoom } from './components/JoinRoom';
 import { CallInterface } from './components/CallInterface';
-import { ToastProvider } from './components/ui/toast';
+import { ToastProvider, useToast } from './components/ui/toast';
 
 function App() {
   return (
