@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useWebRTC } from './hooks/useWebRTC';
 import { JoinRoom } from './components/JoinRoom';
 import { CallInterface } from './components/CallInterface';
 
 function App() {
+  const [error, setError] = useState<string | null>(null);
+
   const {
     isInCall,
     roomId,
@@ -22,10 +24,14 @@ function App() {
 
   const handleJoinRoom = async (roomId: string) => {
     try {
+      setError(null);
       await joinRoom(roomId);
     } catch (error) {
       console.error('Erro ao entrar na sala:', error);
-      alert('Erro ao acessar câmera/microfone. Verifique as permissões do navegador.');
+      const errorMessage = error instanceof Error
+        ? error.message
+        : 'Erro desconhecido ao acessar câmera/microfone. Verifique as permissões do navegador.';
+      setError(errorMessage);
     }
   };
 
