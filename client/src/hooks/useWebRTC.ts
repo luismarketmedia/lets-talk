@@ -178,11 +178,64 @@ export const useWebRTC = (): CallState & MediaControls & {
     try {
       setCallState(prev => ({ ...prev, connectionState: 'connecting' }));
 
-      // Obter stream local
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true
-      });
+      // Verificar disponibilidade de dispositivos
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const hasVideo = devices.some(device => device.kind === 'videoinput');
+      const hasAudio = devices.some(device => device.kind === 'audioinput');
+
+      console.log('Dispositivos disponíveis:', { hasVideo, hasAudio });
+
+      if (!hasVideo && !hasAudio) {
+        throw new Error('Nenhum dispositivo de mídia encontrado. Verifique se sua câmera e microfone estão conectados.');
+      }
+
+      let stream: MediaStream | null = null;
+
+      // Tentar obter vídeo e áudio primeiro
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: hasVideo ? {
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            frameRate: { ideal: 30 }
+          } : false,
+          audio: hasAudio ? {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          } : false
+        });
+        console.log('Stream obtido com sucesso:', {
+          video: stream.getVideoTracks().length > 0,
+          audio: stream.getAudioTracks().length > 0
+        });
+      } catch (videoError) {
+        console.warn('Falha ao obter vídeo e áudio, tentando apenas áudio:', videoError);
+
+        // Fallback: tentar apenas áudio
+        if (hasAudio) {
+          try {
+            stream = await navigator.mediaDevices.getUserMedia({
+              video: false,
+              audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true
+              }
+            });
+            console.log('Stream de áudio obtido com sucesso');
+          } catch (audioError) {
+            console.error('Falha ao obter áudio:', audioError);
+            throw new Error('Não foi possível acessar o microfone. Verifique as permissões do navegador.');
+          }
+        } else {
+          throw new Error('Nenhum dispositivo de áudio disponível.');
+        }
+      }
+
+      if (!stream) {
+        throw new Error('Não foi possível obter stream de mídia.');
+      }
 
       localStreamRef.current = stream;
       setCallState(prev => ({
@@ -190,7 +243,9 @@ export const useWebRTC = (): CallState & MediaControls & {
         localStream: stream,
         isInCall: true,
         roomId,
-        connectionState: 'connected'
+        connectionState: 'connected',
+        isVideoEnabled: stream.getVideoTracks().length > 0,
+        isAudioEnabled: stream.getAudioTracks().length > 0
       }));
 
       // Entrar na sala via Socket.IO
@@ -200,6 +255,22 @@ export const useWebRTC = (): CallState & MediaControls & {
     } catch (error) {
       console.error('Erro ao entrar na sala:', error);
       setCallState(prev => ({ ...prev, connectionState: 'failed' }));
+
+      // Fornecer mensagens de erro mais específicas
+      if (error instanceof Error) {
+        if (error.name === 'NotFoundError' || error.message.includes('Requested device not found')) {
+          throw new Error('Dispositivo não encontrado. Verifique se sua câmera e microfone estão conectados e funcionando.');
+        } else if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+          throw new Error('Permissão negada. Clique no ícone de câmera na barra de endereços e permita o acesso à câmera e microfone.');
+        } else if (error.name === 'NotReadableError') {
+          throw new Error('Dispositivo em uso. Feche outros aplicativos que possam estar usando sua câmera ou microfone.');
+        } else if (error.name === 'OverconstrainedError') {
+          throw new Error('Configurações de mídia não suportadas pelo dispositivo.');
+        } else if (error.name === 'SecurityError') {
+          throw new Error('Erro de segurança. Use HTTPS para acessar a câmera e microfone.');
+        }
+      }
+
       throw error;
     }
   }, []);
