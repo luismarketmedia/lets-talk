@@ -133,11 +133,16 @@ io.on("connection", (socket) => {
       existingParticipants
     });
 
-    // Notificar outros usuários na sala sobre o novo participante
-    socket.to(roomId).emit("user-joined", {
-      socketId: socketId,
-      userName: requestInfo.userName
-    });
+    // Wait a moment then notify existing users about the new participant
+    // This ensures the new participant is ready to receive offers
+    setTimeout(() => {
+      socket.to(roomId).emit("user-joined", {
+        socketId: socketId,
+        userName: requestInfo.userName
+      });
+
+      console.log(`Notified existing participants about new user ${socketId} in room ${roomId}`);
+    }, 500);
 
     console.log(`Entrada aprovada para ${socketId} (${requestInfo.userName}) na sala ${roomId}`);
   });
