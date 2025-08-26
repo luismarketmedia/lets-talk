@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Users, Copy, Check, AlertTriangle } from "lucide-react";
 import { Socket } from "socket.io-client";
-import { VideoTile } from "./VideoTile";
+import { VideoGrid } from "./VideoGrid";
+import { ViewModeSelector, useViewMode } from "./ViewModeSelector";
+import { ReactionsPanel } from "./ReactionsPanel";
+import { PollModal } from "./PollModal";
 import { MediaControls } from "./MediaControls";
 import { AudioDeviceModal } from "./AudioDeviceModal";
 import { DeviceTestModal } from "./DeviceTestModal";
@@ -165,7 +168,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
           fallbackCopyPrompt();
         }
       } catch (fallbackError) {
-        console.warn("Fallback de seleção também falhou:", fallbackError);
+        console.warn("Fallback de seleção tamb��m falhou:", fallbackError);
         fallbackCopyPrompt();
       }
     }
