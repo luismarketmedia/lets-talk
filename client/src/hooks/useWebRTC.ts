@@ -299,44 +299,170 @@ export const useWebRTC = (): CallState & MediaControls & {
     }
   }, []);
 
+  const checkScreenShareSupport = useCallback(() => {
+    // Verificar se a API de compartilhamento de tela está disponível
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+      return { supported: false, reason: 'API não suportada pelo navegador' };
+    }
+
+    // Verificar se estamos em contexto seguro (HTTPS ou localhost)
+    if (!window.isSecureContext && window.location.hostname !== 'localhost') {
+      return { supported: false, reason: 'Requer HTTPS para funcionar' };
+    }
+
+    return { supported: true, reason: null };
+  }, []);
+
   const toggleScreenShare = useCallback(async () => {
     try {
       if (!callState.isScreenSharing) {
-        const screenStream = await navigator.mediaDevices.getDisplayMedia({
-          video: true,
-          audio: true
-        });
-        
-        // Substituir track de vídeo em todas as conexões
+        // Verificar suporte antes de tentar
+        const support = checkScreenShareSupport();
+        if (!support.supported) {
+          throw new Error(`Compartilhamento de tela não disponível: ${support.reason}`);
+        }
+
+        let screenStream: MediaStream;
+
+        try {
+          // Tentar obter compartilhamento de tela
+          screenStream = await navigator.mediaDevices.getDisplayMedia({
+            video: {
+              mediaSource: 'screen',
+              width: { ideal: 1920 },
+              height: { ideal: 1080 },
+              frameRate: { ideal: 30 }
+            },
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true
+            }
+          });
+        } catch (displayError) {
+          console.warn('Falha ao obter áudio da tela, tentando apenas vídeo:', displayError);
+
+          // Fallback: tentar apenas vídeo
+          screenStream = await navigator.mediaDevices.getDisplayMedia({
+            video: {
+              mediaSource: 'screen',
+              width: { ideal: 1920 },
+              height: { ideal: 1080 },
+              frameRate: { ideal: 30 }
+            },
+            audio: false
+          });
+        }
+
+        // Verificar se conseguimos o stream
+        if (!screenStream || screenStream.getVideoTracks().length === 0) {
+          throw new Error('Não foi possível obter stream de compartilhamento de tela');
+        }
+
         const videoTrack = screenStream.getVideoTracks()[0];
+
+        // Substituir track de vídeo em todas as conexões peer
         peerConnectionsRef.current.forEach(peerConnection => {
-          const sender = peerConnection.getSenders().find(s => 
+          const sender = peerConnection.getSenders().find(s =>
             s.track && s.track.kind === 'video'
           );
           if (sender) {
-            sender.replaceTrack(videoTrack);
+            sender.replaceTrack(videoTrack).catch(err => {
+              console.warn('Erro ao substituir track de vídeo:', err);
+            });
           }
         });
 
         // Atualizar stream local
         if (localStreamRef.current) {
           const oldVideoTrack = localStreamRef.current.getVideoTracks()[0];
-          localStreamRef.current.removeTrack(oldVideoTrack);
+          if (oldVideoTrack) {
+            localStreamRef.current.removeTrack(oldVideoTrack);
+            oldVideoTrack.stop();
+          }
           localStreamRef.current.addTrack(videoTrack);
-          oldVideoTrack.stop();
         }
 
         setCallState(prev => ({ ...prev, isScreenSharing: true }));
 
-        // Parar compartilhamento quando o usuário para
-        videoTrack.onended = () => {
+        // Parar compartilhamento quando o usuário para ou a tela é fechada
+        videoTrack.onended = async () => {
+          console.log('Compartilhamento de tela finalizado pelo usuário');
+
+          try {
+            // Voltar para câmera original
+            const originalStream = await navigator.mediaDevices.getUserMedia({
+              video: true,
+              audio: false
+            });
+
+            const newVideoTrack = originalStream.getVideoTracks()[0];
+
+            // Substituir de volta para câmera
+            peerConnectionsRef.current.forEach(peerConnection => {
+              const sender = peerConnection.getSenders().find(s =>
+                s.track && s.track.kind === 'video'
+              );
+              if (sender) {
+                sender.replaceTrack(newVideoTrack).catch(err => {
+                  console.warn('Erro ao voltar para câmera:', err);
+                });
+              }
+            });
+
+            // Atualizar stream local
+            if (localStreamRef.current) {
+              const oldVideoTrack = localStreamRef.current.getVideoTracks()[0];
+              if (oldVideoTrack) {
+                localStreamRef.current.removeTrack(oldVideoTrack);
+              }
+              localStreamRef.current.addTrack(newVideoTrack);
+            }
+          } catch (error) {
+            console.warn('Erro ao voltar para câmera após compartilhamento:', error);
+          }
+
           setCallState(prev => ({ ...prev, isScreenSharing: false }));
         };
+      } else {
+        // Parar compartilhamento manualmente
+        if (localStreamRef.current) {
+          const screenTrack = localStreamRef.current.getVideoTracks()[0];
+          if (screenTrack) {
+            screenTrack.stop(); // Isso irá disparar o evento onended
+          }
+        }
       }
     } catch (error) {
       console.error('Erro ao compartilhar tela:', error);
+
+      // Mensagens de erro específicas
+      let errorMessage = 'Erro desconhecido ao compartilhar tela';
+
+      if (error instanceof Error) {
+        if (error.name === 'NotAllowedError') {
+          errorMessage = 'Permissão negada para compartilhamento de tela. Clique em "Permitir" quando solicitado.';
+        } else if (error.name === 'NotFoundError') {
+          errorMessage = 'Nenhuma tela disponível para compartilhamento.';
+        } else if (error.name === 'NotReadableError') {
+          errorMessage = 'Não foi possível acessar a tela. Verifique se não há outros aplicativos usando o recurso.';
+        } else if (error.name === 'OverconstrainedError') {
+          errorMessage = 'Configurações de compartilhamento não suportadas pelo sistema.';
+        } else if (error.name === 'SecurityError' || error.message.includes('permissions policy')) {
+          errorMessage = 'Compartilhamento de tela bloqueado por política de segurança. Recarregue a página ou use HTTPS.';
+        } else if (error.name === 'AbortError') {
+          errorMessage = 'Compartilhamento de tela cancelado pelo usuário.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      // Mostrar erro para o usuário (você pode implementar um sistema de notificações)
+      alert(errorMessage);
+
+      setCallState(prev => ({ ...prev, isScreenSharing: false }));
     }
-  }, [callState.isScreenSharing]);
+  }, [callState.isScreenSharing, checkScreenShareSupport]);
 
   const endCall = useCallback(() => {
     // Parar todas as tracks
