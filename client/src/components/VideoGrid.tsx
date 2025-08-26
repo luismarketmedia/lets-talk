@@ -62,7 +62,7 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
     };
 
     return (
-      <div className={cn("grid gap-4", getGridClass())}>
+      <div className={cn("grid gap-4", getGridClass())} data-video-grid>
         {/* Local video */}
         <VideoTile
           stream={localStream}
@@ -279,7 +279,7 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
 
     if (spotlightId === "local") {
       spotlightStream = localStream;
-      spotlightName = "Voc��";
+      spotlightName = "Você";
       isSpotlightLocal = true;
     } else if (remoteStreams.has(spotlightId)) {
       spotlightStream = remoteStreams.get(spotlightId) || null;
