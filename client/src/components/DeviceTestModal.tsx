@@ -112,6 +112,7 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
     setMicrophoneStream(null);
     setScreenStream(null);
     setAudioLevel(0);
+    setErrorInfo({});
     setTestStatus({
       camera: "idle",
       microphone: "idle",
@@ -277,7 +278,7 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
           ? "Bloqueado em ambiente iframe - funciona normalmente em produção"
           : "Permissão negada pelo usuário";
         console.warn("Screen sharing blocked by permissions policy - this is normal in iframe environments");
-      } else if (error.message.includes("n��o é suportado")) {
+      } else if (error.message.includes("não é suportado")) {
         errorMessage = "Não suportado neste navegador";
       }
 
