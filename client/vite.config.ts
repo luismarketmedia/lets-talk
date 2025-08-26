@@ -10,11 +10,9 @@ export default defineConfig(({ mode }) => ({
               target: "http://localhost:3000",
               ws: true,
               changeOrigin: true,
-              secure: false, // Add this for HTTP connections
-              // Optional: Add timeout settings
-              // timeout: 60000,
-              // Optional: Add reconnect logic handling
-              // ws: true,
+              secure: false,
+              timeout: 60000,
+              rewrite: (path) => path,
           },
       },
     headers: {
@@ -28,10 +26,7 @@ export default defineConfig(({ mode }) => ({
     // HTTPS opcional para desenvolvimento (descomente se necessário)
     // https: true
       hmr: {
-          protocol: 'ws',
-          host: 'localhost',
-          port: 3000,
-          timeout: 30000,
+          port: 24678,
           overlay: false
       },
       watch: {
