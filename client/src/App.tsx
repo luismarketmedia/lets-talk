@@ -44,6 +44,8 @@ function AppContent() {
   const handleJoinRoom = async (roomId: string) => {
     try {
       setError(null);
+      // Update the current username from saved data
+      setCurrentUserName(loadUsername() || "Você");
       await joinRoom(roomId);
     } catch (error) {
       console.error("Erro ao entrar na sala:", error);
