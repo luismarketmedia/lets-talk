@@ -42,6 +42,7 @@ export const useWebRTC = (
   const peerConnectionsRef = useRef<Map<string, RTCPeerConnection>>(new Map());
   const localStreamRef = useRef<MediaStream | null>(null);
   const [isHost, setIsHost] = useState(false);
+  const [participantStates, setParticipantStates] = useState<Map<string, { isAudioEnabled: boolean; isVideoEnabled: boolean }>>(new Map());
 
   useEffect(() => {
     // Conectar ao servidor Socket.IO via proxy do Vite
