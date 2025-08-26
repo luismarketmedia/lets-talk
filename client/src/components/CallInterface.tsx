@@ -400,7 +400,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
             </div>
           </div>
 
-          {/* Aviso sobre restrições de clipboard */}
+          {/* Aviso sobre restri��ões de clipboard */}
           {showClipboardWarning && (
             <div className="max-w-6xl mx-auto mb-4">
               <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
@@ -535,7 +535,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
               onOpenVoting={() => setShowPollModal(true)}
               localStream={localStream}
               remoteStreams={remoteStreams}
-              isScreenSharing={isScreenSharing}
+              isScreenSharingForTools={isScreenSharing}
             />
           </div>
         </div>
