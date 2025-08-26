@@ -390,6 +390,11 @@ export const useWebRTC = (options: WebRTCOptions = {}): CallState & MediaControl
 
         setCallState(prev => ({ ...prev, isScreenSharing: true }));
 
+        // Notificar sucesso
+        if (onNotification) {
+          onNotification('success', 'Compartilhamento Iniciado', 'Sua tela está sendo compartilhada com os participantes');
+        }
+
         // Parar compartilhamento quando o usuário para ou a tela é fechada
         videoTrack.onended = async () => {
           console.log('Compartilhamento de tela finalizado pelo usuário');
