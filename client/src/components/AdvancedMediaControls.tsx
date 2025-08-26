@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
-import { 
-  Volume2, 
-  VolumeX, 
-  Mic2, 
-  Speaker, 
-  Settings, 
+import {
+  Volume2,
+  VolumeX,
+  Mic2,
+  Speaker,
+  Settings,
   Wifi,
   Monitor,
   Zap,
-  X
+  X,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
@@ -46,7 +46,10 @@ export const AdvancedMediaControls: React.FC<AdvancedMediaControlsProps> = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
+      if (
+        panelRef.current &&
+        !panelRef.current.contains(event.target as Node)
+      ) {
         onClose();
       }
     };
@@ -113,7 +116,9 @@ export const AdvancedMediaControls: React.FC<AdvancedMediaControlsProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Mic2 className="w-4 h-4 text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">Volume do Microfone</span>
+                <span className="text-sm font-medium text-gray-700">
+                  Volume do Microfone
+                </span>
               </div>
               <span className="text-sm text-gray-500">{microphoneVolume}%</span>
             </div>
@@ -123,10 +128,12 @@ export const AdvancedMediaControls: React.FC<AdvancedMediaControlsProps> = ({
                 min="0"
                 max="100"
                 value={microphoneVolume}
-                onChange={(e) => onMicrophoneVolumeChange(Number(e.target.value))}
+                onChange={(e) =>
+                  onMicrophoneVolumeChange(Number(e.target.value))
+                }
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
                 style={{
-                  background: `linear-gradient(to right, #0fa3e0 0%, #0fa3e0 ${microphoneVolume}%, #e5e7eb ${microphoneVolume}%, #e5e7eb 100%)`
+                  background: `linear-gradient(to right, #0fa3e0 0%, #0fa3e0 ${microphoneVolume}%, #e5e7eb ${microphoneVolume}%, #e5e7eb 100%)`,
                 }}
               />
             </div>
@@ -137,7 +144,9 @@ export const AdvancedMediaControls: React.FC<AdvancedMediaControlsProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Speaker className="w-4 h-4 text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">Volume dos Alto-falantes</span>
+                <span className="text-sm font-medium text-gray-700">
+                  Volume dos Alto-falantes
+                </span>
               </div>
               <span className="text-sm text-gray-500">{speakerVolume}%</span>
             </div>
@@ -150,7 +159,7 @@ export const AdvancedMediaControls: React.FC<AdvancedMediaControlsProps> = ({
                 onChange={(e) => onSpeakerVolumeChange(Number(e.target.value))}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
                 style={{
-                  background: `linear-gradient(to right, #0fa3e0 0%, #0fa3e0 ${speakerVolume}%, #e5e7eb ${speakerVolume}%, #e5e7eb 100%)`
+                  background: `linear-gradient(to right, #0fa3e0 0%, #0fa3e0 ${speakerVolume}%, #e5e7eb ${speakerVolume}%, #e5e7eb 100%)`,
                 }}
               />
             </div>
@@ -160,7 +169,9 @@ export const AdvancedMediaControls: React.FC<AdvancedMediaControlsProps> = ({
           <div className="space-y-3">
             <div className="flex items-center space-x-2">
               <Monitor className="w-4 h-4 text-gray-600" />
-              <span className="text-sm font-medium text-gray-700">Qualidade do Vídeo</span>
+              <span className="text-sm font-medium text-gray-700">
+                Qualidade do Vídeo
+              </span>
             </div>
             <div className="flex space-x-2">
               {(["360p", "720p", "1080p"] as const).map((quality) => (
@@ -171,7 +182,7 @@ export const AdvancedMediaControls: React.FC<AdvancedMediaControlsProps> = ({
                     "flex-1 px-3 py-2 text-sm rounded-lg border transition-colors",
                     videoQuality === quality
                       ? "bg-primary-500 text-white border-primary-500"
-                      : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+                      : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100",
                   )}
                 >
                   {quality}
@@ -185,21 +196,25 @@ export const AdvancedMediaControls: React.FC<AdvancedMediaControlsProps> = ({
             <div className="flex items-center space-x-2">
               <Zap className="w-4 h-4 text-gray-600" />
               <div>
-                <span className="text-sm font-medium text-gray-700">Economia de Dados</span>
-                <p className="text-xs text-gray-500">Reduz qualidade para economizar banda</p>
+                <span className="text-sm font-medium text-gray-700">
+                  Economia de Dados
+                </span>
+                <p className="text-xs text-gray-500">
+                  Reduz qualidade para economizar banda
+                </p>
               </div>
             </div>
             <button
               onClick={onDataSavingModeToggle}
               className={cn(
                 "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
-                dataSavingMode ? "bg-primary-500" : "bg-gray-200"
+                dataSavingMode ? "bg-primary-500" : "bg-gray-200",
               )}
             >
               <span
                 className={cn(
                   "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
-                  dataSavingMode ? "translate-x-6" : "translate-x-1"
+                  dataSavingMode ? "translate-x-6" : "translate-x-1",
                 )}
               />
             </button>
@@ -210,17 +225,25 @@ export const AdvancedMediaControls: React.FC<AdvancedMediaControlsProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 {getQualityIcon()}
-                <span className="text-sm font-medium text-gray-700">Conexão</span>
+                <span className="text-sm font-medium text-gray-700">
+                  Conexão
+                </span>
               </div>
               <div className="text-right">
                 <div className="text-sm font-medium text-gray-700 capitalize">
-                  {connectionQuality === "excellent" ? "Excelente" :
-                   connectionQuality === "good" ? "Boa" :
-                   connectionQuality === "fair" ? "Regular" : "Ruim"}
+                  {connectionQuality === "excellent"
+                    ? "Excelente"
+                    : connectionQuality === "good"
+                      ? "Boa"
+                      : connectionQuality === "fair"
+                        ? "Regular"
+                        : "Ruim"}
                 </div>
                 {bandwidth > 0 && (
                   <div className="text-xs text-gray-500">
-                    {bandwidth > 1000 ? `${(bandwidth / 1000).toFixed(1)} Mbps` : `${bandwidth} kbps`}
+                    {bandwidth > 1000
+                      ? `${(bandwidth / 1000).toFixed(1)} Mbps`
+                      : `${bandwidth} kbps`}
                   </div>
                 )}
               </div>

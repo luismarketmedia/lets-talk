@@ -36,33 +36,36 @@ export const useConnectionMonitor = ({
   const intervalRef = useRef<NodeJS.Timeout>();
   const lastStatsRef = useRef<Map<string, RTCStatsReport>>(new Map());
 
-  const calculateQuality = useCallback((rtt: number, packetsLost: number, packetsReceived: number) => {
-    const lossRate = packetsReceived > 0 ? (packetsLost / packetsReceived) * 100 : 0;
-    
-    if (rtt < 100 && lossRate < 1) {
-      return "excellent";
-    } else if (rtt < 200 && lossRate < 3) {
-      return "good";
-    } else if (rtt < 400 && lossRate < 5) {
-      return "fair";
-    } else {
-      return "poor";
-    }
-  }, []);
+  const calculateQuality = useCallback(
+    (rtt: number, packetsLost: number, packetsReceived: number) => {
+      const lossRate =
+        packetsReceived > 0 ? (packetsLost / packetsReceived) * 100 : 0;
 
-  const calculateBandwidth = useCallback((
-    currentBytes: number,
-    previousBytes: number,
-    timeDiff: number
-  ): number => {
-    if (timeDiff <= 0) return 0;
-    
-    const bytesDiff = currentBytes - previousBytes;
-    const bytesPerSecond = (bytesDiff / timeDiff) * 1000; // Convert to bytes per second
-    const kbps = (bytesPerSecond * 8) / 1000; // Convert to kilobits per second
-    
-    return Math.max(0, kbps);
-  }, []);
+      if (rtt < 100 && lossRate < 1) {
+        return "excellent";
+      } else if (rtt < 200 && lossRate < 3) {
+        return "good";
+      } else if (rtt < 400 && lossRate < 5) {
+        return "fair";
+      } else {
+        return "poor";
+      }
+    },
+    [],
+  );
+
+  const calculateBandwidth = useCallback(
+    (currentBytes: number, previousBytes: number, timeDiff: number): number => {
+      if (timeDiff <= 0) return 0;
+
+      const bytesDiff = currentBytes - previousBytes;
+      const bytesPerSecond = (bytesDiff / timeDiff) * 1000; // Convert to bytes per second
+      const kbps = (bytesPerSecond * 8) / 1000; // Convert to kilobits per second
+
+      return Math.max(0, kbps);
+    },
+    [],
+  );
 
   const updateStats = useCallback(async () => {
     if (!enabled || peerConnections.size === 0) {
@@ -86,47 +89,56 @@ export const useConnectionMonitor = ({
           try {
             const stats = await peerConnection.getStats();
             const previousStats = lastStatsRef.current.get(connectionId);
-            
+
             stats.forEach((report) => {
-              if (report.type === "remote-inbound-rtp" && report.kind === "video") {
+              if (
+                report.type === "remote-inbound-rtp" &&
+                report.kind === "video"
+              ) {
                 totalRtt += report.roundTripTime || 0;
                 totalJitter += report.jitter || 0;
                 connectionCount++;
               }
-              
+
               if (report.type === "inbound-rtp") {
                 totalPacketsLost += report.packetsLost || 0;
                 totalPacketsReceived += report.packetsReceived || 0;
                 totalBytesReceived += report.bytesReceived || 0;
-                
+
                 // Calculate bandwidth for this stream
                 if (previousStats) {
                   previousStats.forEach((prevReport) => {
-                    if (prevReport.id === report.id && prevReport.type === "inbound-rtp") {
-                      const timeDiff = (report.timestamp - prevReport.timestamp);
+                    if (
+                      prevReport.id === report.id &&
+                      prevReport.type === "inbound-rtp"
+                    ) {
+                      const timeDiff = report.timestamp - prevReport.timestamp;
                       const bandwidth = calculateBandwidth(
                         report.bytesReceived || 0,
                         prevReport.bytesReceived || 0,
-                        timeDiff
+                        timeDiff,
                       );
                       totalBandwidth += bandwidth;
                     }
                   });
                 }
               }
-              
+
               if (report.type === "outbound-rtp") {
                 totalBytesSent += report.bytesSent || 0;
-                
+
                 // Calculate outbound bandwidth
                 if (previousStats) {
                   previousStats.forEach((prevReport) => {
-                    if (prevReport.id === report.id && prevReport.type === "outbound-rtp") {
-                      const timeDiff = (report.timestamp - prevReport.timestamp);
+                    if (
+                      prevReport.id === report.id &&
+                      prevReport.type === "outbound-rtp"
+                    ) {
+                      const timeDiff = report.timestamp - prevReport.timestamp;
                       const bandwidth = calculateBandwidth(
                         report.bytesSent || 0,
                         prevReport.bytesSent || 0,
-                        timeDiff
+                        timeDiff,
                       );
                       totalBandwidth += bandwidth;
                     }
@@ -134,11 +146,14 @@ export const useConnectionMonitor = ({
                 }
               }
             });
-            
+
             // Store current stats for next comparison
             lastStatsRef.current.set(connectionId, stats);
           } catch (error) {
-            console.warn(`Failed to get stats for connection ${connectionId}:`, error);
+            console.warn(
+              `Failed to get stats for connection ${connectionId}:`,
+              error,
+            );
           }
         }
       }
@@ -146,7 +161,11 @@ export const useConnectionMonitor = ({
       // Average the stats
       const avgRtt = connectionCount > 0 ? totalRtt / connectionCount : 0;
       const avgJitter = connectionCount > 0 ? totalJitter / connectionCount : 0;
-      const quality = calculateQuality(avgRtt * 1000, totalPacketsLost, totalPacketsReceived); // Convert RTT to ms
+      const quality = calculateQuality(
+        avgRtt * 1000,
+        totalPacketsLost,
+        totalPacketsReceived,
+      ); // Convert RTT to ms
 
       setConnectionStats({
         rtt: Math.round(avgRtt * 1000), // Convert to milliseconds

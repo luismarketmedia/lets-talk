@@ -217,7 +217,9 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                     </h1>
                     <div className="flex items-center space-x-4">
                       <p className="text-sm font-medium text-gray-600">
-                        {totalParticipants} participante{totalParticipants !== 1 ? "s" : ""} conectado{totalParticipants !== 1 ? "s" : ""}
+                        {totalParticipants} participante
+                        {totalParticipants !== 1 ? "s" : ""} conectado
+                        {totalParticipants !== 1 ? "s" : ""}
                       </p>
                       {/* Sempre mostrar indicador de conexão quando em chamada */}
                       <ConnectionIndicator
@@ -240,7 +242,9 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                   />
 
                   <div className="flex items-center space-x-2 bg-gray-100 rounded-xl px-4 py-2 border">
-                    <span className="text-sm font-medium text-gray-700">ID da Sala:</span>
+                    <span className="text-sm font-medium text-gray-700">
+                      ID da Sala:
+                    </span>
                     <span
                       className="text-sm font-mono font-bold text-blue-600 select-all cursor-text px-2 py-1 rounded-lg bg-blue-50 border border-blue-200"
                       title="Clique para selecionar e copiar com Ctrl+C"
@@ -256,7 +260,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                       "flex items-center space-x-2 font-medium",
                       copied && copyMethod === "manual"
                         ? "border-yellow-400 bg-yellow-50 text-yellow-700"
-                        : "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
+                        : "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100",
                     )}
                   >
                     {copied ? (

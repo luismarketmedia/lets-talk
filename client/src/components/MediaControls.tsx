@@ -83,7 +83,11 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
           {/* Controle de Áudio */}
           <div className="relative">
             <Button
-              variant={isAudioEnabled && !isTemporarilyMuted ? "default" : "destructive"}
+              variant={
+                isAudioEnabled && !isTemporarilyMuted
+                  ? "default"
+                  : "destructive"
+              }
               size="icon"
               onClick={onToggleAudio}
               className={cn(
@@ -91,7 +95,7 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
                 isAudioEnabled && !isTemporarilyMuted
                   ? "bg-primary-500 hover:bg-primary-600 text-white"
                   : "bg-red-500 hover:bg-red-600 text-white",
-                isTemporarilyMuted && "ring-2 ring-yellow-400 ring-offset-2"
+                isTemporarilyMuted && "ring-2 ring-yellow-400 ring-offset-2",
               )}
               title={
                 isTemporarilyMuted

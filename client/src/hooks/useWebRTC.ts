@@ -49,7 +49,7 @@ export const useWebRTC = (
   useEffect(() => {
     // Conectar ao servidor Socket.IO via proxy do Vite
     const serverUrl = import.meta.env.DEV
-      ? window.location.origin  // Use Vite proxy in development
+      ? window.location.origin // Use Vite proxy in development
       : window.location.origin;
 
     console.log("Conectando ao servidor WebRTC:", serverUrl);
@@ -620,7 +620,10 @@ export const useWebRTC = (
     }
 
     // Para desenvolvimento local, sempre permitir tentativa
-    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+    if (
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1"
+    ) {
       return { supported: true, reason: null };
     }
 

@@ -26,7 +26,11 @@ export const useScreenShareSupport = (): ScreenShareSupport => {
       }
 
       // Verificar contexto seguro apenas se não for localhost
-      if (!window.isSecureContext && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
+      if (
+        !window.isSecureContext &&
+        window.location.hostname !== "localhost" &&
+        window.location.hostname !== "127.0.0.1"
+      ) {
         setSupport({
           isSupported: false,
           reason: "Requer HTTPS para funcionar",

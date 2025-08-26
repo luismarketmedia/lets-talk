@@ -54,7 +54,9 @@ export const ConnectionIndicator: React.FC<ConnectionIndicatorProps> = ({
 
   if (quality === "unknown") {
     return (
-      <div className={cn("flex items-center space-x-2 text-gray-400", className)}>
+      <div
+        className={cn("flex items-center space-x-2 text-gray-400", className)}
+      >
         <WifiOff className="w-4 h-4" />
         <span className="text-sm">Verificando conexão...</span>
       </div>
@@ -62,16 +64,18 @@ export const ConnectionIndicator: React.FC<ConnectionIndicatorProps> = ({
   }
 
   return (
-    <div 
-      className={cn("flex items-center space-x-2", getQualityColor(), className)}
+    <div
+      className={cn(
+        "flex items-center space-x-2",
+        getQualityColor(),
+        className,
+      )}
       title={`RTT: ${rtt}ms | Bandwidth: ${formatBandwidth(bandwidth)}`}
     >
       <Wifi className="w-4 h-4" />
       <div className="text-sm">
         <span className="font-medium">{getQualityText()}</span>
-        {rtt > 0 && (
-          <span className="text-gray-500 ml-1">({rtt}ms)</span>
-        )}
+        {rtt > 0 && <span className="text-gray-500 ml-1">({rtt}ms)</span>}
       </div>
     </div>
   );

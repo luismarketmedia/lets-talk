@@ -14,10 +14,10 @@ interface UseAdvancedMediaControlsOptions {
 }
 
 export const useAdvancedMediaControls = (
-  options: UseAdvancedMediaControlsOptions = {}
+  options: UseAdvancedMediaControlsOptions = {},
 ) => {
   const { localStream, onVideoQualityChange } = options;
-  
+
   const [state, setState] = useState<AdvancedMediaState>({
     microphoneVolume: 100,
     speakerVolume: 100,
@@ -39,14 +39,15 @@ export const useAdvancedMediaControls = (
     if (audioTracks.length === 0) return;
 
     try {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const audioContext = new (window.AudioContext ||
+        (window as any).webkitAudioContext)();
       const gainNode = audioContext.createGain();
       const sourceNode = audioContext.createMediaStreamSource(localStream);
-      
+
       sourceNode.connect(gainNode);
       // Note: For actual microphone volume control, we would need to replace the track
       // This is a basic setup that could be extended
-      
+
       audioContextRef.current = audioContext;
       gainNodeRef.current = gainNode;
       sourceNodeRef.current = sourceNode;
@@ -55,7 +56,10 @@ export const useAdvancedMediaControls = (
     }
 
     return () => {
-      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+      if (
+        audioContextRef.current &&
+        audioContextRef.current.state !== "closed"
+      ) {
         audioContextRef.current.close();
       }
     };
@@ -63,8 +67,8 @@ export const useAdvancedMediaControls = (
 
   // Handle microphone volume change
   const handleMicrophoneVolumeChange = useCallback((volume: number) => {
-    setState(prev => ({ ...prev, microphoneVolume: volume }));
-    
+    setState((prev) => ({ ...prev, microphoneVolume: volume }));
+
     // Apply gain to microphone (simplified approach)
     if (gainNodeRef.current) {
       gainNodeRef.current.gain.value = volume / 100;
@@ -78,42 +82,48 @@ export const useAdvancedMediaControls = (
 
   // Handle speaker volume change
   const handleSpeakerVolumeChange = useCallback((volume: number) => {
-    setState(prev => ({ ...prev, speakerVolume: volume }));
-    
+    setState((prev) => ({ ...prev, speakerVolume: volume }));
+
     // Apply volume to all audio elements playing remote streams
-    const audioElements = document.querySelectorAll('audio, video');
+    const audioElements = document.querySelectorAll("audio, video");
     audioElements.forEach((element) => {
-      if (element instanceof HTMLAudioElement || element instanceof HTMLVideoElement) {
+      if (
+        element instanceof HTMLAudioElement ||
+        element instanceof HTMLVideoElement
+      ) {
         element.volume = volume / 100;
       }
     });
   }, []);
 
   // Handle video quality change
-  const handleVideoQualityChange = useCallback((quality: "360p" | "720p" | "1080p") => {
-    setState(prev => ({ ...prev, videoQuality: quality }));
-    
-    // Notify parent component about quality change
-    if (onVideoQualityChange) {
-      onVideoQualityChange(quality);
-    }
-  }, [onVideoQualityChange]);
+  const handleVideoQualityChange = useCallback(
+    (quality: "360p" | "720p" | "1080p") => {
+      setState((prev) => ({ ...prev, videoQuality: quality }));
+
+      // Notify parent component about quality change
+      if (onVideoQualityChange) {
+        onVideoQualityChange(quality);
+      }
+    },
+    [onVideoQualityChange],
+  );
 
   // Handle data saving mode toggle
   const handleDataSavingModeToggle = useCallback(() => {
-    setState(prev => {
+    setState((prev) => {
       const newDataSavingMode = !prev.dataSavingMode;
-      
+
       // When enabling data saving mode, switch to lower quality
       if (newDataSavingMode && prev.videoQuality !== "360p") {
         handleVideoQualityChange("360p");
-        return { 
-          ...prev, 
+        return {
+          ...prev,
           dataSavingMode: newDataSavingMode,
-          videoQuality: "360p"
+          videoQuality: "360p",
         };
       }
-      
+
       return { ...prev, dataSavingMode: newDataSavingMode };
     });
   }, [handleVideoQualityChange]);
@@ -123,40 +133,42 @@ export const useAdvancedMediaControls = (
     const handleKeyDown = (event: KeyboardEvent) => {
       // Only trigger if not in an input field
       if (
-        event.code === "Space" && 
+        event.code === "Space" &&
         !event.repeat &&
         !(event.target instanceof HTMLInputElement) &&
         !(event.target instanceof HTMLTextAreaElement) &&
         !(event.target as Element)?.isContentEditable
       ) {
         event.preventDefault();
-        
+
         if (!state.isTemporarilyMuted) {
           // Store original state and mute
           const audioTracks = localStream?.getAudioTracks() || [];
           originalMuteStateRef.current = audioTracks[0]?.enabled || false;
-          audioTracks.forEach(track => track.enabled = false);
-          
-          setState(prev => ({ ...prev, isTemporarilyMuted: true }));
+          audioTracks.forEach((track) => (track.enabled = false));
+
+          setState((prev) => ({ ...prev, isTemporarilyMuted: true }));
         }
       }
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
       if (
-        event.code === "Space" && 
+        event.code === "Space" &&
         state.isTemporarilyMuted &&
         !(event.target instanceof HTMLInputElement) &&
         !(event.target instanceof HTMLTextAreaElement) &&
         !(event.target as Element)?.isContentEditable
       ) {
         event.preventDefault();
-        
+
         // Restore original state
         const audioTracks = localStream?.getAudioTracks() || [];
-        audioTracks.forEach(track => track.enabled = originalMuteStateRef.current);
-        
-        setState(prev => ({ ...prev, isTemporarilyMuted: false }));
+        audioTracks.forEach(
+          (track) => (track.enabled = originalMuteStateRef.current),
+        );
+
+        setState((prev) => ({ ...prev, isTemporarilyMuted: false }));
       }
     };
 
