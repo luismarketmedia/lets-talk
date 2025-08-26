@@ -130,21 +130,36 @@ export const VideoTile: React.FC<VideoTileProps> = ({
               </div>
             )}
 
-            {/* Audio level indicator (only show when speaking and not muted) */}
-            {!isMuted && isSpeaking && (
-              <div className="flex items-center space-x-0.5">
-                <div
-                  className="w-0.5 h-2 bg-green-400 rounded-full animate-bounce"
-                  style={{ animationDelay: "0ms" }}
-                ></div>
-                <div
-                  className="w-0.5 h-3 bg-green-400 rounded-full animate-bounce"
-                  style={{ animationDelay: "150ms" }}
-                ></div>
-                <div
-                  className="w-0.5 h-2 bg-green-400 rounded-full animate-bounce"
-                  style={{ animationDelay: "300ms" }}
-                ></div>
+            {/* Audio level indicator (always show when not muted) */}
+            {!isMuted && (
+              <div className="flex items-center space-x-1">
+                {/* Audio level bar */}
+                <div className="w-8 h-1.5 bg-gray-600 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-green-400 to-yellow-400 transition-all duration-100 rounded-full"
+                    style={{
+                      width: `${Math.max(5, audioLevel)}%`,
+                      opacity: audioLevel > 0 ? 1 : 0.3,
+                    }}
+                  ></div>
+                </div>
+                {/* Speaking animation */}
+                {isSpeaking && (
+                  <div className="flex items-center space-x-0.5">
+                    <div
+                      className="w-0.5 h-2 bg-green-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "0ms" }}
+                    ></div>
+                    <div
+                      className="w-0.5 h-3 bg-green-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "150ms" }}
+                    ></div>
+                    <div
+                      className="w-0.5 h-2 bg-green-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "300ms" }}
+                    ></div>
+                  </div>
+                )}
               </div>
             )}
           </div>
