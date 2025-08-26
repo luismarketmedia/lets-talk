@@ -42,6 +42,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   onEndCall,
 }) => {
   const [copied, setCopied] = useState(false);
+  const [copyMethod, setCopyMethod] = useState<'clipboard' | 'fallback' | 'manual'>('clipboard');
   const [showAudioModal, setShowAudioModal] = useState(false);
   const [showTestModal, setShowTestModal] = useState(false);
   const remoteStreamArray = Array.from(remoteStreams.entries());
