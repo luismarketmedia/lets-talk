@@ -60,7 +60,7 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
-  const animationRef = useRef<number | undefined>();
+  const animationRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     if (isOpen) {
