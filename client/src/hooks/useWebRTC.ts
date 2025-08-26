@@ -108,8 +108,13 @@ export const useWebRTC = (
     // Listen for participant state changes
     socket.on("participant-state-changed", (data) => {
       console.log("Participant state changed:", data);
-      // This will be used to update UI in the future
-      // For now, we just log it as the VideoTile components will handle mute indicators
+      const { participantId, isAudioEnabled, isVideoEnabled } = data;
+
+      setParticipantStates(prev => {
+        const newStates = new Map(prev);
+        newStates.set(participantId, { isAudioEnabled, isVideoEnabled });
+        return newStates;
+      });
     });
 
     // Eventos do sistema de aprovação
