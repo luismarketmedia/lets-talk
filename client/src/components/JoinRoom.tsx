@@ -135,32 +135,91 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
             {/* Verificação de Dispositivos */}
             <DeviceCheck />
 
+            {/* Seletor de Formato (apenas no modo criar) */}
+            {mode === 'create' && (
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-gray-700">
+                  Formato do código
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {codeFormatOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setCodeFormat(option.value)}
+                      disabled={isConnecting}
+                      className={`p-3 rounded-lg border text-left transition-all ${
+                        codeFormat === option.value
+                          ? 'border-primary-500 bg-primary-50 text-primary-700'
+                          : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                      }`}
+                    >
+                      <div className="font-medium text-sm">{option.label}</div>
+                      <div className="text-xs opacity-75 font-mono">{option.example}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Formulário */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <label htmlFor="roomId" className="text-sm font-medium text-gray-700">
-                  Código da sala
+                  Código da reunião
                 </label>
-                <div className="flex gap-2">
-                  <Input
-                    id="roomId"
-                    type="text"
-                    placeholder="Digite ou gere um código"
-                    value={roomId}
-                    onChange={(e) => setRoomId(e.target.value)}
-                    disabled={isConnecting}
-                    className="flex-1"
-                  />
-                  {mode === 'create' && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={generateRoomId}
-                      disabled={isConnecting}
-                      className="px-3"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </Button>
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <div className="flex-1 relative">
+                      <Input
+                        id="roomId"
+                        type="text"
+                        placeholder={mode === 'join'
+                          ? "Digite o código da reunião"
+                          : `Gere um código ${codeFormatOptions.find(o => o.value === codeFormat)?.example || ''}`
+                        }
+                        value={roomId}
+                        onChange={handleRoomIdChange}
+                        disabled={isConnecting}
+                        className={`font-mono ${
+                          roomId.length > 0 && !isValidCode
+                            ? 'border-yellow-300 focus:ring-yellow-500'
+                            : roomId.length > 0 && isValidCode
+                            ? 'border-green-300 focus:ring-green-500'
+                            : ''
+                        }`}
+                      />
+                      {roomId.length > 0 && (
+                        <div className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-2 h-2 rounded-full ${
+                          isValidCode ? 'bg-green-500' : 'bg-yellow-500'
+                        }`} />
+                      )}
+                    </div>
+
+                    {mode === 'create' && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={generateRoomId}
+                        disabled={isConnecting}
+                        className="px-3"
+                        title="Gerar novo código"
+                      >
+                        <Shuffle className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+
+                  {mode === 'join' && roomId.length > 0 && !isValidCode && (
+                    <p className="text-xs text-yellow-600">
+                      Formato incomum, mas tentaremos conectar
+                    </p>
+                  )}
+
+                  {mode === 'create' && !roomId && (
+                    <p className="text-xs text-gray-500">
+                      Clique no ícone para gerar um código no formato {codeFormatOptions.find(o => o.value === codeFormat)?.label}
+                    </p>
                   )}
                 </div>
               </div>
