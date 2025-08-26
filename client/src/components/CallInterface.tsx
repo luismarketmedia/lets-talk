@@ -354,7 +354,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                       Restrições de Ambiente Detectadas
                     </h3>
                     <p className="text-sm text-yellow-700 mb-2">
-                      A cópia automática pode não funcionar neste ambiente. Use
+                      A cópia automática pode n��o funcionar neste ambiente. Use
                       os métodos alternativos:
                     </p>
                     <ul className="text-xs text-yellow-700 space-y-1">
@@ -386,50 +386,44 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
 
           {/* Grade de vídeos */}
           <div className="max-w-6xl mx-auto mb-8">
-            <div className={cn("grid gap-4", getGridClass())}>
-              {/* Vídeo local */}
-              <VideoTile
-                stream={localStream}
-                isLocal={true}
-                isMuted={!isAudioEnabled}
-                isVideoEnabled={isVideoEnabled}
-                participantName="Você"
-                className={getVideoHeight()}
-              />
+            <VideoGrid
+              viewMode={viewModeControls.viewMode}
+              localStream={localStream}
+              remoteStreams={remoteStreams}
+              participantStates={participantStates}
+              participantNames={participantNames}
+              peerConnections={peerConnections}
+              screenSharingParticipant={screenSharingParticipant}
+              activeSpeaker={speakerInfo.activeSpeaker}
+              spotlightParticipant={viewModeControls.spotlightParticipant}
+              isAudioEnabled={isAudioEnabled}
+              isVideoEnabled={isVideoEnabled}
+              onParticipantClick={(participantId) => {
+                if (viewModeControls.viewMode === "spotlight" || participantId !== viewModeControls.spotlightParticipant) {
+                  viewModeControls.setSpotlight(participantId);
+                }
+              }}
+            />
 
-              {/* Vídeos remotos */}
-              {remoteStreamArray.map(([userId, stream], index) => {
-                const participantState = participantStates.get(userId);
-                const participantName =
-                  participantNames.get(userId) || `Participante ${index + 1}`;
-                const isSharing = screenSharingParticipant === userId;
-                const displayName = isSharing
-                  ? `🖥️ ${participantName} (Compartilhando)`
-                  : participantName;
-
-                return (
-                  <VideoTile
-                    key={userId}
-                    stream={stream}
-                    isLocal={false}
-                    isMuted={
-                      participantState
-                        ? !participantState.isAudioEnabled
-                        : false
-                    }
-                    isVideoEnabled={
-                      participantState ? participantState.isVideoEnabled : true
-                    }
-                    participantName={displayName}
-                    className={cn(
-                      getVideoHeight(),
-                      isSharing && "ring-2 ring-blue-500 ring-offset-2",
-                    )}
-                    peerConnection={peerConnections.get(userId) || null}
-                  />
-                );
-              })}
-            </div>
+            {/* Mensagem quando não há participantes */}
+            {totalParticipants === 1 && (
+              <div className="text-center mt-8 p-6 bg-white rounded-xl border border-gray-200">
+                <Users className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Aguardando participantes
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Compartilhe o código da sala para que outros possam participar
+                </p>
+                <Button
+                  onClick={copyRoomId}
+                  className="inline-flex items-center space-x-2"
+                >
+                  <Copy className="w-4 h-4" />
+                  <span>Copiar código: {roomId}</span>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
