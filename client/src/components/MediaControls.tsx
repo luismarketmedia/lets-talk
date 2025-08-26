@@ -18,12 +18,14 @@ interface MediaControlsProps {
   isAudioEnabled: boolean;
   isVideoEnabled: boolean;
   isScreenSharing: boolean;
+  isTemporarilyMuted?: boolean;
   onToggleAudio: () => void;
   onToggleVideo: () => void;
   onToggleScreenShare: () => void;
   onEndCall: () => void;
   onOpenAudioSettings?: () => void;
   onOpenDeviceTest?: () => void;
+  onOpenAdvancedControls?: () => void;
 }
 
 export const MediaControls: React.FC<MediaControlsProps> = ({
