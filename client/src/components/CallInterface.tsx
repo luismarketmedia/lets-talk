@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Users, Copy, Check } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Users, Copy, Check, AlertTriangle } from "lucide-react";
 import { Socket } from "socket.io-client";
 import { VideoTile } from "./VideoTile";
 import { MediaControls } from "./MediaControls";
