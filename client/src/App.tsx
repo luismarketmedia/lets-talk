@@ -5,6 +5,14 @@ import { CallInterface } from './components/CallInterface';
 import { ToastProvider } from './components/ui/toast';
 
 function App() {
+  return (
+    <ToastProvider>
+      <AppContent />
+    </ToastProvider>
+  );
+}
+
+function AppContent() {
   const [error, setError] = useState<string | null>(null);
 
   const {
