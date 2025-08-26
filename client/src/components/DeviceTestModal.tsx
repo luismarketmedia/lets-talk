@@ -234,6 +234,11 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
         return;
       }
 
+      // Check if getDisplayMedia is available
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+        throw new Error("Screen sharing não é suportado neste navegador");
+      }
+
       const stream = await navigator.mediaDevices.getDisplayMedia({
         video: true,
         audio: false,
@@ -252,8 +257,14 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
         setScreenStream(null);
         setTestStatus((prev) => ({ ...prev, screenShare: "idle" }));
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro no teste de compartilhamento:", error);
+
+      // Handle specific permission errors
+      if (error.name === "NotAllowedError") {
+        console.warn("Screen sharing blocked by permissions policy - this is normal in iframe environments");
+      }
+
       setTestStatus((prev) => ({ ...prev, screenShare: "error" }));
     }
   };
