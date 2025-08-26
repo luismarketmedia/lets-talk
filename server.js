@@ -100,6 +100,9 @@ io.on("connection", (socket) => {
       return;
     }
 
+    // Get pending request info
+    const requestInfo = pendingRequests.get(roomId).get(socketId);
+
     // Remover pedido pendente
     pendingRequests.get(roomId).delete(socketId);
 
@@ -107,13 +110,36 @@ io.on("connection", (socket) => {
     rooms.get(roomId).add(socketId);
     io.sockets.sockets.get(socketId)?.join(roomId);
 
-    // Notificar aprovação
-    io.to(socketId).emit("join-approved", { roomId });
+    // Store participant info
+    participants.set(socketId, { userName: requestInfo.userName, roomId });
 
-    // Notificar outros usuários na sala
-    socket.to(roomId).emit("user-joined", socketId);
+    // Send existing participants info to new user
+    const existingParticipants = [];
+    for (const existingSocketId of rooms.get(roomId)) {
+      if (existingSocketId !== socketId) {
+        const participantInfo = participants.get(existingSocketId);
+        if (participantInfo) {
+          existingParticipants.push({
+            socketId: existingSocketId,
+            userName: participantInfo.userName
+          });
+        }
+      }
+    }
 
-    console.log(`Entrada aprovada para ${socketId} na sala ${roomId}`);
+    // Notificar aprovação com informações da sala
+    io.to(socketId).emit("join-approved", {
+      roomId,
+      existingParticipants
+    });
+
+    // Notificar outros usuários na sala sobre o novo participante
+    socket.to(roomId).emit("user-joined", {
+      socketId: socketId,
+      userName: requestInfo.userName
+    });
+
+    console.log(`Entrada aprovada para ${socketId} (${requestInfo.userName}) na sala ${roomId}`);
   });
 
   // Rejeitar entrada na sala
@@ -123,7 +149,7 @@ io.on("connection", (socket) => {
     // Verificar se o usuário é host da sala
     const roomUsers = Array.from(rooms.get(roomId) || []);
     if (!roomUsers.includes(socket.id) || roomUsers[0] !== socket.id) {
-      socket.emit("error", { message: "Voc�� não é o host desta sala" });
+      socket.emit("error", { message: "Você não é o host desta sala" });
       return;
     }
 
@@ -268,11 +294,18 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("Usuário desconectado:", socket.id);
 
+    const participantInfo = participants.get(socket.id);
+    const participantName = participantInfo ? participantInfo.userName : 'Usuário Desconhecido';
+
     // Remover usuário de todas as salas
     for (let [roomId, users] of rooms.entries()) {
       if (users.has(socket.id)) {
         users.delete(socket.id);
-        socket.to(roomId).emit("user-left", socket.id);
+        // Send participant info when notifying about leaving
+        socket.to(roomId).emit("user-left", {
+          socketId: socket.id,
+          userName: participantName
+        });
 
         // Remover sala se estiver vazia
         if (users.size === 0) {
@@ -282,6 +315,9 @@ io.on("connection", (socket) => {
         }
       }
     }
+
+    // Clean up participant info
+    participants.delete(socket.id);
 
     // Remover de pedidos pendentes
     for (let [roomId, requests] of pendingRequests.entries()) {
