@@ -106,6 +106,66 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
       setShowParticipantModal(true);
     }
   }, [participantManager.pendingCount, showParticipantModal]);
+
+  // Hand raise handler
+  const handleToggleHandRaise = () => {
+    if (!socket || !roomId) return;
+
+    const newState = !isHandRaised;
+    setIsHandRaised(newState);
+
+    socket.emit('hand-raise', {
+      roomId,
+      isRaised: newState,
+      participantName: userName,
+    });
+  };
+
+  // Handle reactions and hand raise events from other participants
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleReaction = (data: any) => {
+      const newReaction = {
+        id: `${Date.now()}-${Math.random()}`,
+        emoji: data.emoji,
+        name: data.name,
+        participantId: data.participantId,
+        participantName: data.participantName,
+        timestamp: new Date(),
+      };
+
+      setRecentReactions(prev => [...prev, newReaction]);
+
+      // Remove reaction after 3 seconds
+      setTimeout(() => {
+        setRecentReactions(prev => prev.filter(r => r.id !== newReaction.id));
+      }, 3000);
+    };
+
+    const handleHandRaise = (data: any) => {
+      if (data.isRaised) {
+        setRaisedHands(prev => new Map(prev.set(data.participantId, {
+          name: data.participantName,
+          timestamp: new Date(),
+        })));
+      } else {
+        setRaisedHands(prev => {
+          const newMap = new Map(prev);
+          newMap.delete(data.participantId);
+          return newMap;
+        });
+      }
+    };
+
+    socket.on('reaction', handleReaction);
+    socket.on('hand-raise', handleHandRaise);
+
+    return () => {
+      socket.off('reaction', handleReaction);
+      socket.off('hand-raise', handleHandRaise);
+    };
+  }, [socket]);
   const remoteStreamArray = Array.from(remoteStreams.entries());
   const totalParticipants = 1 + remoteStreamArray.length; // Local + remotes
 
