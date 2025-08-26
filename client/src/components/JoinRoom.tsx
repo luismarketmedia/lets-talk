@@ -36,6 +36,7 @@ interface JoinRoomProps {
 
 export const JoinRoom: React.FC<JoinRoomProps> = ({
   onJoinRoom,
+  onRequestJoinRoom,
   isConnecting,
   error,
   onClearError,
