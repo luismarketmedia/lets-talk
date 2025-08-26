@@ -9,6 +9,9 @@ import {
   MonitorX,
   Settings,
   Sliders,
+  Smile,
+  Hand,
+  BarChart3,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
@@ -33,6 +36,12 @@ interface MediaControlsProps {
   roomId?: string | null;
   userName?: string;
   participantCount?: number;
+  // Reactions, hand raise, and voting props
+  onOpenReactions?: () => void;
+  onToggleHandRaise?: () => void;
+  isHandRaised?: boolean;
+  raisedHandsCount?: number;
+  onOpenVoting?: () => void;
 }
 
 export const MediaControls: React.FC<MediaControlsProps> = ({
@@ -51,6 +60,11 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
   roomId,
   userName,
   participantCount = 1,
+  onOpenReactions,
+  onToggleHandRaise,
+  isHandRaised = false,
+  raisedHandsCount = 0,
+  onOpenVoting,
 }) => {
   const screenShareSupport = useScreenShareSupport();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -175,6 +189,57 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
           )}
         </Button>
 
+        {/* Reações */}
+        {onOpenReactions && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onOpenReactions}
+            className="w-12 h-12 rounded-full transition-all duration-200 hover:bg-gray-100 text-gray-600"
+            title="Reações"
+          >
+            <Smile className="w-5 h-5" />
+          </Button>
+        )}
+
+        {/* Levantar Mão */}
+        {onToggleHandRaise && (
+          <div className="relative">
+            <Button
+              variant={isHandRaised ? "default" : "ghost"}
+              size="icon"
+              onClick={onToggleHandRaise}
+              className={cn(
+                "w-12 h-12 rounded-full transition-all duration-200",
+                isHandRaised
+                  ? "bg-yellow-500 hover:bg-yellow-600 text-white"
+                  : "hover:bg-gray-100 text-gray-600"
+              )}
+              title={isHandRaised ? "Baixar mão" : "Levantar mão"}
+            >
+              <Hand className={cn("w-5 h-5", isHandRaised && "animate-bounce")} />
+            </Button>
+            {raisedHandsCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
+                {raisedHandsCount > 9 ? "9+" : raisedHandsCount}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Votações */}
+        {onOpenVoting && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onOpenVoting}
+            className="w-12 h-12 rounded-full transition-all duration-200 hover:bg-gray-100 text-gray-600"
+            title="Votações"
+          >
+            <BarChart3 className="w-5 h-5" />
+          </Button>
+        )}
+
         {/* Chat */}
         {socket && roomId && (
           <Chat
@@ -253,7 +318,7 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
                       role="menuitem"
                       tabIndex={0}
                     >
-                      🧪 Testar Dispositivos
+                      �� Testar Dispositivos
                     </button>
                   )}
                 </div>
