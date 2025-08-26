@@ -42,7 +42,9 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
   onClearError,
 }) => {
   const [roomId, setRoomId] = useState("");
+  const [userName, setUserName] = useState("");
   const [mode, setMode] = useState<"join" | "create">("join");
+  const [entryType, setEntryType] = useState<"direct" | "request">("request");
   const [showAudioModal, setShowAudioModal] = useState(false);
   const [showTestModal, setShowTestModal] = useState(false);
 
