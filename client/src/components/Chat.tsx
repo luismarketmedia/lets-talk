@@ -157,11 +157,23 @@ export const Chat: React.FC<ChatProps> = ({
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="sm" className="relative">
-          <MessageCircle className="w-4 h-4 mr-2" />
-          Chat
+        <Button
+          variant="outline"
+          size="sm"
+          className={cn(
+            "relative flex items-center space-x-2 font-medium transition-all duration-200",
+            "bg-white/95 backdrop-blur-sm border-gray-300 hover:bg-blue-50 hover:border-blue-400",
+            "shadow-md hover:shadow-lg",
+            unreadCount > 0 && "bg-blue-50 border-blue-400 text-blue-700"
+          )}
+        >
+          <MessageCircle className={cn(
+            "w-4 h-4",
+            unreadCount > 0 ? "text-blue-600" : "text-gray-600"
+          )} />
+          <span>Chat</span>
           {unreadCount > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
