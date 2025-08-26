@@ -25,6 +25,25 @@ export const VideoTile: React.FC<VideoTileProps> = ({
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // Debug audio stream
+  useEffect(() => {
+    if (stream && isLocal) {
+      const audioTracks = stream.getAudioTracks();
+      console.log(`[VideoTile] Local stream audio debug:`, {
+        hasStream: !!stream,
+        audioTracks: audioTracks.length,
+        isMuted,
+        isVideoEnabled,
+        trackDetails: audioTracks.map(track => ({
+          enabled: track.enabled,
+          readyState: track.readyState,
+          label: track.label,
+          muted: track.muted
+        }))
+      });
+    }
+  }, [stream, isMuted, isLocal, isVideoEnabled]);
+
   // Detect if participant is speaking
   const { audioLevel, isSpeaking } = useAudioLevel({
     stream,
