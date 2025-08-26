@@ -297,7 +297,13 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
     }
 
     return (
-      <div className="h-full flex items-center justify-center">
+      <div className="h-full flex items-center justify-center relative">
+        {/* Spotlight Mode Label */}
+        <div className="absolute top-4 left-4 z-10 bg-purple-600/90 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-2">
+          <Focus className="w-4 h-4" />
+          <span>Modo Foco</span>
+        </div>
+
         {spotlightStream ? (
           <VideoTile
             stream={spotlightStream}
@@ -313,7 +319,7 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
                 : (participantStates.get(spotlightId)?.isVideoEnabled ?? true)
             }
             participantName={spotlightName}
-            className="w-full h-full max-w-4xl max-h-[80vh]"
+            className="w-full h-full max-w-4xl max-h-[80vh] ring-4 ring-purple-500 ring-offset-4"
             peerConnection={
               isSpotlightLocal ? null : peerConnections.get(spotlightId) || null
             }
