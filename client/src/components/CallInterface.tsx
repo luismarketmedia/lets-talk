@@ -90,6 +90,16 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   // Poll modal
   const [showPollModal, setShowPollModal] = useState(false);
 
+  // Reactions modal
+  const [showReactionsModal, setShowReactionsModal] = useState(false);
+
+  // Hand raise state
+  const [isHandRaised, setIsHandRaised] = useState(false);
+  const [raisedHands, setRaisedHands] = useState(new Map<string, { name: string; timestamp: Date }>());
+
+  // Reactions state
+  const [recentReactions, setRecentReactions] = useState<any[]>([]);
+
   // Auto-open participant modal when there are pending requests
   useEffect(() => {
     if (participantManager.pendingCount > 0 && !showParticipantModal) {
@@ -420,36 +430,25 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
       {/* Controles de mídia e chat fixos na parte inferior */}
       <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-white/90 to-transparent backdrop-blur-sm border-t border-gray-200 p-4 z-50">
         <div className="max-w-6xl mx-auto space-y-4">
-          {/* Reações e engagement */}
-          <div className="flex items-center justify-center space-x-4">
-            <ReactionsPanel
-              socket={socket}
-              roomId={roomId}
-              userName={userName}
-              participantCount={totalParticipants}
-            />
-
-            {/* Botão de votações */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowPollModal(true)}
-              className="flex items-center space-x-2 bg-white/95 backdrop-blur-sm border border-gray-200 hover:bg-blue-50 text-gray-600 hover:text-blue-600"
-              title="Votações"
-            >
-              <svg
-                className="w-4 h-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <path d="M8 12h8M8 8h8M8 16h8" />
-              </svg>
-              <span className="hidden sm:inline text-xs">Votações</span>
-            </Button>
-          </div>
+          {/* Floating reactions display */}
+          {recentReactions.length > 0 && (
+            <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 pointer-events-none z-40">
+              <div className="flex space-x-2">
+                {recentReactions.slice(-5).map((reaction) => (
+                  <div
+                    key={reaction.id}
+                    className="animate-bounce text-4xl"
+                    style={{
+                      animationDelay: `${Math.random() * 0.5}s`,
+                      animationDuration: '2s',
+                    }}
+                  >
+                    {reaction.emoji}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="flex items-center justify-center">
             {/* Controles de mídia com chat integrado */}
@@ -469,6 +468,11 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
               roomId={roomId}
               userName={userName}
               participantCount={totalParticipants}
+              onOpenReactions={() => setShowReactionsModal(true)}
+              onToggleHandRaise={handleToggleHandRaise}
+              isHandRaised={isHandRaised}
+              raisedHandsCount={raisedHands.size}
+              onOpenVoting={() => setShowPollModal(true)}
             />
           </div>
         </div>
