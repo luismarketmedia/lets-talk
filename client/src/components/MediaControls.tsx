@@ -177,6 +177,16 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
             )}
           </Button>
 
+          {/* Chat */}
+          {socket && roomId && (
+            <Chat
+              socket={socket}
+              roomId={roomId}
+              userName={userName}
+              participantCount={participantCount}
+            />
+          )}
+
           {/* Configurações */}
           {(onOpenAudioSettings || onOpenDeviceTest) && (
             <div className="relative" ref={settingsRef}>
