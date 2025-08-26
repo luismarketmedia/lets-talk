@@ -7,7 +7,6 @@ import { AudioDeviceModal } from "./AudioDeviceModal";
 import { DeviceTestModal } from "./DeviceTestModal";
 import { AdvancedMediaControls } from "./AdvancedMediaControls";
 import { ConnectionIndicator } from "./ConnectionIndicator";
-import { Chat } from "./Chat";
 import { JoinApproval } from "./JoinApproval";
 import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
