@@ -205,7 +205,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
         <div className="p-4 pb-28">
           {/* Header */}
           <div className="max-w-6xl mx-auto mb-6">
-            <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+            <div className="bg-white rounded-xl shadow-lg border-2 border-blue-300 p-6" style={{minHeight: "100px"}}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center shadow-md">
