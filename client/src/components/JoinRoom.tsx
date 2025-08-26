@@ -21,7 +21,6 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
 }) => {
   const [roomId, setRoomId] = useState('');
   const [mode, setMode] = useState<'join' | 'create'>('join');
-  const [codeFormat, setCodeFormat] = useState<MeetingCodeFormat>('google-meet');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,17 +45,11 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
   };
 
   const generateRoomId = () => {
-    const newCode = generateMeetingCode(codeFormat);
+    // Sempre usa formato Google Meet
+    const newCode = generateMeetingCode('google-meet');
     setRoomId(newCode);
     setMode('create');
   };
-
-  const codeFormatOptions = [
-    { value: 'google-meet' as MeetingCodeFormat, label: 'Google Meet', example: 'abc-defg-hij' },
-    { value: 'zoom' as MeetingCodeFormat, label: 'Zoom', example: '123-456-789' },
-    { value: 'teams' as MeetingCodeFormat, label: 'Teams', example: '123 456 789' },
-    { value: 'simple' as MeetingCodeFormat, label: 'Simples', example: 'ABCD-1234' }
-  ];
 
   const isValidCode = validateMeetingCode(roomId);
 
@@ -218,7 +211,7 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
 
                   {mode === 'create' && !roomId && (
                     <p className="text-xs text-gray-500">
-                      Clique no ícone para gerar um código no formato {codeFormatOptions.find(o => o.value === codeFormat)?.label}
+                      Clique no ��cone para gerar um código no formato {codeFormatOptions.find(o => o.value === codeFormat)?.label}
                     </p>
                   )}
                 </div>
