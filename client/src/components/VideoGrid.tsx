@@ -8,7 +8,10 @@ interface VideoGridProps {
   viewMode: ViewMode;
   localStream: MediaStream | null;
   remoteStreams: Map<string, MediaStream>;
-  participantStates: Map<string, { isAudioEnabled: boolean; isVideoEnabled: boolean }>;
+  participantStates: Map<
+    string,
+    { isAudioEnabled: boolean; isVideoEnabled: boolean }
+  >;
   participantNames: Map<string, string>;
   peerConnections: Map<string, RTCPeerConnection>;
   screenSharingParticipant: string | null;
@@ -64,7 +67,7 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
           participantName="Você"
           className={cn(
             getVideoHeight(),
-            activeSpeaker === "local" && "ring-2 ring-green-500 ring-offset-2"
+            activeSpeaker === "local" && "ring-2 ring-green-500 ring-offset-2",
           )}
           onClick={() => onParticipantClick?.("local")}
         />
@@ -72,23 +75,30 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
         {/* Remote videos */}
         {remoteStreamArray.map(([userId, stream], index) => {
           const participantState = participantStates.get(userId);
-          const participantName = participantNames.get(userId) || `Participante ${index + 1}`;
+          const participantName =
+            participantNames.get(userId) || `Participante ${index + 1}`;
           const isSharing = screenSharingParticipant === userId;
           const isSpeaking = activeSpeaker === userId;
-          const displayName = isSharing ? `🖥️ ${participantName} (Compartilhando)` : participantName;
+          const displayName = isSharing
+            ? `🖥️ ${participantName} (Compartilhando)`
+            : participantName;
 
           return (
             <VideoTile
               key={userId}
               stream={stream}
               isLocal={false}
-              isMuted={participantState ? !participantState.isAudioEnabled : false}
-              isVideoEnabled={participantState ? participantState.isVideoEnabled : true}
+              isMuted={
+                participantState ? !participantState.isAudioEnabled : false
+              }
+              isVideoEnabled={
+                participantState ? participantState.isVideoEnabled : true
+              }
               participantName={displayName}
               className={cn(
                 getVideoHeight(),
                 isSharing && "ring-2 ring-blue-500 ring-offset-2",
-                isSpeaking && "ring-2 ring-green-500 ring-offset-2"
+                isSpeaking && "ring-2 ring-green-500 ring-offset-2",
               )}
               peerConnection={peerConnections.get(userId) || null}
               onClick={() => onParticipantClick?.(userId)}
@@ -101,11 +111,24 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
 
   // Speaker View - Large view for active speaker, small thumbnails for others
   const renderSpeakerView = () => {
-    let mainParticipant: { id: string; stream: MediaStream | null; name: string; isLocal: boolean } | null = null;
-    let thumbnailParticipants: Array<{ id: string; stream: MediaStream | null; name: string; isLocal: boolean }> = [];
+    let mainParticipant: {
+      id: string;
+      stream: MediaStream | null;
+      name: string;
+      isLocal: boolean;
+    } | null = null;
+    let thumbnailParticipants: Array<{
+      id: string;
+      stream: MediaStream | null;
+      name: string;
+      isLocal: boolean;
+    }> = [];
 
     // Determine main participant (active speaker or screen sharer)
-    if (screenSharingParticipant && remoteStreams.has(screenSharingParticipant)) {
+    if (
+      screenSharingParticipant &&
+      remoteStreams.has(screenSharingParticipant)
+    ) {
       mainParticipant = {
         id: screenSharingParticipant,
         stream: remoteStreams.get(screenSharingParticipant) || null,
@@ -183,12 +206,15 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
               isVideoEnabled={
                 mainParticipant.isLocal
                   ? isVideoEnabled
-                  : participantStates.get(mainParticipant.id)?.isVideoEnabled ?? true
+                  : (participantStates.get(mainParticipant.id)
+                      ?.isVideoEnabled ?? true)
               }
               participantName={mainParticipant.name}
               className="h-full w-full"
               peerConnection={
-                mainParticipant.isLocal ? null : peerConnections.get(mainParticipant.id) || null
+                mainParticipant.isLocal
+                  ? null
+                  : peerConnections.get(mainParticipant.id) || null
               }
               onClick={() => onParticipantClick?.(mainParticipant.id)}
             />
@@ -211,15 +237,18 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
                 isVideoEnabled={
                   participant.isLocal
                     ? isVideoEnabled
-                    : participantStates.get(participant.id)?.isVideoEnabled ?? true
+                    : (participantStates.get(participant.id)?.isVideoEnabled ??
+                      true)
                 }
                 participantName={participant.name}
                 className={cn(
                   "w-32 h-24 flex-shrink-0 border-2 border-white shadow-lg rounded-lg overflow-hidden cursor-pointer hover:scale-105 transition-transform",
-                  activeSpeaker === participant.id && "ring-2 ring-green-500"
+                  activeSpeaker === participant.id && "ring-2 ring-green-500",
                 )}
                 peerConnection={
-                  participant.isLocal ? null : peerConnections.get(participant.id) || null
+                  participant.isLocal
+                    ? null
+                    : peerConnections.get(participant.id) || null
                 }
                 onClick={() => onParticipantClick?.(participant.id)}
               />
@@ -275,7 +304,7 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
             isVideoEnabled={
               isSpotlightLocal
                 ? isVideoEnabled
-                : participantStates.get(spotlightId)?.isVideoEnabled ?? true
+                : (participantStates.get(spotlightId)?.isVideoEnabled ?? true)
             }
             participantName={spotlightName}
             className="w-full h-full max-w-4xl max-h-[80vh]"
@@ -286,7 +315,9 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
         ) : (
           <div className="text-center p-8">
             <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">Nenhum participante selecionado para foco</p>
+            <p className="text-gray-600">
+              Nenhum participante selecionado para foco
+            </p>
           </div>
         )}
       </div>

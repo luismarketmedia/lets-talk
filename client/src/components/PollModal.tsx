@@ -61,10 +61,12 @@ export const PollModal: React.FC<PollModalProps> = ({
   useEffect(() => {
     if (!socket) return;
 
-    const handlePollStarted = (poll: Omit<Poll, 'createdAt' | 'expiresAt'> & { 
-      createdAt: string; 
-      expiresAt?: string;
-    }) => {
+    const handlePollStarted = (
+      poll: Omit<Poll, "createdAt" | "expiresAt"> & {
+        createdAt: string;
+        expiresAt?: string;
+      },
+    ) => {
       const pollWithDates: Poll = {
         ...poll,
         createdAt: new Date(poll.createdAt),
@@ -81,10 +83,10 @@ export const PollModal: React.FC<PollModalProps> = ({
       participantId: string;
       participantName: string;
     }) => {
-      setCurrentPoll(prev => {
+      setCurrentPoll((prev) => {
         if (!prev || prev.id !== data.pollId) return prev;
 
-        const updatedOptions = prev.options.map(option => {
+        const updatedOptions = prev.options.map((option) => {
           if (option.id === data.optionId) {
             // Add vote if not already voted by this participant
             const votes = option.votes.includes(data.participantId)
@@ -95,7 +97,7 @@ export const PollModal: React.FC<PollModalProps> = ({
             // Remove vote from other options if single vote only
             return {
               ...option,
-              votes: option.votes.filter(v => v !== data.participantId),
+              votes: option.votes.filter((v) => v !== data.participantId),
             };
           }
           return option;
@@ -106,7 +108,7 @@ export const PollModal: React.FC<PollModalProps> = ({
 
       // Update user votes
       if (data.participantId === socket.id) {
-        setUserVotes(prev => {
+        setUserVotes((prev) => {
           const updated = new Set(prev);
           if (currentPoll?.allowMultipleVotes) {
             updated.add(data.optionId);
@@ -120,7 +122,7 @@ export const PollModal: React.FC<PollModalProps> = ({
     };
 
     const handlePollEnded = (data: { pollId: string }) => {
-      setCurrentPoll(prev => {
+      setCurrentPoll((prev) => {
         if (!prev || prev.id !== data.pollId) return prev;
         return { ...prev, isActive: false };
       });
@@ -143,12 +145,12 @@ export const PollModal: React.FC<PollModalProps> = ({
 
     const timeToExpire = currentPoll.expiresAt.getTime() - Date.now();
     if (timeToExpire <= 0) {
-      setCurrentPoll(prev => prev ? { ...prev, isActive: false } : null);
+      setCurrentPoll((prev) => (prev ? { ...prev, isActive: false } : null));
       return;
     }
 
     const timer = setTimeout(() => {
-      setCurrentPoll(prev => prev ? { ...prev, isActive: false } : null);
+      setCurrentPoll((prev) => (prev ? { ...prev, isActive: false } : null));
     }, timeToExpire);
 
     return () => clearTimeout(timer);
@@ -183,13 +185,13 @@ export const PollModal: React.FC<PollModalProps> = ({
   const createPoll = () => {
     if (!socket || !roomId || !newPollQuestion.trim()) return;
 
-    const validOptions = newPollOptions.filter(opt => opt.trim());
+    const validOptions = newPollOptions.filter((opt) => opt.trim());
     if (validOptions.length < 2) return;
 
     const pollData = {
       roomId,
       question: newPollQuestion.trim(),
-      options: validOptions.map(opt => opt.trim()),
+      options: validOptions.map((opt) => opt.trim()),
       allowMultipleVotes,
       duration: duration > 0 ? duration : undefined,
       createdByName: userName,
@@ -223,7 +225,10 @@ export const PollModal: React.FC<PollModalProps> = ({
 
   const getTotalVotes = () => {
     if (!currentPoll) return 0;
-    return currentPoll.options.reduce((total, option) => total + option.votes.length, 0);
+    return currentPoll.options.reduce(
+      (total, option) => total + option.votes.length,
+      0,
+    );
   };
 
   const getTimeRemaining = () => {
@@ -243,7 +248,9 @@ export const PollModal: React.FC<PollModalProps> = ({
             <span>Votações</span>
           </DialogTitle>
           <DialogDescription>
-            {isHost ? "Crie votações rápidas para engajar os participantes" : "Participe das votações ativas"}
+            {isHost
+              ? "Crie votações rápidas para engajar os participantes"
+              : "Participe das votações ativas"}
           </DialogDescription>
         </DialogHeader>
 
@@ -253,7 +260,9 @@ export const PollModal: React.FC<PollModalProps> = ({
             <div className="space-y-4">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-lg">{currentPoll.question}</h3>
+                  <h3 className="font-semibold text-lg">
+                    {currentPoll.question}
+                  </h3>
                   <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
                     <span>Por {currentPoll.createdByName}</span>
                     <span className="flex items-center space-x-1">
@@ -267,11 +276,13 @@ export const PollModal: React.FC<PollModalProps> = ({
                       </span>
                     )}
                     {!currentPoll.isActive && (
-                      <span className="text-red-600 font-medium">Encerrada</span>
+                      <span className="text-red-600 font-medium">
+                        Encerrada
+                      </span>
                     )}
                   </div>
                 </div>
-                
+
                 {isHost && currentPoll.isActive && (
                   <Button
                     variant="outline"
@@ -288,7 +299,10 @@ export const PollModal: React.FC<PollModalProps> = ({
               <div className="space-y-3">
                 {currentPoll.options.map((option) => {
                   const voteCount = option.votes.length;
-                  const percentage = getTotalVotes() > 0 ? (voteCount / getTotalVotes()) * 100 : 0;
+                  const percentage =
+                    getTotalVotes() > 0
+                      ? (voteCount / getTotalVotes()) * 100
+                      : 0;
                   const hasVoted = userVotes.has(option.id);
 
                   return (
@@ -302,19 +316,21 @@ export const PollModal: React.FC<PollModalProps> = ({
                             ? "hover:bg-blue-50 hover:border-blue-300 cursor-pointer"
                             : "cursor-default",
                           hasVoted && "bg-blue-50 border-blue-300",
-                          !currentPoll.isActive && "bg-gray-50"
+                          !currentPoll.isActive && "bg-gray-50",
                         )}
                       >
                         <div className="flex items-center justify-between">
                           <span className="font-medium">{option.text}</span>
                           <div className="flex items-center space-x-2">
-                            {hasVoted && <Check className="w-4 h-4 text-blue-600" />}
+                            {hasVoted && (
+                              <Check className="w-4 h-4 text-blue-600" />
+                            )}
                             <span className="text-sm text-gray-600">
                               {voteCount} voto{voteCount !== 1 ? "s" : ""}
                             </span>
                           </div>
                         </div>
-                        
+
                         {/* Progress bar */}
                         <div className="mt-2 bg-gray-200 rounded-full h-2">
                           <div
@@ -322,7 +338,7 @@ export const PollModal: React.FC<PollModalProps> = ({
                             style={{ width: `${percentage}%` }}
                           />
                         </div>
-                        
+
                         <div className="text-xs text-gray-500 mt-1">
                           {percentage.toFixed(1)}%
                         </div>
@@ -360,7 +376,7 @@ export const PollModal: React.FC<PollModalProps> = ({
               {isCreating && (
                 <div className="space-y-4 border-t pt-4">
                   <h4 className="font-semibold">Criar Nova Votação</h4>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Pergunta
@@ -379,10 +395,15 @@ export const PollModal: React.FC<PollModalProps> = ({
                     </label>
                     <div className="space-y-2">
                       {newPollOptions.map((option, index) => (
-                        <div key={index} className="flex items-center space-x-2">
+                        <div
+                          key={index}
+                          className="flex items-center space-x-2"
+                        >
                           <Input
                             value={option}
-                            onChange={(e) => updateOption(index, e.target.value)}
+                            onChange={(e) =>
+                              updateOption(index, e.target.value)
+                            }
                             placeholder={`Opção ${index + 1}`}
                             maxLength={100}
                           />
@@ -399,7 +420,7 @@ export const PollModal: React.FC<PollModalProps> = ({
                         </div>
                       ))}
                     </div>
-                    
+
                     {newPollOptions.length < 6 && (
                       <Button
                         variant="outline"
@@ -418,10 +439,14 @@ export const PollModal: React.FC<PollModalProps> = ({
                       <input
                         type="checkbox"
                         checked={allowMultipleVotes}
-                        onChange={(e) => setAllowMultipleVotes(e.target.checked)}
+                        onChange={(e) =>
+                          setAllowMultipleVotes(e.target.checked)
+                        }
                         className="rounded"
                       />
-                      <span className="text-sm">Permitir múltiplas escolhas</span>
+                      <span className="text-sm">
+                        Permitir múltiplas escolhas
+                      </span>
                     </label>
 
                     <div className="flex items-center space-x-2">
@@ -429,19 +454,26 @@ export const PollModal: React.FC<PollModalProps> = ({
                       <Input
                         type="number"
                         value={duration}
-                        onChange={(e) => setDuration(parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                          setDuration(parseInt(e.target.value) || 0)
+                        }
                         min={0}
                         max={600}
                         className="w-20"
                       />
-                      <span className="text-sm text-gray-600">segundos (0 = ilimitado)</span>
+                      <span className="text-sm text-gray-600">
+                        segundos (0 = ilimitado)
+                      </span>
                     </div>
                   </div>
 
                   <div className="flex items-center space-x-2">
                     <Button
                       onClick={createPoll}
-                      disabled={!newPollQuestion.trim() || newPollOptions.filter(opt => opt.trim()).length < 2}
+                      disabled={
+                        !newPollQuestion.trim() ||
+                        newPollOptions.filter((opt) => opt.trim()).length < 2
+                      }
                     >
                       Iniciar Votação
                     </Button>
@@ -462,7 +494,9 @@ export const PollModal: React.FC<PollModalProps> = ({
             <div className="text-center py-8">
               <BarChart3 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-600">Nenhuma votação ativa</p>
-              <p className="text-sm text-gray-500">Aguarde o host criar uma votação</p>
+              <p className="text-sm text-gray-500">
+                Aguarde o host criar uma votação
+              </p>
             </div>
           )}
         </div>

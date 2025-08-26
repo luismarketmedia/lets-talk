@@ -39,7 +39,9 @@ export const ReactionsPanel: React.FC<ReactionsPanelProps> = ({
 }) => {
   const [recentReactions, setRecentReactions] = useState<Reaction[]>([]);
   const [isHandRaised, setIsHandRaised] = useState(false);
-  const [raisedHands, setRaisedHands] = useState<Map<string, { name: string; timestamp: Date }>>(new Map());
+  const [raisedHands, setRaisedHands] = useState<
+    Map<string, { name: string; timestamp: Date }>
+  >(new Map());
   const [isReactionsOpen, setIsReactionsOpen] = useState(false);
 
   // Listen for reactions and hand raises
@@ -62,7 +64,7 @@ export const ReactionsPanel: React.FC<ReactionsPanelProps> = ({
         timestamp: new Date(),
       };
 
-      setRecentReactions(prev => {
+      setRecentReactions((prev) => {
         const updated = [...prev, newReaction];
         // Keep only last 20 reactions
         return updated.slice(-20);
@@ -70,7 +72,9 @@ export const ReactionsPanel: React.FC<ReactionsPanelProps> = ({
 
       // Remove reaction after 5 seconds
       setTimeout(() => {
-        setRecentReactions(prev => prev.filter(r => r.id !== newReaction.id));
+        setRecentReactions((prev) =>
+          prev.filter((r) => r.id !== newReaction.id),
+        );
       }, 5000);
     };
 
@@ -79,7 +83,7 @@ export const ReactionsPanel: React.FC<ReactionsPanelProps> = ({
       participantName: string;
       isRaised: boolean;
     }) => {
-      setRaisedHands(prev => {
+      setRaisedHands((prev) => {
         const updated = new Map(prev);
         if (data.isRaised) {
           updated.set(data.participantId, {
@@ -111,7 +115,7 @@ export const ReactionsPanel: React.FC<ReactionsPanelProps> = ({
   const sendReaction = (reactionKey: string) => {
     if (!socket || !roomId) return;
 
-    const reaction = AVAILABLE_REACTIONS.find(r => r.key === reactionKey);
+    const reaction = AVAILABLE_REACTIONS.find((r) => r.key === reactionKey);
     if (!reaction) return;
 
     socket.emit("reaction", {
@@ -151,7 +155,8 @@ export const ReactionsPanel: React.FC<ReactionsPanelProps> = ({
                 key={reaction.id}
                 className="animate-bounce-in bg-white/90 backdrop-blur-sm rounded-full px-3 py-2 shadow-lg border"
                 style={{
-                  animation: "bounceIn 0.5s ease-out, fadeOut 1s ease-in 4s forwards",
+                  animation:
+                    "bounceIn 0.5s ease-out, fadeOut 1s ease-in 4s forwards",
                 }}
               >
                 <span className="text-2xl">{reaction.emoji}</span>
@@ -184,7 +189,7 @@ export const ReactionsPanel: React.FC<ReactionsPanelProps> = ({
                 className="fixed inset-0 z-10"
                 onClick={() => setIsReactionsOpen(false)}
               />
-              
+
               {/* Menu */}
               <div className="absolute bottom-full left-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-20">
                 <div className="grid grid-cols-3 gap-1 min-w-[180px]">
@@ -196,7 +201,9 @@ export const ReactionsPanel: React.FC<ReactionsPanelProps> = ({
                       title={reaction.name}
                     >
                       <span className="text-xl">{reaction.emoji}</span>
-                      <span className="text-xs text-gray-600">{reaction.name}</span>
+                      <span className="text-xs text-gray-600">
+                        {reaction.name}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -214,7 +221,7 @@ export const ReactionsPanel: React.FC<ReactionsPanelProps> = ({
             "flex items-center space-x-2 relative",
             isHandRaised
               ? "bg-yellow-500 hover:bg-yellow-600 text-white"
-              : "hover:bg-yellow-50 text-gray-600 hover:text-yellow-600"
+              : "hover:bg-yellow-50 text-gray-600 hover:text-yellow-600",
           )}
           title={isHandRaised ? "Baixar mão" : "Levantar mão"}
         >
@@ -222,7 +229,7 @@ export const ReactionsPanel: React.FC<ReactionsPanelProps> = ({
           <span className="hidden sm:inline text-xs">
             {isHandRaised ? "Mão levantada" : "Levantar mão"}
           </span>
-          
+
           {/* Raised hands count indicator */}
           {raisedHandsCount > 0 && (
             <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -234,11 +241,14 @@ export const ReactionsPanel: React.FC<ReactionsPanelProps> = ({
         {/* Show raised hands list when there are any */}
         {raisedHandsCount > 0 && (
           <div className="text-xs text-gray-600 max-w-xs truncate">
-            <span className="font-medium">{raisedHandsCount} mão{raisedHandsCount > 1 ? "s" : ""} levantada{raisedHandsCount > 1 ? "s" : ""}:</span>
+            <span className="font-medium">
+              {raisedHandsCount} mão{raisedHandsCount > 1 ? "s" : ""} levantada
+              {raisedHandsCount > 1 ? "s" : ""}:
+            </span>
             <span className="ml-1">
               {Array.from(raisedHands.values())
                 .slice(0, 3)
-                .map(hand => hand.name)
+                .map((hand) => hand.name)
                 .join(", ")}
               {raisedHandsCount > 3 && ` e mais ${raisedHandsCount - 3}`}
             </span>

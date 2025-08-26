@@ -10,7 +10,10 @@ import { AudioDeviceModal } from "./AudioDeviceModal";
 import { DeviceTestModal } from "./DeviceTestModal";
 import { AdvancedMediaControls } from "./AdvancedMediaControls";
 import { ConnectionIndicator } from "./ConnectionIndicator";
-import { ParticipantManagerModal, useParticipantManager } from "./ParticipantManagerModal";
+import {
+  ParticipantManagerModal,
+  useParticipantManager,
+} from "./ParticipantManagerModal";
 import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
 import { useAdvancedMediaControls } from "../hooks/useAdvancedMediaControls";
@@ -214,7 +217,6 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
     setTimeout(() => setCopied(false), 3000);
   };
 
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col">
       {/* Scrollable main content */}
@@ -368,7 +370,6 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
             </div>
           )}
 
-
           {/* Grade de vídeos */}
           <div className="max-w-6xl mx-auto mb-8">
             <VideoGrid
@@ -384,7 +385,10 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
               isAudioEnabled={isAudioEnabled}
               isVideoEnabled={isVideoEnabled}
               onParticipantClick={(participantId) => {
-                if (viewModeControls.viewMode === "spotlight" || participantId !== viewModeControls.spotlightParticipant) {
+                if (
+                  viewModeControls.viewMode === "spotlight" ||
+                  participantId !== viewModeControls.spotlightParticipant
+                ) {
                   viewModeControls.setSpotlight(participantId);
                 }
               }}
@@ -433,9 +437,15 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
               className="flex items-center space-x-2 bg-white/95 backdrop-blur-sm border border-gray-200 hover:bg-blue-50 text-gray-600 hover:text-blue-600"
               title="Votações"
             >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                <path d="M8 12h8M8 8h8M8 16h8"/>
+              <svg
+                className="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <path d="M8 12h8M8 8h8M8 16h8" />
               </svg>
               <span className="hidden sm:inline text-xs">Votações</span>
             </Button>
@@ -493,7 +503,11 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
         onSpeakerVolumeChange={advancedControls.handleSpeakerVolumeChange}
         onVideoQualityChange={advancedControls.handleVideoQualityChange}
         onDataSavingModeToggle={advancedControls.handleDataSavingModeToggle}
-        connectionQuality={connectionStats.quality === "unknown" ? undefined : connectionStats.quality}
+        connectionQuality={
+          connectionStats.quality === "unknown"
+            ? undefined
+            : connectionStats.quality
+        }
         bandwidth={connectionStats.bandwidth}
       />
 

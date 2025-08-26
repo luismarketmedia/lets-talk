@@ -45,7 +45,12 @@ export const ViewModeSelector: React.FC<ViewModeSelectorProps> = ({
   ];
 
   return (
-    <div className={cn("flex items-center space-x-1 bg-white/95 backdrop-blur-sm rounded-lg border border-gray-200 p-1", className)}>
+    <div
+      className={cn(
+        "flex items-center space-x-1 bg-white/95 backdrop-blur-sm rounded-lg border border-gray-200 p-1",
+        className,
+      )}
+    >
       {modes.map((mode) => {
         const Icon = mode.icon;
         const isActive = currentMode === mode.id;
@@ -64,9 +69,13 @@ export const ViewModeSelector: React.FC<ViewModeSelectorProps> = ({
                 ? "bg-blue-500 text-white shadow-md"
                 : isDisabled
                   ? "text-gray-400 cursor-not-allowed"
-                  : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
+                  : "text-gray-600 hover:bg-blue-50 hover:text-blue-600",
             )}
-            title={isDisabled ? `${mode.description} (mínimo 2 participantes)` : mode.description}
+            title={
+              isDisabled
+                ? `${mode.description} (mínimo 2 participantes)`
+                : mode.description
+            }
           >
             <Icon className="w-4 h-4" />
             <span className="hidden sm:inline">{mode.name}</span>
@@ -83,11 +92,13 @@ export const ViewModeSelector: React.FC<ViewModeSelectorProps> = ({
 // Hook para gerenciar o estado do modo de visualização
 export const useViewMode = (initialMode: ViewMode = "gallery") => {
   const [viewMode, setViewMode] = React.useState<ViewMode>(initialMode);
-  const [spotlightParticipant, setSpotlightParticipant] = React.useState<string | null>(null);
+  const [spotlightParticipant, setSpotlightParticipant] = React.useState<
+    string | null
+  >(null);
 
   const changeViewMode = React.useCallback((mode: ViewMode) => {
     setViewMode(mode);
-    
+
     // Reset spotlight when changing away from spotlight mode
     if (mode !== "spotlight") {
       setSpotlightParticipant(null);

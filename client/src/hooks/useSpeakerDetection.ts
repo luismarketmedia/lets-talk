@@ -34,36 +34,39 @@ export const useSpeakerDetection = ({
   // Minimum time before changing active speaker (to avoid rapid switching)
   const SPEAKER_CHANGE_DELAY = 500; // ms
 
-  const setupAudioAnalysis = useCallback((streamId: string, stream: MediaStream) => {
-    try {
-      const audioTracks = stream.getAudioTracks();
-      if (audioTracks.length === 0) return;
+  const setupAudioAnalysis = useCallback(
+    (streamId: string, stream: MediaStream) => {
+      try {
+        const audioTracks = stream.getAudioTracks();
+        if (audioTracks.length === 0) return;
 
-      const audioContext = new AudioContext();
-      const analyser = audioContext.createAnalyser();
-      const source = audioContext.createMediaStreamSource(stream);
+        const audioContext = new AudioContext();
+        const analyser = audioContext.createAnalyser();
+        const source = audioContext.createMediaStreamSource(stream);
 
-      analyser.fftSize = 256;
-      analyser.smoothingTimeConstant = 0.8;
-      source.connect(analyser);
+        analyser.fftSize = 256;
+        analyser.smoothingTimeConstant = 0.8;
+        source.connect(analyser);
 
-      const bufferLength = analyser.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
 
-      audioContextsRef.current.set(streamId, audioContext);
-      analysersRef.current.set(streamId, analyser);
-      dataArraysRef.current.set(streamId, dataArray);
-    } catch (error) {
-      console.warn(`Failed to setup audio analysis for ${streamId}:`, error);
-    }
-  }, []);
+        audioContextsRef.current.set(streamId, audioContext);
+        analysersRef.current.set(streamId, analyser);
+        dataArraysRef.current.set(streamId, dataArray);
+      } catch (error) {
+        console.warn(`Failed to setup audio analysis for ${streamId}:`, error);
+      }
+    },
+    [],
+  );
 
   const cleanupAudioAnalysis = useCallback((streamId: string) => {
     const audioContext = audioContextsRef.current.get(streamId);
-    if (audioContext && audioContext.state !== 'closed') {
+    if (audioContext && audioContext.state !== "closed") {
       audioContext.close();
     }
-    
+
     audioContextsRef.current.delete(streamId);
     analysersRef.current.delete(streamId);
     dataArraysRef.current.delete(streamId);
@@ -77,11 +80,11 @@ export const useSpeakerDetection = ({
 
     try {
       analyser.getByteFrequencyData(dataArray);
-      
+
       // Calculate average volume
       const sum = dataArray.reduce((acc, value) => acc + value, 0);
       const average = sum / dataArray.length;
-      
+
       // Convert to 0-100 scale
       return Math.round((average / 255) * 100);
     } catch (error) {
@@ -93,13 +96,13 @@ export const useSpeakerDetection = ({
     const currentTime = Date.now();
     const newAudioLevels = new Map<string, number>();
     const newSpeakingParticipants = new Set<string>();
-    
+
     // Check local stream
     if (localStream) {
-      const localLevel = getAudioLevel('local');
-      newAudioLevels.set('local', localLevel);
+      const localLevel = getAudioLevel("local");
+      newAudioLevels.set("local", localLevel);
       if (localLevel > threshold) {
-        newSpeakingParticipants.add('local');
+        newSpeakingParticipants.add("local");
       }
     }
 
@@ -125,13 +128,14 @@ export const useSpeakerDetection = ({
     }
 
     // Only change active speaker if enough time has passed (to avoid rapid switching)
-    const shouldChangeActiveSpeaker = 
+    const shouldChangeActiveSpeaker =
       currentTime - lastSpeakerChangeRef.current > SPEAKER_CHANGE_DELAY;
 
-    setSpeakerInfo(prev => {
-      const activeSpeaker = shouldChangeActiveSpeaker && newActiveSpeaker 
-        ? newActiveSpeaker 
-        : prev.activeSpeaker;
+    setSpeakerInfo((prev) => {
+      const activeSpeaker =
+        shouldChangeActiveSpeaker && newActiveSpeaker
+          ? newActiveSpeaker
+          : prev.activeSpeaker;
 
       // Update last change time if speaker actually changed
       if (activeSpeaker !== prev.activeSpeaker) {
@@ -149,13 +153,13 @@ export const useSpeakerDetection = ({
   // Setup audio analysis for local stream
   useEffect(() => {
     if (localStream) {
-      setupAudioAnalysis('local', localStream);
+      setupAudioAnalysis("local", localStream);
     } else {
-      cleanupAudioAnalysis('local');
+      cleanupAudioAnalysis("local");
     }
 
     return () => {
-      cleanupAudioAnalysis('local');
+      cleanupAudioAnalysis("local");
     };
   }, [localStream, setupAudioAnalysis, cleanupAudioAnalysis]);
 
@@ -171,7 +175,7 @@ export const useSpeakerDetection = ({
     // Cleanup removed streams
     const currentStreamIds = new Set(remoteStreams.keys());
     for (const streamId of audioContextsRef.current.keys()) {
-      if (streamId !== 'local' && !currentStreamIds.has(streamId)) {
+      if (streamId !== "local" && !currentStreamIds.has(streamId)) {
         cleanupAudioAnalysis(streamId);
       }
     }
@@ -200,14 +204,14 @@ export const useSpeakerDetection = ({
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
-      
+
       // Close all audio contexts
       for (const audioContext of audioContextsRef.current.values()) {
-        if (audioContext.state !== 'closed') {
+        if (audioContext.state !== "closed") {
           audioContext.close();
         }
       }
-      
+
       audioContextsRef.current.clear();
       analysersRef.current.clear();
       dataArraysRef.current.clear();
