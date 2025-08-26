@@ -44,10 +44,10 @@ export const useWebRTC = (
   const [isHost, setIsHost] = useState(false);
 
   useEffect(() => {
-    // Conectar ao servidor Socket.IO
-    const serverUrl = "http://localhost:3000";
+    // Conectar ao servidor Socket.IO via proxy do Vite
+    const serverUrl = window.location.origin; // Usar a mesma origem (proxy do Vite)
 
-    console.log("Conectando ao servidor WebRTC:", serverUrl);
+    console.log("Conectando ao servidor WebRTC via proxy:", serverUrl);
     socketRef.current = io(serverUrl, {
       transports: ['websocket', 'polling'],
       timeout: 10000,
