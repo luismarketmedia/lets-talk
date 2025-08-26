@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import { Mic, MicOff, User } from "lucide-react";
 import { cn } from "../lib/utils";
+import { useAudioLevel } from "../hooks/useAudioLevel";
 
 interface VideoTileProps {
   stream: MediaStream | null;
