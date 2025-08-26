@@ -43,6 +43,10 @@ interface MediaControlsProps {
   isHandRaised?: boolean;
   raisedHandsCount?: number;
   onOpenVoting?: () => void;
+  // Collaborative tools props
+  localStream?: MediaStream | null;
+  remoteStreams?: Map<string, MediaStream>;
+  isScreenSharing?: boolean;
 }
 
 export const MediaControls: React.FC<MediaControlsProps> = ({
