@@ -523,6 +523,17 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
         participantStates={participantStates}
         localSocketId={socket?.id}
       />
+
+      {/* Poll Modal */}
+      <PollModal
+        isOpen={showPollModal}
+        onClose={() => setShowPollModal(false)}
+        socket={socket}
+        roomId={roomId}
+        userName={userName}
+        isHost={isHost}
+        participantCount={totalParticipants}
+      />
     </div>
   );
 };
