@@ -1,11 +1,11 @@
 {
   "deployment": {
-    "domain": "meet.empresa.com.br",
+    "domain": "letstalk-local.solutech.com.br",
     "useHttps": true,
     "serverPort": 3000,
     "serverDeploymentMode": "Standalone",
-    "iisPath": "C:\\inetpub\\wwwroot",
-    "sourcePath": "C:\\dev\\lets-talk"
+    "iisPath": "D:\\Projetos\\Solutech\\lets-talk\\client\\dist",
+    "sourcePath": "D:\\Projetos\\Solutech\\lets-talk\\client\\dist"
   },
   "iis": {
     "clientSiteName": "LetsTalk-Client",
@@ -34,7 +34,7 @@
   },
   "security": {
     "enableCORS": true,
-    "allowedOrigins": ["https://meet.empresa.com.br"],
+    "allowedOrigins": ["https://letstalk-local.solutech.com.br"],
     "enableRateLimit": true,
     "maxRequestsPerMinute": 1000
   }
