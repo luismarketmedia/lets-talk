@@ -36,7 +36,7 @@ webrtc-app/
 ├── public/                # Cliente HTML antigo (legacy)
 ├── client/                # Novo cliente React
 │   ├── src/
-│   │   ├── components/    # Componentes React
+│   │   ├─��� components/    # Componentes React
 │   │   │   ├── ui/        # Componentes UI base
 │   │   │   ├── JoinRoom.tsx
 │   │   │   ├── CallInterface.tsx
@@ -129,7 +129,7 @@ O Let's Talk suporta diferentes formatos de código de reunião, similares às p
 - **Exemplo**: `847-329-156`
 - **Características**: Apenas números, familiar para usuários Zoom
 
-### 👥 **Microsoft Teams**
+### ��� **Microsoft Teams**
 - **Formato**: `123 456 789`
 - **Exemplo**: `294 831 567`
 - **Características**: Números separados por espaços
@@ -216,7 +216,18 @@ PORT=8080 npm start
    - Teste conectividade de rede
    - Configure TURN servers para NATs restritivos
 
-3. **Cliente não carrega**:
+3. **Compartilhamento de tela não funciona**:
+   - ✅ **Verifique HTTPS**: Use `https://` ou `localhost`
+   - ✅ **Permissions Policy**: Verifique se `display-capture` está permitido
+   - ✅ **Navegador suportado**: Chrome, Firefox, Edge (Safari limitado)
+   - ✅ **Permissões**: Clique em "Permitir" quando solicitado
+   - ✅ **Sistema**: Alguns sistemas podem bloquear captura de tela
+
+   **Erro comum**: `NotAllowedError: display-capture disallowed`
+   - **Solução**: Recarregue a página e use HTTPS
+   - **Alternativa**: Configure headers de Permissions Policy no servidor
+
+4. **Cliente não carrega**:
    - Verifique se as dependências foram instaladas
    - Confirme se o servidor Vite está rodando na porta 5173
    - Verifique logs de erro no console
