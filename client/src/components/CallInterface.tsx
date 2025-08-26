@@ -7,7 +7,7 @@ import { AudioDeviceModal } from "./AudioDeviceModal";
 import { DeviceTestModal } from "./DeviceTestModal";
 import { AdvancedMediaControls } from "./AdvancedMediaControls";
 import { ConnectionIndicator } from "./ConnectionIndicator";
-import { JoinApproval } from "./JoinApproval";
+import { ParticipantManagerModal, useParticipantManager } from "./ParticipantManagerModal";
 import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
 import { useAdvancedMediaControls } from "../hooks/useAdvancedMediaControls";
@@ -64,6 +64,17 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   const [showAdvancedControls, setShowAdvancedControls] = useState(false);
   const [isInIframe, setIsInIframe] = useState(false);
   const [showClipboardWarning, setShowClipboardWarning] = useState(false);
+
+  // Participant manager modal
+  const participantManager = useParticipantManager(socket, roomId, isHost);
+  const [showParticipantModal, setShowParticipantModal] = useState(false);
+
+  // Auto-open participant modal when there are pending requests
+  useEffect(() => {
+    if (participantManager.pendingCount > 0 && !showParticipantModal) {
+      setShowParticipantModal(true);
+    }
+  }, [participantManager.pendingCount, showParticipantModal]);
   const remoteStreamArray = Array.from(remoteStreams.entries());
   const totalParticipants = 1 + remoteStreamArray.length; // Local + remotes
 
@@ -240,6 +251,23 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                         rtt={connectionStats.rtt}
                         bandwidth={connectionStats.bandwidth}
                       />
+                      {/* Botão para gerenciar participantes */}
+                      {isHost && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowParticipantModal(true)}
+                          className="relative flex items-center space-x-2"
+                        >
+                          <Users className="w-4 h-4" />
+                          <span>Gerenciar</span>
+                          {participantManager.pendingCount > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
+                              {participantManager.pendingCount}
+                            </span>
+                          )}
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -330,14 +358,6 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
             </div>
           )}
 
-          {/* Sistema de aprovação de entrada */}
-          {isHost && (
-            <div className="max-w-6xl mx-auto mb-6">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-                <JoinApproval socket={socket} roomId={roomId} isHost={isHost} />
-              </div>
-            </div>
-          )}
 
           {/* Grade de vídeos */}
           <div className="max-w-6xl mx-auto mb-8">
@@ -466,6 +486,18 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
         onDataSavingModeToggle={advancedControls.handleDataSavingModeToggle}
         connectionQuality={connectionStats.quality}
         bandwidth={connectionStats.bandwidth}
+      />
+
+      {/* Participant Manager Modal */}
+      <ParticipantManagerModal
+        socket={socket}
+        roomId={roomId}
+        isHost={isHost}
+        isOpen={showParticipantModal}
+        onClose={() => setShowParticipantModal(false)}
+        participants={participantNames}
+        participantStates={participantStates}
+        localSocketId={socket?.id}
       />
     </div>
   );
