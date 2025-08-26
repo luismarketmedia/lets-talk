@@ -137,7 +137,7 @@ export const useAdvancedMediaControls = (
         !event.repeat &&
         !(event.target instanceof HTMLInputElement) &&
         !(event.target instanceof HTMLTextAreaElement) &&
-        !((event.target as HTMLElement)?.isContentEditable === 'true')
+        !((event.target as HTMLElement)?.isContentEditable)
       ) {
         event.preventDefault();
 
