@@ -33,7 +33,7 @@ export const useConnectionMonitor = ({
     quality: "unknown",
   });
 
-  const intervalRef = useRef<NodeJS.Timeout>();
+  const intervalRef = useRef<NodeJS.Timeout | undefined>();
   const lastStatsRef = useRef<Map<string, RTCStatsReport>>(new Map());
 
   const calculateQuality = useCallback(
