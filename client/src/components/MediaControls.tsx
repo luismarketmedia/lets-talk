@@ -23,6 +23,7 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
   onToggleScreenShare,
   onEndCall
 }) => {
+  const screenShareSupport = useScreenShareSupport();
   return (
     <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
       <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200 p-4">
