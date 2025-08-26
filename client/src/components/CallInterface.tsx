@@ -37,6 +37,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   socket,
   isHost,
   userName = "Você",
+  peerConnections,
   onToggleAudio,
   onToggleVideo,
   onToggleScreenShare,
@@ -146,7 +147,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
     } else {
       // Se nem prompt funcionar, mostrar alert
       alert(
-        `Código da sala: ${roomId}\n\nAmbiente com restriç��es - Copie manualmente este código.`,
+        `Código da sala: ${roomId}\n\nAmbiente com restrições - Copie manualmente este código.`,
       );
     }
 
