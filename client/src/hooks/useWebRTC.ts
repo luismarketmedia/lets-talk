@@ -2,6 +2,10 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { CallState, MediaControls } from '../types/webrtc';
 
+interface WebRTCOptions {
+  onNotification?: (type: 'success' | 'error' | 'warning' | 'info', title: string, message?: string) => void;
+}
+
 const ICE_SERVERS = {
   iceServers: [
     { urls: 'stun:stun.l.google.com:19302' },
