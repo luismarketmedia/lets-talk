@@ -42,7 +42,9 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   onEndCall,
 }) => {
   const [copied, setCopied] = useState(false);
-  const [copyMethod, setCopyMethod] = useState<'clipboard' | 'fallback' | 'manual'>('clipboard');
+  const [copyMethod, setCopyMethod] = useState<
+    "clipboard" | "fallback" | "manual"
+  >("clipboard");
   const [showAudioModal, setShowAudioModal] = useState(false);
   const [showTestModal, setShowTestModal] = useState(false);
   const [isInIframe, setIsInIframe] = useState(false);
@@ -69,27 +71,27 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
       // Tentar usar Clipboard API moderna primeiro
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(roomId);
-        setCopyMethod('clipboard');
+        setCopyMethod("clipboard");
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
         return;
       }
 
       // Fallback 1: Método de seleção de texto (funciona na maioria dos ambientes)
-      const textArea = document.createElement('textarea');
+      const textArea = document.createElement("textarea");
       textArea.value = roomId;
-      textArea.style.position = 'fixed';
-      textArea.style.left = '-999999px';
-      textArea.style.top = '-999999px';
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
       document.body.appendChild(textArea);
       textArea.focus();
       textArea.select();
 
-      const successful = document.execCommand('copy');
+      const successful = document.execCommand("copy");
       document.body.removeChild(textArea);
 
       if (successful) {
-        setCopyMethod('fallback');
+        setCopyMethod("fallback");
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
         return;
@@ -97,26 +99,25 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
 
       // Fallback 2: Mostrar prompt para cópia manual
       fallbackCopyPrompt();
-
     } catch (error) {
       console.warn("Clipboard API bloqueada, usando fallback:", error);
 
       // Se chegou aqui, tentar fallback de seleção
       try {
-        const textArea = document.createElement('textarea');
+        const textArea = document.createElement("textarea");
         textArea.value = roomId;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-999999px';
-        textArea.style.top = '-999999px';
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
 
-        const successful = document.execCommand('copy');
+        const successful = document.execCommand("copy");
         document.body.removeChild(textArea);
 
         if (successful) {
-          setCopyMethod('fallback');
+          setCopyMethod("fallback");
           setCopied(true);
           setTimeout(() => setCopied(false), 2000);
         } else {
@@ -138,16 +139,18 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
     // Método final: mostrar prompt para cópia manual
     if (window.prompt) {
       window.prompt(
-        'Ambiente restrito detectado. Copie o código manualmente (Ctrl+C / Cmd+C):',
-        roomId
+        "Ambiente restrito detectado. Copie o código manualmente (Ctrl+C / Cmd+C):",
+        roomId,
       );
     } else {
       // Se nem prompt funcionar, mostrar alert
-      alert(`Código da sala: ${roomId}\n\nAmbiente com restrições - Copie manualmente este código.`);
+      alert(
+        `Código da sala: ${roomId}\n\nAmbiente com restrições - Copie manualmente este código.`,
+      );
     }
 
     // Simular "copied" por feedback visual
-    setCopyMethod('manual');
+    setCopyMethod("manual");
     setCopied(true);
     setTimeout(() => setCopied(false), 3000);
   };
@@ -213,11 +216,13 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                 size="sm"
                 onClick={copyRoomId}
                 className={`flex items-center space-x-2 ${
-                  copied && copyMethod === 'manual' ? 'border-yellow-400 bg-yellow-50' : ''
+                  copied && copyMethod === "manual"
+                    ? "border-yellow-400 bg-yellow-50"
+                    : ""
                 }`}
               >
                 {copied ? (
-                  copyMethod === 'manual' ? (
+                  copyMethod === "manual" ? (
                     <Copy className="w-4 h-4 text-yellow-600" />
                   ) : (
                     <Check className="w-4 h-4 text-green-600" />
@@ -226,9 +231,11 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                   <Copy className="w-4 h-4" />
                 )}
                 <span className="hidden sm:inline">
-                  {copied ?
-                    (copyMethod === 'manual' ? "Use Ctrl+C" : "Copiado!") :
-                    "Copiar código"}
+                  {copied
+                    ? copyMethod === "manual"
+                      ? "Use Ctrl+C"
+                      : "Copiado!"
+                    : "Copiar código"}
                 </span>
               </Button>
             </div>
@@ -247,12 +254,22 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                   Restrições de Ambiente Detectadas
                 </h3>
                 <p className="text-sm text-yellow-700 mb-2">
-                  A cópia automática pode não funcionar neste ambiente. Use os métodos alternativos:
+                  A cópia automática pode não funcionar neste ambiente. Use os
+                  métodos alternativos:
                 </p>
                 <ul className="text-xs text-yellow-700 space-y-1">
-                  <li>• <strong>Seleção manual:</strong> Clique no código e copie com Ctrl+C</li>
-                  <li>• <strong>Prompt do navegador:</strong> Use a janela de prompt quando aparecer</li>
-                  <li>• <strong>Compartilhamento:</strong> Compartilhe diretamente a URL da página</li>
+                  <li>
+                    • <strong>Seleção manual:</strong> Clique no código e copie
+                    com Ctrl+C
+                  </li>
+                  <li>
+                    • <strong>Prompt do navegador:</strong> Use a janela de
+                    prompt quando aparecer
+                  </li>
+                  <li>
+                    • <strong>Compartilhamento:</strong> Compartilhe diretamente
+                    a URL da página
+                  </li>
                 </ul>
               </div>
               <button
