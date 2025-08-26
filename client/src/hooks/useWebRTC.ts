@@ -772,7 +772,6 @@ export const useWebRTC = (
           // Tentar obter compartilhamento de tela
           screenStream = await navigator.mediaDevices.getDisplayMedia({
             video: {
-              mediaSource: "screen",
               width: { ideal: 1920 },
               height: { ideal: 1080 },
               frameRate: { ideal: 30 },
