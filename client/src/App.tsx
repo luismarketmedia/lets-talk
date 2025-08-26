@@ -40,6 +40,8 @@ function App() {
       <JoinRoom
         onJoinRoom={handleJoinRoom}
         isConnecting={connectionState === 'connecting'}
+        error={error}
+        onClearError={() => setError(null)}
       />
     );
   }
