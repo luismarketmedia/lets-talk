@@ -41,6 +41,7 @@ export const useWebRTC = (
   const socketRef = useRef<Socket | null>(null);
   const peerConnectionsRef = useRef<Map<string, RTCPeerConnection>>(new Map());
   const localStreamRef = useRef<MediaStream | null>(null);
+  const [isHost, setIsHost] = useState(false);
 
   useEffect(() => {
     // Conectar ao servidor Socket.IO
