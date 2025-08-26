@@ -405,26 +405,6 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                 );
               })}
             </div>
-
-            {/* Mensagem quando não há participantes */}
-            {totalParticipants === 1 && (
-              <div className="text-center mt-8 p-6 bg-white rounded-xl border border-gray-200">
-                <Users className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Aguardando participantes
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  Compartilhe o código da sala para que outros possam participar
-                </p>
-                <Button
-                  onClick={copyRoomId}
-                  className="inline-flex items-center space-x-2"
-                >
-                  <Copy className="w-4 h-4" />
-                  <span>Copiar código: {roomId}</span>
-                </Button>
-              </div>
-            )}
           </div>
         </div>
       </div>
