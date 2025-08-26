@@ -192,6 +192,12 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
 
     return (
       <div className="relative h-full">
+        {/* Speaker View Label */}
+        <div className="absolute top-4 left-4 z-10 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-2">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <span>Palestrante Principal</span>
+        </div>
+
         {/* Main participant */}
         <div className="h-full pb-24">
           {mainParticipant && (
@@ -210,7 +216,7 @@ export const VideoGrid: React.FC<VideoGridProps> = ({
                       ?.isVideoEnabled ?? true)
               }
               participantName={mainParticipant.name}
-              className="h-full w-full"
+              className="h-full w-full ring-2 ring-green-500 ring-offset-4"
               peerConnection={
                 mainParticipant.isLocal
                   ? null
