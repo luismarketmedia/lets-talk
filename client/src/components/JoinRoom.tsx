@@ -142,7 +142,7 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
                         type="text"
                         placeholder={mode === 'join'
                           ? "Digite o código da reunião"
-                          : `Gere um código ${codeFormatOptions.find(o => o.value === codeFormat)?.example || ''}`
+                          : "Gere um código (ex: abc-defg-hij)"
                         }
                         value={roomId}
                         onChange={handleRoomIdChange}
