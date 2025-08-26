@@ -14,6 +14,7 @@ function App() {
 
 function AppContent() {
   const [error, setError] = useState<string | null>(null);
+  const { addToast } = useToast();
 
   const {
     isInCall,
@@ -29,7 +30,11 @@ function AppContent() {
     toggleVideo,
     toggleScreenShare,
     endCall
-  } = useWebRTC();
+  } = useWebRTC({
+    onNotification: (type, title, message) => {
+      addToast({ type, title, message });
+    }
+  });
 
   const handleJoinRoom = async (roomId: string) => {
     try {
