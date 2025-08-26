@@ -178,7 +178,7 @@ function Deploy-Client {
     Write-Success "Arquivos do cliente copiados"
     
     # Criar web.config
-    $webConfigContent = @"
+    $webConfigContent = @'
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
   <system.webServer>
@@ -204,7 +204,7 @@ function Deploy-Client {
     <urlCompression doStaticCompression="true" doDynamicCompression="true" />
   </system.webServer>
 </configuration>
-"@
+'@
     
     $webConfigPath = Join-Path $clientDest "web.config"
     $webConfigContent | Out-File -FilePath $webConfigPath -Encoding UTF8
@@ -307,7 +307,7 @@ function Deploy-Server-Standalone {
     New-Item -ItemType Directory -Path $proxyDest -Force | Out-Null
     
     # web.config para proxy reverso
-    $proxyWebConfig = @"
+    $proxyWebConfig = @'
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
   <system.webServer>
@@ -315,7 +315,7 @@ function Deploy-Server-Standalone {
       <rules>
         <rule name="ReverseProxyInboundRule" stopProcessing="true">
           <match url="(.*)" />
-          <action type="Rewrite" url="http://localhost:$ServerPort/{R:1}" />
+          <action type="Rewrite" url="http://localhost:3000/{R:1}" />
           <serverVariables>
             <set name="HTTP_X_ORIGINAL_ACCEPT_ENCODING" value="{HTTP_ACCEPT_ENCODING}" />
             <set name="HTTP_ACCEPT_ENCODING" value="" />
@@ -326,7 +326,7 @@ function Deploy-Server-Standalone {
     <webSocket enabled="true" />
   </system.webServer>
 </configuration>
-"@
+'@
     
     $proxyWebConfigPath = Join-Path $proxyDest "web.config"
     $proxyWebConfig | Out-File -FilePath $proxyWebConfigPath -Encoding UTF8
@@ -370,7 +370,7 @@ function Deploy-Server-IISNode {
     Write-Success "Dependências do servidor instaladas"
     
     # Criar web.config para IISNode
-    $iisNodeWebConfig = @"
+    $iisNodeWebConfig = @'
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
   <system.webServer>
@@ -398,7 +398,7 @@ function Deploy-Server-IISNode {
     <httpErrors existingResponse="PassThrough" />
   </system.webServer>
 </configuration>
-"@
+'@
     
     $iisNodeWebConfigPath = Join-Path $serverDest "web.config"
     $iisNodeWebConfig | Out-File -FilePath $iisNodeWebConfigPath -Encoding UTF8

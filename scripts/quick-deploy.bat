@@ -61,9 +61,9 @@ echo.
 
 REM Construir comando PowerShell
 set "PS_COMMAND=powershell.exe -ExecutionPolicy Bypass -File "%~dp0deploy-windows.ps1""
-set "PS_COMMAND=%PS_COMMAND% -SourcePath "%SOURCE_PATH%""
-set "PS_COMMAND=%PS_COMMAND% -Domain "%DOMAIN%""
-set "PS_COMMAND=%PS_COMMAND% -ServerDeploymentMode "%SERVER_MODE%""
+set "PS_COMMAND=%PS_COMMAND% -SourcePath \"%SOURCE_PATH%\""
+set "PS_COMMAND=%PS_COMMAND% -Domain \"%DOMAIN%\""
+set "PS_COMMAND=%PS_COMMAND% -ServerDeploymentMode \"%SERVER_MODE%\""
 
 if "%USE_HTTPS%"=="true" (
     set "PS_COMMAND=%PS_COMMAND% -UseHttps"
