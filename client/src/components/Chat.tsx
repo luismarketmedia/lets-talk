@@ -55,12 +55,13 @@ export const Chat: React.FC<ChatProps> = ({
     if (roomId) {
       setMessages([
         {
-          message: "Bem-vindo ao chat! Você pode conversar com outros participantes aqui.",
+          message:
+            "Bem-vindo ao chat! Você pode conversar com outros participantes aqui.",
           sender: "system",
           userName: "Sistema",
           timestamp: new Date(),
           roomId: roomId,
-        }
+        },
       ]);
       setUnreadCount(0);
     }
@@ -191,14 +192,16 @@ export const Chat: React.FC<ChatProps> = ({
             "relative flex items-center space-x-2 font-medium transition-all duration-200",
             "bg-white/95 backdrop-blur-sm border-gray-300 hover:bg-blue-50 hover:border-blue-400",
             "shadow-md hover:shadow-lg",
-            unreadCount > 0 && "bg-blue-50 border-blue-400 text-blue-700"
+            unreadCount > 0 && "bg-blue-50 border-blue-400 text-blue-700",
           )}
         >
           <div className="relative">
-            <MessageCircle className={cn(
-              "w-4 h-4",
-              unreadCount > 0 ? "text-blue-600" : "text-gray-600"
-            )} />
+            <MessageCircle
+              className={cn(
+                "w-4 h-4",
+                unreadCount > 0 ? "text-blue-600" : "text-gray-600",
+              )}
+            />
             {/* Indicador de atividade quando há participantes */}
             {participantCount > 1 && unreadCount === 0 && (
               <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
@@ -253,7 +256,8 @@ export const Chat: React.FC<ChatProps> = ({
         {/* Messages Area */}
         <div className="flex-1 flex flex-col min-h-0 mt-2">
           <div className="flex-1 overflow-y-auto space-y-3 pr-2">
-            {messages.length === 0 || (messages.length === 1 && messages[0].sender === "system") ? (
+            {messages.length === 0 ||
+            (messages.length === 1 && messages[0].sender === "system") ? (
               <div className="flex flex-col items-center justify-center h-full text-gray-500 text-center p-4">
                 <div className="bg-blue-50 rounded-full p-3 mb-3">
                   <MessageCircle className="w-8 h-8 text-blue-500" />
@@ -281,7 +285,8 @@ export const Chat: React.FC<ChatProps> = ({
                 {socket?.connected && participantCount > 1 && (
                   <div className="bg-green-50 border border-green-200 rounded-lg p-2 mt-2">
                     <p className="text-xs text-green-700">
-                      ✨ {participantCount} participantes conectados. Comece a conversar!
+                      ✨ {participantCount} participantes conectados. Comece a
+                      conversar!
                     </p>
                   </div>
                 )}
@@ -301,18 +306,22 @@ export const Chat: React.FC<ChatProps> = ({
                 if (isSystem) {
                   return (
                     <div key={index} className="flex justify-center">
-                      <div className={cn(
-                        "rounded-lg px-3 py-2 max-w-[80%]",
-                        msg.message.includes("Erro")
-                          ? "bg-red-50 border border-red-200"
-                          : "bg-blue-50 border border-blue-200"
-                      )}>
-                        <p className={cn(
-                          "text-xs text-center",
+                      <div
+                        className={cn(
+                          "rounded-lg px-3 py-2 max-w-[80%]",
                           msg.message.includes("Erro")
-                            ? "text-red-700"
-                            : "text-blue-700"
-                        )}>
+                            ? "bg-red-50 border border-red-200"
+                            : "bg-blue-50 border border-blue-200",
+                        )}
+                      >
+                        <p
+                          className={cn(
+                            "text-xs text-center",
+                            msg.message.includes("Erro")
+                              ? "text-red-700"
+                              : "text-blue-700",
+                          )}
+                        >
                           {msg.message}
                         </p>
                       </div>

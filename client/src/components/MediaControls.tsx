@@ -90,193 +90,191 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
   return (
     <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200 p-4">
       <div className="flex items-center space-x-3">
-          {/* Controle de Áudio */}
-          <div className="relative">
-            <Button
-              variant={
-                isAudioEnabled && !isTemporarilyMuted
-                  ? "default"
-                  : "destructive"
-              }
-              size="icon"
-              onClick={onToggleAudio}
-              className={cn(
-                "w-12 h-12 rounded-full transition-all duration-200",
-                isAudioEnabled && !isTemporarilyMuted
-                  ? "bg-primary-500 hover:bg-primary-600 text-white"
-                  : "bg-red-500 hover:bg-red-600 text-white",
-                isTemporarilyMuted && "ring-2 ring-yellow-400 ring-offset-2",
-              )}
-              title={
-                isTemporarilyMuted
-                  ? "Microfone temporariamente silenciado (Solte ESPAÇO)"
-                  : isAudioEnabled
-                    ? "Desativar microfone"
-                    : "Ativar microfone"
-              }
-            >
-              {isAudioEnabled && !isTemporarilyMuted ? (
-                <Mic className="w-5 h-5" />
-              ) : (
-                <MicOff className="w-5 h-5" />
-              )}
-            </Button>
-            {isTemporarilyMuted && (
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse" />
-            )}
-          </div>
-
-          {/* Controle de Vídeo */}
+        {/* Controle de Áudio */}
+        <div className="relative">
           <Button
-            variant={isVideoEnabled ? "default" : "destructive"}
+            variant={
+              isAudioEnabled && !isTemporarilyMuted ? "default" : "destructive"
+            }
             size="icon"
-            onClick={onToggleVideo}
+            onClick={onToggleAudio}
             className={cn(
               "w-12 h-12 rounded-full transition-all duration-200",
-              isVideoEnabled
+              isAudioEnabled && !isTemporarilyMuted
                 ? "bg-primary-500 hover:bg-primary-600 text-white"
                 : "bg-red-500 hover:bg-red-600 text-white",
-            )}
-            title={isVideoEnabled ? "Desativar câmera" : "Ativar câmera"}
-          >
-            {isVideoEnabled ? (
-              <Video className="w-5 h-5" />
-            ) : (
-              <VideoOff className="w-5 h-5" />
-            )}
-          </Button>
-
-          {/* Compartilhar Tela */}
-          <Button
-            variant={isScreenSharing ? "default" : "secondary"}
-            size="icon"
-            onClick={
-              screenShareSupport.canAttempt ? onToggleScreenShare : undefined
-            }
-            disabled={!screenShareSupport.canAttempt}
-            className={cn(
-              "w-12 h-12 rounded-full transition-all duration-200",
-              isScreenSharing
-                ? "bg-primary-500 hover:bg-primary-600 text-white"
-                : screenShareSupport.canAttempt
-                  ? "bg-gray-200 hover:bg-gray-300 text-gray-700"
-                  : "bg-gray-100 text-gray-400 cursor-not-allowed",
+              isTemporarilyMuted && "ring-2 ring-yellow-400 ring-offset-2",
             )}
             title={
-              !screenShareSupport.canAttempt
-                ? `Compartilhamento indisponível: ${screenShareSupport.reason}`
-                : isScreenSharing
-                  ? "Parar compartilhamento de tela"
-                  : "Compartilhar tela"
+              isTemporarilyMuted
+                ? "Microfone temporariamente silenciado (Solte ESPAÇO)"
+                : isAudioEnabled
+                  ? "Desativar microfone"
+                  : "Ativar microfone"
             }
           >
-            {!screenShareSupport.canAttempt ? (
-              <MonitorX className="w-5 h-5" />
+            {isAudioEnabled && !isTemporarilyMuted ? (
+              <Mic className="w-5 h-5" />
             ) : (
-              <Monitor className="w-5 h-5" />
+              <MicOff className="w-5 h-5" />
             )}
           </Button>
-
-          {/* Chat */}
-          {socket && roomId && (
-            <Chat
-              socket={socket}
-              roomId={roomId}
-              userName={userName}
-              participantCount={participantCount}
-            />
+          {isTemporarilyMuted && (
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse" />
           )}
+        </div>
 
-          {/* Configurações */}
-          {(onOpenAudioSettings || onOpenDeviceTest) && (
-            <div className="relative" ref={settingsRef}>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-                className={cn(
-                  "w-12 h-12 rounded-full transition-all duration-200",
-                  isSettingsOpen
-                    ? "bg-gray-200 text-gray-800"
-                    : "hover:bg-gray-100 text-gray-600",
-                )}
-                title="Configurações de áudio e dispositivos"
-                aria-expanded={isSettingsOpen}
-                aria-haspopup="menu"
-                aria-label="Menu de configurações"
-              >
-                <Settings className="w-5 h-5" />
-              </Button>
+        {/* Controle de Vídeo */}
+        <Button
+          variant={isVideoEnabled ? "default" : "destructive"}
+          size="icon"
+          onClick={onToggleVideo}
+          className={cn(
+            "w-12 h-12 rounded-full transition-all duration-200",
+            isVideoEnabled
+              ? "bg-primary-500 hover:bg-primary-600 text-white"
+              : "bg-red-500 hover:bg-red-600 text-white",
+          )}
+          title={isVideoEnabled ? "Desativar câmera" : "Ativar câmera"}
+        >
+          {isVideoEnabled ? (
+            <Video className="w-5 h-5" />
+          ) : (
+            <VideoOff className="w-5 h-5" />
+          )}
+        </Button>
 
-              {/* Dropdown */}
-              {isSettingsOpen && (
-                <div
-                  className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-50"
-                  role="menu"
-                  aria-label="Opções de configuração"
-                >
-                  <div className="bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[250px]">
-                    {onOpenAdvancedControls && (
-                      <button
-                        onClick={() => {
-                          onOpenAdvancedControls();
-                          setIsSettingsOpen(false);
-                        }}
-                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors focus:bg-gray-50 focus:outline-none"
-                        role="menuitem"
-                        tabIndex={0}
-                      >
-                        <div className="flex items-center space-x-2">
-                          <Sliders className="w-4 h-4" />
-                          <span>Controles Avançados</span>
-                        </div>
-                      </button>
-                    )}
-                    {onOpenAudioSettings && (
-                      <button
-                        onClick={() => {
-                          onOpenAudioSettings();
-                          setIsSettingsOpen(false);
-                        }}
-                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors focus:bg-gray-50 focus:outline-none"
-                        role="menuitem"
-                        tabIndex={0}
-                      >
-                        🎤 Configurar Áudio
-                      </button>
-                    )}
-                    {onOpenDeviceTest && (
-                      <button
-                        onClick={() => {
-                          onOpenDeviceTest();
-                          setIsSettingsOpen(false);
-                        }}
-                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors focus:bg-gray-50 focus:outline-none"
-                        role="menuitem"
-                        tabIndex={0}
-                      >
-                        🧪 Testar Dispositivos
-                      </button>
-                    )}
-                  </div>
-                </div>
+        {/* Compartilhar Tela */}
+        <Button
+          variant={isScreenSharing ? "default" : "secondary"}
+          size="icon"
+          onClick={
+            screenShareSupport.canAttempt ? onToggleScreenShare : undefined
+          }
+          disabled={!screenShareSupport.canAttempt}
+          className={cn(
+            "w-12 h-12 rounded-full transition-all duration-200",
+            isScreenSharing
+              ? "bg-primary-500 hover:bg-primary-600 text-white"
+              : screenShareSupport.canAttempt
+                ? "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                : "bg-gray-100 text-gray-400 cursor-not-allowed",
+          )}
+          title={
+            !screenShareSupport.canAttempt
+              ? `Compartilhamento indisponível: ${screenShareSupport.reason}`
+              : isScreenSharing
+                ? "Parar compartilhamento de tela"
+                : "Compartilhar tela"
+          }
+        >
+          {!screenShareSupport.canAttempt ? (
+            <MonitorX className="w-5 h-5" />
+          ) : (
+            <Monitor className="w-5 h-5" />
+          )}
+        </Button>
+
+        {/* Chat */}
+        {socket && roomId && (
+          <Chat
+            socket={socket}
+            roomId={roomId}
+            userName={userName}
+            participantCount={participantCount}
+          />
+        )}
+
+        {/* Configurações */}
+        {(onOpenAudioSettings || onOpenDeviceTest) && (
+          <div className="relative" ref={settingsRef}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+              className={cn(
+                "w-12 h-12 rounded-full transition-all duration-200",
+                isSettingsOpen
+                  ? "bg-gray-200 text-gray-800"
+                  : "hover:bg-gray-100 text-gray-600",
               )}
-            </div>
-          )}
+              title="Configurações de áudio e dispositivos"
+              aria-expanded={isSettingsOpen}
+              aria-haspopup="menu"
+              aria-label="Menu de configurações"
+            >
+              <Settings className="w-5 h-5" />
+            </Button>
 
-          {/* Divisor */}
-          <div className="w-px h-8 bg-gray-300 mx-2" />
+            {/* Dropdown */}
+            {isSettingsOpen && (
+              <div
+                className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-50"
+                role="menu"
+                aria-label="Opções de configuração"
+              >
+                <div className="bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[250px]">
+                  {onOpenAdvancedControls && (
+                    <button
+                      onClick={() => {
+                        onOpenAdvancedControls();
+                        setIsSettingsOpen(false);
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors focus:bg-gray-50 focus:outline-none"
+                      role="menuitem"
+                      tabIndex={0}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <Sliders className="w-4 h-4" />
+                        <span>Controles Avançados</span>
+                      </div>
+                    </button>
+                  )}
+                  {onOpenAudioSettings && (
+                    <button
+                      onClick={() => {
+                        onOpenAudioSettings();
+                        setIsSettingsOpen(false);
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors focus:bg-gray-50 focus:outline-none"
+                      role="menuitem"
+                      tabIndex={0}
+                    >
+                      🎤 Configurar Áudio
+                    </button>
+                  )}
+                  {onOpenDeviceTest && (
+                    <button
+                      onClick={() => {
+                        onOpenDeviceTest();
+                        setIsSettingsOpen(false);
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors focus:bg-gray-50 focus:outline-none"
+                      role="menuitem"
+                      tabIndex={0}
+                    >
+                      🧪 Testar Dispositivos
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
-          {/* Encerrar Chamada */}
-          <Button
-            variant="destructive"
-            size="icon"
-            onClick={onEndCall}
-            className="w-12 h-12 rounded-full bg-red-500 hover:bg-red-600 text-white transition-all duration-200"
-            title="Encerrar chamada"
-          >
-            <Phone className="w-5 h-5 rotate-[135deg]" />
-          </Button>
+        {/* Divisor */}
+        <div className="w-px h-8 bg-gray-300 mx-2" />
+
+        {/* Encerrar Chamada */}
+        <Button
+          variant="destructive"
+          size="icon"
+          onClick={onEndCall}
+          className="w-12 h-12 rounded-full bg-red-500 hover:bg-red-600 text-white transition-all duration-200"
+          title="Encerrar chamada"
+        >
+          <Phone className="w-5 h-5 rotate-[135deg]" />
+        </Button>
       </div>
     </div>
   );

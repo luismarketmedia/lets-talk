@@ -228,7 +228,9 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                         <div className="flex items-center space-x-1 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
                           <span>🖥️</span>
                           <span>
-                            {participantNames.get(screenSharingParticipant) || 'Participante'} está compartilhando
+                            {participantNames.get(screenSharingParticipant) ||
+                              "Participante"}{" "}
+                            está compartilhando
                           </span>
                         </div>
                       )}
@@ -353,9 +355,12 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
               {/* Vídeos remotos */}
               {remoteStreamArray.map(([userId, stream], index) => {
                 const participantState = participantStates.get(userId);
-                const participantName = participantNames.get(userId) || `Participante ${index + 1}`;
+                const participantName =
+                  participantNames.get(userId) || `Participante ${index + 1}`;
                 const isSharing = screenSharingParticipant === userId;
-                const displayName = isSharing ? `🖥️ ${participantName} (Compartilhando)` : participantName;
+                const displayName = isSharing
+                  ? `🖥️ ${participantName} (Compartilhando)`
+                  : participantName;
 
                 return (
                   <VideoTile
@@ -373,7 +378,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                     participantName={displayName}
                     className={cn(
                       getVideoHeight(),
-                      isSharing && "ring-2 ring-blue-500 ring-offset-2"
+                      isSharing && "ring-2 ring-blue-500 ring-offset-2",
                     )}
                     peerConnection={peerConnections.get(userId) || null}
                   />
