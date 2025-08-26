@@ -201,7 +201,10 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
 
               <div className="hidden sm:flex items-center space-x-2 bg-gray-50 rounded-lg px-3 py-2">
                 <span className="text-sm text-gray-600">Sala:</span>
-                <span className="text-sm font-mono font-medium text-gray-900">
+                <span
+                  className="text-sm font-mono font-medium text-gray-900 select-all cursor-text px-1 py-0.5 rounded bg-white border border-gray-200"
+                  title="Clique para selecionar e copiar com Ctrl+C"
+                >
                   {roomId}
                 </span>
               </div>
