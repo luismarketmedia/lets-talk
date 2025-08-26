@@ -101,6 +101,42 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
             )}
           </Button>
 
+          {/* Configurações */}
+          {(onOpenAudioSettings || onOpenDeviceTest) && (
+            <div className="relative group">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="w-12 h-12 rounded-full hover:bg-gray-100 text-gray-600 transition-all duration-200"
+                title="Configurações de áudio e dispositivos"
+              >
+                <Settings className="w-5 h-5" />
+              </Button>
+
+              {/* Dropdown */}
+              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
+                <div className="bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[180px]">
+                  {onOpenAudioSettings && (
+                    <button
+                      onClick={onOpenAudioSettings}
+                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      🎤 Configurar Áudio
+                    </button>
+                  )}
+                  {onOpenDeviceTest && (
+                    <button
+                      onClick={onOpenDeviceTest}
+                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      🧪 Testar Dispositivos
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Divisor */}
           <div className="w-px h-8 bg-gray-300 mx-2" />
 
