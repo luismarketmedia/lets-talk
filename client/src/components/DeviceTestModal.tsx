@@ -240,6 +240,7 @@ export const DeviceTestModal: React.FC<DeviceTestModalProps> = ({
         // Parar teste
         screenStream.getTracks().forEach((track) => track.stop());
         setScreenStream(null);
+        setErrorInfo(prev => ({ ...prev, screenShareError: undefined }));
         setTestStatus((prev) => ({ ...prev, screenShare: "idle" }));
         return;
       }
