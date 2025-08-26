@@ -299,11 +299,13 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
                 {isConnecting ? (
                   <div className="flex items-center">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                    Conectando...
+                    {mode === "create" ? "Criando sala..." :
+                     entryType === "direct" ? "Entrando..." : "Solicitando entrada..."}
                   </div>
                 ) : (
                   <div className="flex items-center">
-                    {mode === "join" ? "Entrar na chamada" : "Iniciar chamada"}
+                    {mode === "create" ? "Iniciar chamada" :
+                     entryType === "direct" ? "Entrar na chamada" : "Solicitar entrada"}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </div>
                 )}
