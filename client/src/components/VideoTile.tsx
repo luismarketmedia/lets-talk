@@ -79,8 +79,24 @@ export const VideoTile: React.FC<VideoTileProps> = ({
                 <MicOff className="w-3 h-3 text-white" />
               </div>
             ) : (
-              <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+              <div
+                className={cn(
+                  "w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200",
+                  isSpeaking
+                    ? "bg-green-400 animate-pulse shadow-green-400/50 shadow-md"
+                    : "bg-green-500"
+                )}
+              >
                 <Mic className="w-3 h-3 text-white" />
+              </div>
+            )}
+
+            {/* Audio level indicator (only show when speaking and not muted) */}
+            {!isMuted && isSpeaking && (
+              <div className="flex items-center space-x-0.5">
+                <div className="w-0.5 h-2 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-0.5 h-3 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-0.5 h-2 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
               </div>
             )}
           </div>
