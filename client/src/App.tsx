@@ -97,6 +97,7 @@ function AppContent() {
       socket={socket}
       isHost={isHost}
       userName={currentUserName}
+      peerConnections={peerConnections}
       onToggleAudio={toggleAudio}
       onToggleVideo={toggleVideo}
       onToggleScreenShare={toggleScreenShare}
