@@ -13,6 +13,8 @@ import {
 import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
 import { useScreenShareSupport } from "../hooks/useScreenShareSupport";
+import { Chat } from "./Chat";
+import { Socket } from "socket.io-client";
 
 interface MediaControlsProps {
   isAudioEnabled: boolean;
@@ -26,6 +28,11 @@ interface MediaControlsProps {
   onOpenAudioSettings?: () => void;
   onOpenDeviceTest?: () => void;
   onOpenAdvancedControls?: () => void;
+  // Chat props
+  socket?: Socket | null;
+  roomId?: string | null;
+  userName?: string;
+  participantCount?: number;
 }
 
 export const MediaControls: React.FC<MediaControlsProps> = ({
@@ -40,6 +47,10 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
   onOpenAudioSettings,
   onOpenDeviceTest,
   onOpenAdvancedControls,
+  socket,
+  roomId,
+  userName,
+  participantCount = 1,
 }) => {
   const screenShareSupport = useScreenShareSupport();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
