@@ -53,6 +53,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
       // Tentar usar Clipboard API moderna primeiro
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(roomId);
+        setCopyMethod('clipboard');
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
         return;
