@@ -57,6 +57,27 @@ webrtc-app/
 └── README.md              # Este arquivo
 ```
 
+### 📂 Arquivos de Deployment Adicionados
+
+```
+├── scripts/                     # Scripts de deployment Windows/IIS
+│   ├── deploy-windows.ps1       # Deploy automático completo
+│   ├── update-deploy.ps1        # Atualização automática
+│   ├── quick-deploy.bat         # Interface simples para deploy
+│   ├── quick-update.bat         # Interface simples para update
+│   └── deploy-config.example.json # Exemplo de configuração
+├── DEPLOYMENT_WINDOWS_IIS.md    # 📖 Documentação completa deployment
+└── DEPLOY_QUICK_START.md        # ⚡ Guia rápido deployment
+```
+
+### 🆕 Funcionalidades Recentes
+
+- **💬 Chat em Tempo Real**: Sistema de chat lateral durante chamadas
+- **✅ Sistema de Aprovação**: Host pode aprovar/rejeitar entrada de usuários
+- **📋 Tipos de Entrada**: Solicitar entrada (guest) ou entrar diretamente (co-host)
+- **🖥️ Deploy Automatizado**: Scripts completos para Windows/IIS
+- **🔄 Atualização Simplificada**: Scripts para update automático
+
 ## 🚀 Como Executar
 
 ### Pré-requisitos
