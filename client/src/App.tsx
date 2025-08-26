@@ -37,6 +37,7 @@ function AppContent() {
     isHost,
     peerConnections,
     participantStates,
+    participantNames,
   } = useWebRTC({
     onNotification: (type, title, message) => {
       addToast({ type, title, message });
@@ -100,6 +101,7 @@ function AppContent() {
       userName={currentUserName}
       peerConnections={peerConnections}
       participantStates={participantStates}
+      participantNames={participantNames}
       onToggleAudio={toggleAudio}
       onToggleVideo={toggleVideo}
       onToggleScreenShare={toggleScreenShare}
