@@ -15,7 +15,11 @@ interface DeviceCheckProps {
   onOpenDeviceTest?: () => void;
 }
 
-export const DeviceCheck: React.FC<DeviceCheckProps> = ({ onDeviceCheck }) => {
+export const DeviceCheck: React.FC<DeviceCheckProps> = ({
+  onDeviceCheck,
+  onOpenAudioSettings,
+  onOpenDeviceTest
+}) => {
   const [deviceStatus, setDeviceStatus] = useState<DeviceStatus>({
     hasCamera: false,
     hasMicrophone: false,
