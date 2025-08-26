@@ -205,27 +205,26 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
         <div className="p-4 pb-28">
           {/* Header */}
           <div className="max-w-6xl mx-auto mb-6">
-            <div className="bg-white rounded-xl shadow-lg border-2 border-blue-300 p-6" style={{minHeight: "100px"}}>
+            <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center shadow-md">
                     <Users className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-xl font-bold text-red-900 mb-1" style={{backgroundColor: "yellow", padding: "4px"}}>
-                      🔴 CABEÇALHO VISÍVEL - Chamada em Andamento
+                    <h1 className="text-xl font-bold text-gray-900 mb-1">
+                      Chamada em Andamento
                     </h1>
                     <div className="flex items-center space-x-4">
                       <p className="text-sm font-medium text-gray-600">
                         {totalParticipants} participante{totalParticipants !== 1 ? "s" : ""} conectado{totalParticipants !== 1 ? "s" : ""}
                       </p>
-                      {totalParticipants > 1 && (
-                        <ConnectionIndicator
-                          quality={connectionStats.quality}
-                          rtt={connectionStats.rtt}
-                          bandwidth={connectionStats.bandwidth}
-                        />
-                      )}
+                      {/* Sempre mostrar indicador de conexão quando em chamada */}
+                      <ConnectionIndicator
+                        quality={connectionStats.quality}
+                        rtt={connectionStats.rtt}
+                        bandwidth={connectionStats.bandwidth}
+                      />
                     </div>
                   </div>
                 </div>
