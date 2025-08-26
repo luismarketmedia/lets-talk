@@ -130,7 +130,10 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
             </div>
 
             {/* Verificação de Dispositivos */}
-            <DeviceCheck />
+            <DeviceCheck
+              onOpenAudioSettings={() => setShowAudioModal(true)}
+              onOpenDeviceTest={() => setShowTestModal(true)}
+            />
 
             {/* Formulário */}
             <form onSubmit={handleSubmit} className="space-y-4">
