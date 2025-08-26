@@ -38,8 +38,11 @@ export const VideoTile: React.FC<VideoTileProps> = ({
   return (
     <div
       className={cn(
-        "relative bg-gray-900 rounded-xl overflow-hidden shadow-lg",
-        "border-2 border-transparent hover:border-primary-300 transition-colors",
+        "relative bg-gray-900 rounded-xl overflow-hidden shadow-lg transition-all duration-200",
+        "border-2",
+        isSpeaking
+          ? "border-green-400 shadow-green-400/30 shadow-lg scale-[1.02]"
+          : "border-transparent hover:border-primary-300",
         className,
       )}
     >
