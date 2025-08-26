@@ -214,21 +214,6 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
     setTimeout(() => setCopied(false), 3000);
   };
 
-  // Determinar layout da grade
-  const getGridClass = () => {
-    if (totalParticipants === 1) return "grid-cols-1";
-    if (totalParticipants === 2) return "grid-cols-1 lg:grid-cols-2";
-    if (totalParticipants <= 4) return "grid-cols-2";
-    if (totalParticipants <= 6) return "grid-cols-2 lg:grid-cols-3";
-    return "grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
-  };
-
-  const getVideoHeight = () => {
-    if (totalParticipants === 1) return "h-[400px] lg:h-[500px]";
-    if (totalParticipants === 2) return "h-[300px] lg:h-[400px]";
-    if (totalParticipants <= 4) return "h-[200px] lg:h-[300px]";
-    return "h-[150px] lg:h-[200px]";
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col">
