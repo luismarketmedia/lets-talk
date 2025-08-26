@@ -62,6 +62,7 @@ export const Chat: React.FC<ChatProps> = ({
     if (!socket) return;
 
     const handleChatMessage = (data: ChatMessage) => {
+      console.log("[CHAT] Mensagem recebida:", data);
       setMessages((prev) => [
         ...prev,
         {
@@ -76,12 +77,29 @@ export const Chat: React.FC<ChatProps> = ({
       }
     };
 
+    const handleError = (data: { message: string }) => {
+      console.error("[CHAT ERROR]", data.message);
+      // Mostrar erro temporariamente
+      setMessages((prev) => [
+        ...prev,
+        {
+          message: `Erro: ${data.message}`,
+          sender: "system",
+          userName: "Sistema",
+          timestamp: new Date(),
+          roomId: roomId || "",
+        },
+      ]);
+    };
+
     socket.on("chat-message", handleChatMessage);
+    socket.on("error", handleError);
 
     return () => {
       socket.off("chat-message", handleChatMessage);
+      socket.off("error", handleError);
     };
-  }, [socket, isOpen]);
+  }, [socket, isOpen, roomId]);
 
   // Limpar contador quando abrir o chat
   useEffect(() => {
