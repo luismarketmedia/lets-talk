@@ -5,9 +5,11 @@ Uma aplicação moderna de videochamada usando WebRTC, Node.js, React com Vite e
 ## 🚀 Funcionalidades
 
 - **Videochamada peer-to-peer**: Comunicação direta entre navegadores usando WebRTC
+- **Códigos de reunião profissionais**: Formatos similares ao Google Meet, Zoom e Teams
 - **Interface moderna**: Cliente React com Tailwind CSS e componentes estilizados
 - **Salas de chat**: Usuários podem criar ou se conectar a salas específicas
 - **Controles intuitivos**: Stop/Play para microfone, câmera, compartilhamento de tela
+- **Verificação de dispositivos**: Checagem automática de câmera e microfone
 - **Design responsivo**: Funciona perfeitamente em desktop e dispositivos móveis
 - **Tema personalizado**: Cores baseadas no logo "Let's Talk" (azuis e branco)
 
