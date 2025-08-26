@@ -854,5 +854,6 @@ export const useWebRTC = (
     socket: socketRef.current,
     isHost,
     peerConnections: peerConnectionsRef.current,
+    participantStates,
   };
 };
