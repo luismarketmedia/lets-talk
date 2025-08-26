@@ -95,8 +95,22 @@ export const VideoTile: React.FC<VideoTileProps> = ({
             {participantName || (isLocal ? "Você" : "Participante")}
           </span>
 
-          {/* Indicador de áudio */}
+          {/* Indicadores de áudio e rede */}
           <div className="flex items-center space-x-2">
+            {/* Network quality indicator (only for remote participants) */}
+            {!isLocal && peerConnection && (
+              <div
+                className="flex items-center space-x-1 px-1.5 py-0.5 bg-black/40 rounded text-xs"
+                title={`RTT: ${connectionStats.rtt}ms | Packet Loss: ${connectionStats.packetLoss}%${connectionStats.bitrate > 0 ? ` | ${connectionStats.bitrate}kbps` : ''}`}
+              >
+                {getQualityIcon(connectionStats.quality)}
+                {connectionStats.rtt > 0 && (
+                  <span className="text-white text-xs">{connectionStats.rtt}ms</span>
+                )}
+              </div>
+            )}
+
+            {/* Audio indicator */}
             {isMuted ? (
               <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
                 <MicOff className="w-3 h-3 text-white" />
