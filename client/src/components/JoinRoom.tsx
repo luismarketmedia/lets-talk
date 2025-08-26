@@ -51,12 +51,21 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanRoomId = roomId.trim();
+    const cleanUserName = userName.trim();
 
-    if (cleanRoomId && validateMeetingCode(cleanRoomId)) {
+    if (!cleanRoomId) return;
+
+    if (mode === "create" || entryType === "direct") {
+      // Criar sala ou entrar diretamente (host)
       onJoinRoom(cleanRoomId);
-    } else if (cleanRoomId) {
-      // Se o código não está no formato correto, tenta mesmo assim
-      onJoinRoom(cleanRoomId);
+    } else {
+      // Solicitar entrada (guest)
+      if (!cleanUserName) {
+        // Usar nome padrão se vazio
+        onRequestJoinRoom(cleanRoomId, cleanUserName || "Participante");
+      } else {
+        onRequestJoinRoom(cleanRoomId, cleanUserName);
+      }
     }
   };
 
