@@ -5,6 +5,7 @@ import { VideoTile } from "./VideoTile";
 import { MediaControls } from "./MediaControls";
 import { AudioDeviceModal } from "./AudioDeviceModal";
 import { DeviceTestModal } from "./DeviceTestModal";
+import { AdvancedMediaControls } from "./AdvancedMediaControls";
 import { Chat } from "./Chat";
 import { JoinApproval } from "./JoinApproval";
 import { Button } from "./ui/button";
