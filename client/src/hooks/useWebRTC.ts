@@ -312,9 +312,10 @@ export const useWebRTC = (
         isAudioEnabled: stream.getAudioTracks().length > 0,
       }));
 
-      // Entrar na sala via Socket.IO
+      // Entrar na sala via Socket.IO como host
       if (socketRef.current) {
         socketRef.current.emit("join-room", roomId);
+        setIsHost(true); // Definir como host quando cria/entra diretamente na sala
       }
     } catch (error) {
       console.error("Erro ao entrar na sala:", error);
