@@ -533,6 +533,9 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
               isHandRaised={isHandRaised}
               raisedHandsCount={raisedHands.size}
               onOpenVoting={() => setShowPollModal(true)}
+              localStream={localStream}
+              remoteStreams={remoteStreams}
+              isScreenSharing={isScreenSharing}
             />
           </div>
         </div>
