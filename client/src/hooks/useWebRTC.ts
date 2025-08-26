@@ -30,7 +30,11 @@ export const useWebRTC = (): CallState & MediaControls & {
 
   useEffect(() => {
     // Conectar ao servidor Socket.IO
-    socketRef.current = io('http://localhost:3000');
+    const serverUrl = import.meta.env.VITE_SERVER_URL ||
+                     (window.location.hostname === 'localhost' ? 'http://localhost:3000' : window.location.origin);
+
+    console.log('Conectando ao servidor WebRTC:', serverUrl);
+    socketRef.current = io(serverUrl);
     const socket = socketRef.current;
 
     socket.on('connect', () => {
@@ -191,7 +195,7 @@ export const useWebRTC = (): CallState & MediaControls & {
 
       let stream: MediaStream | null = null;
 
-      // Tentar obter vídeo e áudio primeiro
+      // Tentar obter vídeo e ��udio primeiro
       try {
         stream = await navigator.mediaDevices.getUserMedia({
           video: hasVideo ? {
