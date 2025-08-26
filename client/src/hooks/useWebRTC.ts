@@ -13,10 +13,11 @@ const ICE_SERVERS = {
   ]
 };
 
-export const useWebRTC = (): CallState & MediaControls & {
+export const useWebRTC = (options: WebRTCOptions = {}): CallState & MediaControls & {
   joinRoom: (roomId: string) => Promise<void>;
   socket: Socket | null;
 } => {
+  const { onNotification } = options;
   const [callState, setCallState] = useState<CallState>({
     isInCall: false,
     roomId: null,
