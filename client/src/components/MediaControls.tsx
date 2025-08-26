@@ -72,16 +72,29 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
           <Button
             variant={isScreenSharing ? "default" : "secondary"}
             size="icon"
-            onClick={onToggleScreenShare}
+            onClick={screenShareSupport.canAttempt ? onToggleScreenShare : undefined}
+            disabled={!screenShareSupport.canAttempt}
             className={cn(
               "w-12 h-12 rounded-full transition-all duration-200",
-              isScreenSharing 
-                ? "bg-primary-500 hover:bg-primary-600 text-white" 
-                : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+              isScreenSharing
+                ? "bg-primary-500 hover:bg-primary-600 text-white"
+                : screenShareSupport.canAttempt
+                ? "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                : "bg-gray-100 text-gray-400 cursor-not-allowed"
             )}
-            title={isScreenSharing ? "Parar compartilhamento" : "Compartilhar tela"}
+            title={
+              !screenShareSupport.canAttempt
+                ? `Compartilhamento indisponível: ${screenShareSupport.reason}`
+                : isScreenSharing
+                ? "Parar compartilhamento de tela"
+                : "Compartilhar tela"
+            }
           >
-            <Monitor className="w-5 h-5" />
+            {!screenShareSupport.canAttempt ? (
+              <MonitorX className="w-5 h-5" />
+            ) : (
+              <Monitor className="w-5 h-5" />
+            )}
           </Button>
 
           {/* Divisor */}
