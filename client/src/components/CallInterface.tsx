@@ -354,7 +354,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                       Restrições de Ambiente Detectadas
                     </h3>
                     <p className="text-sm text-yellow-700 mb-2">
-                      A cópia automática pode n��o funcionar neste ambiente. Use
+                      A cópia automática pode não funcionar neste ambiente. Use
                       os métodos alternativos:
                     </p>
                     <ul className="text-xs text-yellow-700 space-y-1">
@@ -430,7 +430,32 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
 
       {/* Controles de mídia e chat fixos na parte inferior */}
       <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-white/90 to-transparent backdrop-blur-sm border-t border-gray-200 p-4 z-50">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto space-y-4">
+          {/* Reações e engagement */}
+          <div className="flex items-center justify-center space-x-4">
+            <ReactionsPanel
+              socket={socket}
+              roomId={roomId}
+              userName={userName}
+              participantCount={totalParticipants}
+            />
+
+            {/* Botão de votações */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowPollModal(true)}
+              className="flex items-center space-x-2 bg-white/95 backdrop-blur-sm border border-gray-200 hover:bg-blue-50 text-gray-600 hover:text-blue-600"
+              title="Votações"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <path d="M8 12h8M8 8h8M8 16h8"/>
+              </svg>
+              <span className="hidden sm:inline text-xs">Votações</span>
+            </Button>
+          </div>
+
           <div className="flex items-center justify-center">
             {/* Controles de mídia com chat integrado */}
             <MediaControls
