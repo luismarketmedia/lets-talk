@@ -211,14 +211,23 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                   <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
                     <Users className="w-5 h-5 text-white" />
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <h1 className="text-lg font-semibold text-gray-900">
                       Chamada em andamento
                     </h1>
-                    <p className="text-sm text-gray-600">
-                      {totalParticipants} participante
-                      {totalParticipants !== 1 ? "s" : ""}
-                    </p>
+                    <div className="flex items-center space-x-4">
+                      <p className="text-sm text-gray-600">
+                        {totalParticipants} participante
+                        {totalParticipants !== 1 ? "s" : ""}
+                      </p>
+                      {totalParticipants > 1 && (
+                        <ConnectionIndicator
+                          quality={connectionStats.quality}
+                          rtt={connectionStats.rtt}
+                          bandwidth={connectionStats.bandwidth}
+                        />
+                      )}
+                    </div>
                   </div>
                 </div>
 
