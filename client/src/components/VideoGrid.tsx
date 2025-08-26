@@ -1,5 +1,5 @@
 import React from "react";
-import { Users } from "lucide-react";
+import { Users, Focus } from "lucide-react";
 import { VideoTile } from "./VideoTile";
 import { ViewMode } from "./ViewModeSelector";
 import { cn } from "../lib/utils";
