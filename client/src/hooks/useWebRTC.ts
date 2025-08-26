@@ -153,6 +153,18 @@ export const useWebRTC = (
     // Eventos do sistema de aprovação
     socket.on("join-approved", (data) => {
       console.log("Entrada aprovada na sala:", data.roomId);
+
+      // Load existing participants
+      if (data.existingParticipants) {
+        setParticipantNames(prev => {
+          const newNames = new Map(prev);
+          data.existingParticipants.forEach((participant: any) => {
+            newNames.set(participant.socketId, participant.userName);
+          });
+          return newNames;
+        });
+      }
+
       if (onNotification) {
         onNotification(
           "success",
@@ -160,6 +172,18 @@ export const useWebRTC = (
           "Você foi aceito na sala!",
         );
       }
+    });
+
+    // Handle existing participants when joining a room
+    socket.on("existing-participants", (participants) => {
+      console.log("Participantes existentes:", participants);
+      setParticipantNames(prev => {
+        const newNames = new Map(prev);
+        participants.forEach((participant: any) => {
+          newNames.set(participant.socketId, participant.userName);
+        });
+        return newNames;
+      });
     });
 
     socket.on("join-rejected", (data) => {
@@ -889,5 +913,6 @@ export const useWebRTC = (
     isHost,
     peerConnections: peerConnectionsRef.current,
     participantStates,
+    participantNames,
   };
 };
