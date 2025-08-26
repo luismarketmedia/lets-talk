@@ -22,7 +22,9 @@ export const useWebRTC = (
 ): CallState &
   MediaControls & {
     joinRoom: (roomId: string) => Promise<void>;
+    requestJoinRoom: (roomId: string, userName?: string) => Promise<void>;
     socket: Socket | null;
+    isHost: boolean;
   } => {
   const { onNotification } = options;
   const [callState, setCallState] = useState<CallState>({
