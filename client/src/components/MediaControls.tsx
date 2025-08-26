@@ -81,24 +81,36 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
       <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200 p-4">
         <div className="flex items-center space-x-3">
           {/* Controle de Áudio */}
-          <Button
-            variant={isAudioEnabled ? "default" : "destructive"}
-            size="icon"
-            onClick={onToggleAudio}
-            className={cn(
-              "w-12 h-12 rounded-full transition-all duration-200",
-              isAudioEnabled
-                ? "bg-primary-500 hover:bg-primary-600 text-white"
-                : "bg-red-500 hover:bg-red-600 text-white",
+          <div className="relative">
+            <Button
+              variant={isAudioEnabled && !isTemporarilyMuted ? "default" : "destructive"}
+              size="icon"
+              onClick={onToggleAudio}
+              className={cn(
+                "w-12 h-12 rounded-full transition-all duration-200",
+                isAudioEnabled && !isTemporarilyMuted
+                  ? "bg-primary-500 hover:bg-primary-600 text-white"
+                  : "bg-red-500 hover:bg-red-600 text-white",
+                isTemporarilyMuted && "ring-2 ring-yellow-400 ring-offset-2"
+              )}
+              title={
+                isTemporarilyMuted
+                  ? "Microfone temporariamente silenciado (Solte ESPAÇO)"
+                  : isAudioEnabled
+                    ? "Desativar microfone"
+                    : "Ativar microfone"
+              }
+            >
+              {isAudioEnabled && !isTemporarilyMuted ? (
+                <Mic className="w-5 h-5" />
+              ) : (
+                <MicOff className="w-5 h-5" />
+              )}
+            </Button>
+            {isTemporarilyMuted && (
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse" />
             )}
-            title={isAudioEnabled ? "Desativar microfone" : "Ativar microfone"}
-          >
-            {isAudioEnabled ? (
-              <Mic className="w-5 h-5" />
-            ) : (
-              <MicOff className="w-5 h-5" />
-            )}
-          </Button>
+          </div>
 
           {/* Controle de Vídeo */}
           <Button
