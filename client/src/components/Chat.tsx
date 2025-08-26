@@ -181,24 +181,63 @@ export const Chat: React.FC<ChatProps> = ({
           </SheetTitle>
         </SheetHeader>
 
+        {/* Connection Status */}
+        <div className="flex items-center justify-between mb-2 px-2">
+          <div className="flex items-center space-x-2 text-xs">
+            <div
+              className={cn(
+                "w-2 h-2 rounded-full",
+                socket?.connected ? "bg-green-500" : "bg-red-500",
+              )}
+            />
+            <span className="text-gray-500">
+              {socket?.connected ? "Conectado" : "Desconectado"}
+            </span>
+          </div>
+          {roomId && (
+            <span className="text-xs text-gray-500 font-mono">
+              Sala: {roomId}
+            </span>
+          )}
+        </div>
+
         {/* Messages Area */}
-        <div className="flex-1 flex flex-col min-h-0 mt-4">
+        <div className="flex-1 flex flex-col min-h-0 mt-2">
           <div className="flex-1 overflow-y-auto space-y-3 pr-2">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-gray-500 text-center">
                 <Smile className="w-8 h-8 mb-2" />
                 <p className="text-sm">Nenhuma mensagem ainda</p>
                 <p className="text-xs">Seja o primeiro a conversar!</p>
+                {!socket?.connected && (
+                  <p className="text-xs text-red-500 mt-2">
+                    Aguardando conexão...
+                  </p>
+                )}
               </div>
             ) : (
               messages.map((msg, index) => {
                 const isOwn = isOwnMessage(msg.sender);
+                const isSystem = msg.sender === "system";
                 const showUserName =
-                  index === 0 ||
-                  messages[index - 1].sender !== msg.sender ||
-                  new Date(msg.timestamp).getTime() -
-                    new Date(messages[index - 1].timestamp).getTime() >
-                    300000; // 5 min
+                  !isSystem &&
+                  (index === 0 ||
+                    messages[index - 1].sender !== msg.sender ||
+                    new Date(msg.timestamp).getTime() -
+                      new Date(messages[index - 1].timestamp).getTime() >
+                      300000); // 5 min
+
+                if (isSystem) {
+                  return (
+                    <div key={index} className="flex justify-center">
+                      <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 max-w-[80%]">
+                        <p className="text-xs text-red-700 text-center">
+                          {msg.message}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                }
 
                 return (
                   <div
