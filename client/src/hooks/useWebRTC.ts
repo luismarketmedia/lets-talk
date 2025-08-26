@@ -49,7 +49,7 @@ export const useWebRTC = (
 
     console.log("Conectando ao servidor WebRTC via proxy:", serverUrl);
     socketRef.current = io(serverUrl, {
-      transports: ['websocket', 'polling'],
+      transports: ["websocket", "polling"],
       timeout: 10000,
       reconnection: true,
       reconnectionAttempts: 5,

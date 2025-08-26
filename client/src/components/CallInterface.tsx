@@ -257,21 +257,21 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                       Restrições de Ambiente Detectadas
                     </h3>
                     <p className="text-sm text-yellow-700 mb-2">
-                      A cópia automática pode não funcionar neste ambiente. Use os
-                      métodos alternativos:
+                      A cópia automática pode não funcionar neste ambiente. Use
+                      os métodos alternativos:
                     </p>
                     <ul className="text-xs text-yellow-700 space-y-1">
                       <li>
-                        • <strong>Seleção manual:</strong> Clique no código e copie
-                        com Ctrl+C
+                        • <strong>Seleção manual:</strong> Clique no código e
+                        copie com Ctrl+C
                       </li>
                       <li>
                         • <strong>Prompt do navegador:</strong> Use a janela de
                         prompt quando aparecer
                       </li>
                       <li>
-                        • <strong>Compartilhamento:</strong> Compartilhe diretamente
-                        a URL da página
+                        • <strong>Compartilhamento:</strong> Compartilhe
+                        diretamente a URL da página
                       </li>
                     </ul>
                   </div>

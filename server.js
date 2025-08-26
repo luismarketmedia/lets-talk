@@ -11,7 +11,7 @@ const io = socketIo(server, {
     methods: ["GET", "POST"],
     credentials: true,
   },
-  transports: ['websocket', 'polling'],
+  transports: ["websocket", "polling"],
 });
 
 // Servir arquivos estáticos
@@ -28,7 +28,9 @@ const rooms = new Map();
 const pendingRequests = new Map();
 
 io.on("connection", (socket) => {
-  console.log(`✅ [SOCKET] Usuário conectado: ${socket.id} de ${socket.handshake.address}`);
+  console.log(
+    `✅ [SOCKET] Usuário conectado: ${socket.id} de ${socket.handshake.address}`,
+  );
   console.log(`📊 [STATS] Total de conexões ativas: ${io.engine.clientsCount}`);
 
   // Solicitar entrada em uma sala (novo sistema de aprovação)
@@ -184,12 +186,14 @@ io.on("connection", (socket) => {
       userName,
       hasRoom: rooms.has(roomId),
       isInRoom: rooms.has(roomId) ? rooms.get(roomId).has(socket.id) : false,
-      roomSize: rooms.has(roomId) ? rooms.get(roomId).size : 0
+      roomSize: rooms.has(roomId) ? rooms.get(roomId).size : 0,
     });
 
     // Verificar se o usuário está na sala
     if (!rooms.has(roomId) || !rooms.get(roomId).has(socket.id)) {
-      console.log(`[CHAT ERROR] Usuário ${socket.id} não está na sala ${roomId}`);
+      console.log(
+        `[CHAT ERROR] Usuário ${socket.id} não está na sala ${roomId}`,
+      );
       socket.emit("error", { message: "Você não está nesta sala" });
       return;
     }
@@ -204,7 +208,9 @@ io.on("connection", (socket) => {
     };
 
     io.to(roomId).emit("chat-message", chatMessage);
-    console.log(`[CHAT SUCCESS] Mensagem enviada na sala ${roomId} por ${userName || 'Anônimo'}: ${message.trim()}`);
+    console.log(
+      `[CHAT SUCCESS] Mensagem enviada na sala ${roomId} por ${userName || "Anônimo"}: ${message.trim()}`,
+    );
   });
 
   // Lidar com desconexão

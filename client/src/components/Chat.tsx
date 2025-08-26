@@ -289,8 +289,8 @@ export const Chat: React.FC<ChatProps> = ({
                   !socket?.connected
                     ? "Aguardando conexão..."
                     : !roomId
-                    ? "Não conectado à sala..."
-                    : "Digite sua mensagem..."
+                      ? "Não conectado à sala..."
+                      : "Digite sua mensagem..."
                 }
                 className="flex-1"
                 maxLength={500}
@@ -298,9 +298,7 @@ export const Chat: React.FC<ChatProps> = ({
               />
               <Button
                 onClick={sendMessage}
-                disabled={
-                  !newMessage.trim() || !socket?.connected || !roomId
-                }
+                disabled={!newMessage.trim() || !socket?.connected || !roomId}
                 size="sm"
               >
                 <Send className="w-4 h-4" />
@@ -310,8 +308,8 @@ export const Chat: React.FC<ChatProps> = ({
               {!socket?.connected
                 ? "Aguardando conexão com o servidor..."
                 : !roomId
-                ? "Não conectado à sala de chat"
-                : "Pressione Enter para enviar"}
+                  ? "Não conectado à sala de chat"
+                  : "Pressione Enter para enviar"}
             </p>
           </div>
         </div>
