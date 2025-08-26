@@ -26,10 +26,13 @@ function AppContent() {
     isScreenSharing,
     connectionState,
     joinRoom,
+    requestJoinRoom,
     toggleAudio,
     toggleVideo,
     toggleScreenShare,
     endCall,
+    socket,
+    isHost,
   } = useWebRTC({
     onNotification: (type, title, message) => {
       addToast({ type, title, message });
