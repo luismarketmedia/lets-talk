@@ -381,12 +381,14 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
             isAudioEnabled={isAudioEnabled}
             isVideoEnabled={isVideoEnabled}
             isScreenSharing={isScreenSharing}
+            isTemporarilyMuted={advancedControls.isTemporarilyMuted}
             onToggleAudio={onToggleAudio}
             onToggleVideo={onToggleVideo}
             onToggleScreenShare={onToggleScreenShare}
             onEndCall={onEndCall}
             onOpenAudioSettings={() => setShowAudioModal(true)}
             onOpenDeviceTest={() => setShowTestModal(true)}
+            onOpenAdvancedControls={() => setShowAdvancedControls(true)}
           />
         </div>
       </div>
