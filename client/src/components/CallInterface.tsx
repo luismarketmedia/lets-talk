@@ -188,17 +188,22 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={copyRoomId}
-                className="flex items-center space-x-2"
+                className={`flex items-center space-x-2 ${
+                  copied && copyMethod === 'manual' ? 'border-yellow-400 bg-yellow-50' : ''
+                }`}
               >
                 {copied ? (
-                  <Check className="w-4 h-4 text-green-600" />
+                  copyMethod === 'manual' ? (
+                    <Copy className="w-4 h-4 text-yellow-600" />
+                  ) : (
+                    <Check className="w-4 h-4 text-green-600" />
+                  )
                 ) : (
                   <Copy className="w-4 h-4" />
                 )}
                 <span className="hidden sm:inline">
                   {copied ?
-                    (copyMethod === 'manual' ? "Use Ctrl+C" :
-                     copyMethod === 'fallback' ? "Copiado!" : "Copiado!") :
+                    (copyMethod === 'manual' ? "Use Ctrl+C" : "Copiado!") :
                     "Copiar código"}
                 </span>
               </Button>
