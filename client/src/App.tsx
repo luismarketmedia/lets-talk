@@ -1,35 +1,57 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import { useWebRTC } from './hooks/useWebRTC';
+import { JoinRoom } from './components/JoinRoom';
+import { CallInterface } from './components/CallInterface';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const {
+    isInCall,
+    roomId,
+    localStream,
+    remoteStreams,
+    isAudioEnabled,
+    isVideoEnabled,
+    isScreenSharing,
+    connectionState,
+    joinRoom,
+    toggleAudio,
+    toggleVideo,
+    toggleScreenShare,
+    endCall
+  } = useWebRTC();
+
+  const handleJoinRoom = async (roomId: string) => {
+    try {
+      await joinRoom(roomId);
+    } catch (error) {
+      console.error('Erro ao entrar na sala:', error);
+      alert('Erro ao acessar câmera/microfone. Verifique as permissões do navegador.');
+    }
+  };
+
+  if (!isInCall) {
+    return (
+      <JoinRoom
+        onJoinRoom={handleJoinRoom}
+        isConnecting={connectionState === 'connecting'}
+      />
+    );
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <CallInterface
+      roomId={roomId || ''}
+      localStream={localStream}
+      remoteStreams={remoteStreams}
+      isAudioEnabled={isAudioEnabled}
+      isVideoEnabled={isVideoEnabled}
+      isScreenSharing={isScreenSharing}
+      onToggleAudio={toggleAudio}
+      onToggleVideo={toggleVideo}
+      onToggleScreenShare={toggleScreenShare}
+      onEndCall={endCall}
+    />
+  );
 }
 
-export default App
+export default App;
