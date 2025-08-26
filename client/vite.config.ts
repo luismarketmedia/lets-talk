@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => ({
       ? {
           proxy: {
             "/socket.io": {
-              target: "http://localhost:3001",
+              target: "http://localhost:3000",
               ws: true,
               changeOrigin: true,
               secure: false,
