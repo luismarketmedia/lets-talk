@@ -28,6 +28,7 @@ import {
 
 interface JoinRoomProps {
   onJoinRoom: (roomId: string) => void;
+  onRequestJoinRoom: (roomId: string, userName: string) => void;
   isConnecting: boolean;
   error?: string | null;
   onClearError?: () => void;
