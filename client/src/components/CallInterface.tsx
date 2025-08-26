@@ -11,6 +11,7 @@ import { JoinApproval } from "./JoinApproval";
 import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
 import { useAdvancedMediaControls } from "../hooks/useAdvancedMediaControls";
+import { useConnectionMonitor } from "../hooks/useConnectionMonitor";
 
 interface CallInterfaceProps {
   roomId: string;
@@ -76,7 +77,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
     const inIframe = window !== window.top;
     setIsInIframe(inIframe);
 
-    // Detectar se clipboard API está dispon��vel
+    // Detectar se clipboard API está disponível
     const hasClipboard = navigator.clipboard && window.isSecureContext;
 
     // Mostrar aviso se estamos em iframe e pode ter restrições
