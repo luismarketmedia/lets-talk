@@ -62,6 +62,15 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   const remoteStreamArray = Array.from(remoteStreams.entries());
   const totalParticipants = 1 + remoteStreamArray.length; // Local + remotes
 
+  // Advanced media controls
+  const advancedControls = useAdvancedMediaControls({
+    localStream,
+    onVideoQualityChange: (quality) => {
+      console.log("Video quality changed to:", quality);
+      // Here you would implement actual video quality change
+    },
+  });
+
   useEffect(() => {
     // Detectar se estamos em iframe
     const inIframe = window !== window.top;
