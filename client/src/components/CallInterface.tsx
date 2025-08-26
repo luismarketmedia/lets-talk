@@ -484,7 +484,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
         onSpeakerVolumeChange={advancedControls.handleSpeakerVolumeChange}
         onVideoQualityChange={advancedControls.handleVideoQualityChange}
         onDataSavingModeToggle={advancedControls.handleDataSavingModeToggle}
-        connectionQuality={connectionStats.quality}
+        connectionQuality={connectionStats.quality === "unknown" ? undefined : connectionStats.quality}
         bandwidth={connectionStats.bandwidth}
       />
 
