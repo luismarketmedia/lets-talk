@@ -184,8 +184,7 @@ export const JoinRoom: React.FC<JoinRoomProps> = ({
 
                   {mode === 'create' && !roomId && (
                     <p className="text-xs text-gray-500">
-                      Clique no ��cone para gerar um código no formato {codeFormatOptions.find(o => o.value === codeFormat)?.label}
-                    </p>
+                      Clique no ��cone para gerar um código de reunião                     </p>
                   )}
                 </div>
               </div>
