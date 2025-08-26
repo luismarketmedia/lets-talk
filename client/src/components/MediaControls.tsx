@@ -77,9 +77,8 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
     }
   }, [isSettingsOpen]);
   return (
-    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200 p-4">
-        <div className="flex items-center space-x-3">
+    <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200 p-4">
+      <div className="flex items-center space-x-3">
           {/* Controle de Áudio */}
           <div className="relative">
             <Button
@@ -257,7 +256,6 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
           >
             <Phone className="w-5 h-5 rotate-[135deg]" />
           </Button>
-        </div>
       </div>
     </div>
   );
