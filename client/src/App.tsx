@@ -53,6 +53,20 @@ function AppContent() {
     }
   };
 
+  const handleRequestJoinRoom = async (roomId: string, userName: string) => {
+    try {
+      setError(null);
+      await requestJoinRoom(roomId, userName);
+    } catch (error) {
+      console.error("Erro ao solicitar entrada na sala:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Erro desconhecido ao acessar câmera/microfone. Verifique as permissões do navegador.";
+      setError(errorMessage);
+    }
+  };
+
   if (!isInCall) {
     return (
       <JoinRoom
