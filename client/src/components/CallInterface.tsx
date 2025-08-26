@@ -313,16 +313,21 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
               />
 
               {/* Vídeos remotos */}
-              {remoteStreamArray.map(([userId, stream], index) => (
-                <VideoTile
-                  key={userId}
-                  stream={stream}
-                  isLocal={false}
-                  participantName={`Participante ${index + 1}`}
-                  className={getVideoHeight()}
-                  peerConnection={peerConnections.get(userId) || null}
-                />
-              ))}
+              {remoteStreamArray.map(([userId, stream], index) => {
+                const participantState = participantStates.get(userId);
+                return (
+                  <VideoTile
+                    key={userId}
+                    stream={stream}
+                    isLocal={false}
+                    isMuted={participantState ? !participantState.isAudioEnabled : false}
+                    isVideoEnabled={participantState ? participantState.isVideoEnabled : true}
+                    participantName={`Participante ${index + 1}`}
+                    className={getVideoHeight()}
+                    peerConnection={peerConnections.get(userId) || null}
+                  />
+                );
+              })}
             </div>
 
             {/* Mensagem quando não há participantes */}
