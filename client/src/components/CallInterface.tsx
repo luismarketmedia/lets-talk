@@ -39,6 +39,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   isHost,
   userName = "Você",
   peerConnections,
+  participantStates,
   onToggleAudio,
   onToggleVideo,
   onToggleScreenShare,
