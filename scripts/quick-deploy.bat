@@ -16,9 +16,9 @@ if %errorLevel% neq 0 (
 )
 
 REM Definir variáveis padrão
-set "SOURCE_PATH=%~dp0.."
-set "DOMAIN=localhost"
-set "USE_HTTPS=false"
+set "SOURCE_PATH=D:\Projetos\Solutech\lets-talk"
+set "DOMAIN=letstalk-local.solutech.com.br"
+set "USE_HTTPS=true"
 set "SERVER_MODE=Standalone"
 
 echo Configuracao atual:
@@ -61,9 +61,8 @@ echo.
 
 REM Construir comando PowerShell
 set "PS_COMMAND=powershell.exe -ExecutionPolicy Bypass -File "%~dp0deploy-windows.ps1""
-set "PS_COMMAND=%PS_COMMAND% -SourcePath \"%SOURCE_PATH%\""
-set "PS_COMMAND=%PS_COMMAND% -Domain \"%DOMAIN%\""
-set "PS_COMMAND=%PS_COMMAND% -ServerDeploymentMode \"%SERVER_MODE%\""
+set "PS_COMMAND=%PS_COMMAND% -SourcePath "%SOURCE_PATH%""
+set "PS_COMMAND=%PS_COMMAND% -Domain "%DOMAIN%""
 
 if "%USE_HTTPS%"=="true" (
     set "PS_COMMAND=%PS_COMMAND% -UseHttps"
